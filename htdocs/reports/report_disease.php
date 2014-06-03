@@ -136,44 +136,32 @@ if(count($selected_test_types) == 0)
 	echo LangUtil::$pageTerms['TIPS_NOTATTESTS'];
 	return;
 }
-$table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 ?>
 <br>
-<table style='border-collapse: collapse;'>
+<table class='reports-infection'>
 	<thead>
 		<tr>
-			<th><?php echo LangUtil::$generalTerms['TEST']; ?></th>
-			<th ><?php echo LangUtil::$generalTerms['RESULTS']; ?></th>
+			<th rowspan='2'><?php echo LangUtil::$generalTerms['TEST']; ?></th>
+			<th rowspan='2'><?php echo LangUtil::$generalTerms['RESULTS']; ?></th>
 			<?php
 			if($site_settings->groupByGender == 1)
 			{
-				echo "<th >".LangUtil::$generalTerms['GENDER']."</th>";
+				echo "<th rowspan='2'>".LangUtil::$generalTerms['GENDER']."</th>";
 			}
 			if($site_settings->groupByAge == 1)
 			{
-				echo "<th >".LangUtil::$pageTerms['RANGE_AGE']."</th>";
-				for($i = 1; $i < count($age_group_list); $i++)
-				{
-					echo "<th >".LangUtil::$pageTerms['RANGE_AGE']."</th>";
-				}
+				echo "<th colspan='".count($age_group_list)."'>".LangUtil::$pageTerms['RANGE_AGE']."</th>";
 			}
 			if($site_settings->groupByGender == 1)
 			{
-				echo "<th ></th>";
+				echo "<th rowspan='2'>".LangUtil::$pageTerms['TOTAL_MF']."</th>";
 			}
 			?>
-			<th ><?php echo LangUtil::$pageTerms['TOTAL']; ?></th>
-			<th ><?php echo LangUtil::$pageTerms['TOTAL_TESTS']; ?></th>
+			<th rowspan='2'><?php echo LangUtil::$pageTerms['TOTAL']; ?></th>
+			<th rowspan='2'><?php echo LangUtil::$pageTerms['TOTAL_TESTS']; ?></th>
 		</tr>
 		<tr>
-			<th ></th>
-			<th ></th>
-			<?php
-			if($site_settings->groupByGender == 1)
-			{
-				echo "<th ></th>";
-			}
-			
+			<?php			
 			if($site_settings->groupByAge == 1)
 			{
 				foreach($age_group_list as $age_slot)
@@ -186,12 +174,6 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 					echo "</th>";
 				}
 			}
-			if($site_settings->groupByGender == 1)
-			{
-				echo "<th >".LangUtil::$pageTerms['TOTAL_MF']."</th>";
-			}
-			echo "<th ></th>";
-			echo "<th ></th>";
 			?>
 		<tr>
 	</thead>
@@ -240,9 +222,9 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 			$row_id = "row_".$test->testTypeId."_".$measure->measureId;
 			$grand_total = 0;
 			?>
-			<tr valign='top' id='<?php echo $row_id; ?>'>
-				<td><?php echo $measure->getName(); ?></td>
-				<td>
+			<tr class='range-data' valign='top' id='<?php echo $row_id; ?>'>
+				<td class='left'><?php echo $measure->getName(); ?></td>
+				<td class='left'>
 				<?php 
 				foreach($range_values as $range_value)
 				{
@@ -261,11 +243,12 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 				if($site_settings->groupByGender == 1)
 				{
 					# Group by gender set to true
-					echo "<td>";
+					echo "<td class='left'>";
 					for($i = 1; $i <= count($range_values); $i++)
 					{
 						echo "M<br>F<br>";
 					}
+					echo "</td>";
 				}
 				if($site_settings->groupByAge == 1)
 				{

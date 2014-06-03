@@ -44,9 +44,8 @@ td.reports-specimen-daily-remarks {
 	max-width: 300px;
 }
 
-.reports-testcount-grouped{
-	border-collapse: collapse;
-}
+/*Test Counts Report*/
+
 	.reports-testcount-grouped thead th{
 		font-size: 0.9em;
 		color: #363636;
@@ -67,15 +66,29 @@ td.reports-specimen-daily-remarks {
 		text-align: right;
 	}
 
-.reports-specimen-count tbody tr.range-data td {
-	text-align: right;
-}
-.reports-specimen-count tbody tr.range-data td.specimen-name {
-	text-align: left;
-}
-.reports-specimen-count tbody tr.range-data td.gender {
-	text-align: center;
-}
+/*Specimen Counts Report*/
+
+	.reports-specimen-count tbody tr.range-data td {
+		text-align: right;
+	}
+	.reports-specimen-count tbody tr.range-data td.specimen-name {
+		text-align: left;
+	}
+	.reports-specimen-count tbody tr.range-data td.gender {
+		text-align: center;
+	}
+
+/*Infection Report*/
+
+	.reports-infection tbody tr.range-data td {
+		text-align: right;
+	}
+	.reports-infection tbody tr.range-data td.left {
+		text-align: left;
+	}
+	.reports-infection tbody tr.range-data td.gender {
+		text-align: center;
+	}
 
 @media print {
 	#word_format_form {

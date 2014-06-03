@@ -508,8 +508,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 }
 else
 {
-    
-    
+
 $sections = array();
 $sections = get_test_categories_data($lab_config_id->id);
 
@@ -522,6 +521,13 @@ $sec_name = $sections[$sc][1];
 
 $test_type_list = get_test_ids_by_category($sec_code, $lab_config_id->id);
 if(count($test_type_list)==0)continue;
+
+$tcnt = 0;
+foreach($test_type_list as $test_type_id){
+    $tcnt += get_test_count($lab_config, $test_type_id, $date_from, $date_to);
+}
+if($tcnt == 0)continue;
+
 ?>
 <br><br>
 <table>

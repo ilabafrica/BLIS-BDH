@@ -66,3 +66,14 @@ td.reports-specimen-daily-remarks {
 	.reports-testcount-grouped tbody tr.range-data td.right {
 		text-align: right;
 	}
+
+@media print {
+	#word_format_form {
+		display: none;
+	}
+	table,
+	tbody td, thead th { 
+		border-collapse: collapse;
+		border: 1px solid #333;
+	}
+}

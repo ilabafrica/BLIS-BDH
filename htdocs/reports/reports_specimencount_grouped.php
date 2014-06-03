@@ -104,54 +104,38 @@ $combo = 1;
 		
 	</tbody>
 </table>
-<?php
 
-$table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
-?>
 <br>
-<table style='border-collapse: collapse;'>
+<table class="reports-specimen-count">
 	<thead>
 		<tr>
-			<th><?php echo LangUtil::$generalTerms['SPECIMEN']; ?></th>
+			<th rowspan='2'><?php echo LangUtil::$generalTerms['SPECIMEN_TYPE']; ?></th>
 			<?php
 			if($byGender == 1)
 			{
-				echo "<th >".LangUtil::$generalTerms['GENDER']."</th>";
+				echo "<th rowspan='2'>".LangUtil::$generalTerms['GENDER']."</th>";
 			}
 			if($byAge == 1)
 			{
-				echo "<th >".LangUtil::$pageTerms['RANGE_AGE']."</th>";
-				for($i = 1; $i < count($age_group_list); $i++)
-				{
-					echo "<th >".LangUtil::$pageTerms['RANGE_AGE']."</th>";
-				}
+				echo "<th colspan='".count($age_group_list)."'>".LangUtil::$pageTerms['RANGE_AGE']."</th>";
 			}
-                        else
-                        {
-                            echo "<th >"."Count"."</th>";
-                        }
+            else
+            {
+                echo "<th rowspan='2'>Count</th>";
+            }
 			if($byAge == 1 && $byGender == 1)
 			{
-				echo "<th >".LangUtil::$pageTerms['TOTAL_MF']."</th>";
+				echo "<th rowspan='2'>".LangUtil::$pageTerms['TOTAL_MF']."</th>";
 			}
-			?>
-			
-                        
-                        <?php if($byAge == 1 || $byGender == 1)
-                        {
-                            echo "<th>".LangUtil::$pageTerms['TOTAL_TESTS']."</th>";
-                        }
-                        ?>
+			if($byAge == 1 || $byGender == 1)
+            {
+                echo "<th rowspan='2'>".LangUtil::$pageTerms['TOTAL_TESTS']."</th>";
+            }
+            ?>
                         
 		</tr>
 		<tr>
-			<th ></th>
-			<?php
-			if($byGender == 1)
-			{
-				echo "<th ></th>";
-			}
-			
+			<?php		
 			if($byAge == 1)
 			{
 				foreach($age_group_list as $age_slot)
@@ -164,320 +148,301 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 					echo "</th>";
 				}
 			}
-                        else
-                        {
-                            echo "<th ></th>";
-                        }
-			if($byAge == 1 && $byGender == 1)
-			{
-				echo "<th ></th>";
-			}
-                        
-                        if($byAge == 1 || $byGender == 1)
-                            echo "<th ></th>";
 			?>
 		<tr>
 	</thead>
 	<tbody>
         <?php
             # Fetching specimen IDs but keeping the variables similar to reports_testcount_grouped.php
-            $test_type_list = get_lab_config_specimen_types($lab_config->id);
-            //$test_type_list = get_lab_config_test_types($lab_config->id); // to get test type ids
+            $specimen_type_list = get_lab_config_specimen_types($lab_config->id);
             $saved_db = DbUtil::switchToLabConfig($lab_config->id);
             $tests_done_list = array();
             $tests_list=array();
             $summ = 0;
-            foreach($test_type_list as $test_type_id)
-		{
-                    $test_name = get_specimen_name_by_id($test_type_id);
-                    echo "<tr valign='top'>";
-                        echo "<td>";
-                            echo $test_name;
-                        echo "</td>";
-                        
-                        if($byGender == 1)
-                        {
-                            echo "<td>";
-                                echo "M";
-                                echo "<br>";
-                                echo "F";
-                            echo "</td>";
-                        }
+            foreach($specimen_type_list as $specimen_type_id)
+            {
+                $specimen_name = get_specimen_name_by_id($specimen_type_id);
+                $specimen_count = get_specimen_count($lab_config, $specimen_type_id, $date_from, $date_to);
+                if($specimen_count == 0) continue;
+
+                echo "<tr valign='top' class='range-data'>";
+                echo "<td class='specimen-name'>$specimen_name</td>";
                 
-                    # Group by age set to true: Fetch age slots from DB
-                    if($byAge == 1)
+                if($byGender == 1)
+                    echo "<td class='gender'>M<br>F</td>";
+                
+                # Group by age set to true: Fetch age slots from DB
+                if($byAge == 1)
+                {
+                    $age_slot_list = decodeAgeGroups($configArray['age_groups']);
+                    $count_male_t_total = 0;
+                    $count_female_t_total = 0;
+                    $count_male_c_total = 0;
+                    $count_female_c_total = 0;
+                    $count_male_p_total = 0;
+                    $count_female_p_total = 0;
+                    foreach($age_slot_list as $age_slot)
                     {
-                        $age_slot_list = decodeAgeGroups($configArray['age_groups']);
-                        $count_male_t_total = 0;
-                        $count_female_t_total = 0;
-                        $count_male_c_total = 0;
-                        $count_female_c_total = 0;
-                        $count_male_p_total = 0;
-                        $count_female_p_total = 0;
-                        foreach($age_slot_list as $age_slot)
-                        {
-                            
-                            $age_from = intval(trim($age_slot[0]));
-                            if(trim($age_slot[1]) == "+")
-                                $age_to = 100;
-                            else
-                                $age_to = intval(trim($age_slot[1]));
-                            
-                            if($byGender == 1)
-                            {
-                                
-                                if($combo == 1)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $count_male_t_total += $count_male_t;
-                                    $count_female_t_total += $count_female_t;                                    
-                                    echo "<td>";
-                                    echo $count_male_t;
-                                    echo "<br>";
-                                    echo $count_female_t;
-                                    echo "</td>";
-                                    
-                                }
-                                else if ($combo == 2)
-                                {
-                                    $gender = 'M';
-                                    $count_male_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $gender = 'F';
-                                    $count_female_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $count_male_c_total += $count_male_c;
-                                    $count_female_c_total += $count_female_c;
-                                    echo "<td>";
-                                    echo $count_male_c;
-                                    echo "<br>";
-                                    echo $count_female_c;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 3)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $count_male_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $count_female_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $count_male_p = $count_male_t - $count_male_c;
-                                    $count_female_p = $count_female_t - $count_female_c;
-                                    
-                                    $count_male_c_total += $count_male_c;
-                                    $count_female_c_total += $count_female_c;
-                                    $count_male_p_total += $count_male_p;
-                                    $count_female_p_total += $count_female_p;
-                                    
-                                    echo "<td>";
-                                    echo $count_male_c." / ".$count_male_p;
-                                    echo "<br>";
-                                    echo $count_female_c." / ".$count_female_p;
-                                    echo "</td>";
-                                }
-                                    
-                            }
-                            else
-                            {
-                                if($combo == 1)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $count_male_t_total += $count_male_t;
-                                    $count_female_t_total += $count_female_t;
-                                    echo "<td>";
-                                    echo $count_male_t + $count_female_t;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 2)
-                                {
-                                    $gender = 'M';
-                                    $count_male_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $gender = 'F';
-                                    $count_female_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $count_male_c_total += $count_male_c;
-                                    $count_female_c_total += $count_female_c;
-                                    echo "<td>";
-                                    echo $count_male_c + $count_female_c;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 3)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $count_male_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
-                                    $count_female_c = get_specimen_count_grouped($test_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
-                                    $count_male_p = $count_male_t - $count_male_c;
-                                    $count_female_p = $count_female_t - $count_female_c;
-                                    $count_male_c_total += $count_male_c;
-                                    $count_female_c_total += $count_female_c;
-                                    $count_male_p_total += $count_male_p;
-                                    $count_female_p_total += $count_female_p;
-                                    echo "<td>";
-                                    echo ($count_male_c + $count_female_c)." / ".($count_male_p + $count_female_p);
-                                    echo "</td>";
-                                }
-                            }
-                        }
+                        $age_from = intval(trim($age_slot[0]));
+                        if(trim($age_slot[1]) == "+")
+                            $age_to = 100;
+                        else
+                            $age_to = intval(trim($age_slot[1]));
+                        
                         if($byGender == 1)
                         {
                             if($combo == 1)
                             {
-                                    echo "<td>";
-                                    echo $count_male_t_total;
-                                    echo "<br>";
-                                    echo $count_female_t_total;
-                                    echo "</td>";
-                                    echo "<td>";
-                                    echo $count_male_t_total + $count_female_t_total;
-                                    echo "</td>";
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $count_male_t_total += $count_male_t;
+                                $count_female_t_total += $count_female_t;                                    
+                                echo "<td>";
+                                echo $count_male_t;
+                                echo "<br>";
+                                echo $count_female_t;
+                                echo "</td>";
+                                
                             }
-                            else if($combo == 2)
+                            else if ($combo == 2)
                             {
-                                    echo "<td>";
-                                    echo $count_male_c_total;
-                                    echo "<br>";
-                                    echo $count_female_c_total;
-                                    echo "</td>";
-                                    echo "<td>";
-                                    echo $count_male_c_total + $count_female_c_total;
-                                    echo "</td>";
+                                $gender = 'M';
+                                $count_male_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $gender = 'F';
+                                $count_female_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $count_male_c_total += $count_male_c;
+                                $count_female_c_total += $count_female_c;
+                                echo "<td>";
+                                echo $count_male_c;
+                                echo "<br>";
+                                echo $count_female_c;
+                                echo "</td>";
                             }
-                            else if($combo == 3)
+                            else if ($combo == 3)
                             {
-                                    echo "<td>";
-                                    echo $count_male_c_total." / ".$count_male_p_total;
-                                    echo "<br>";
-                                    echo $count_female_c_total." / ".$count_female_p_total;
-                                    echo "</td>";
-                                    echo "<td>";
-                                    echo ($count_male_c_total + $count_female_c_total)." / ".($count_male_p_total + $count_female_p_total);
-                                    echo "</td>";
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $count_male_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $count_female_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $count_male_p = $count_male_t - $count_male_c;
+                                $count_female_p = $count_female_t - $count_female_c;
+                                
+                                $count_male_c_total += $count_male_c;
+                                $count_female_c_total += $count_female_c;
+                                $count_male_p_total += $count_male_p;
+                                $count_female_p_total += $count_female_p;
+                                
+                                echo "<td>";
+                                echo $count_male_c." / ".$count_male_p;
+                                echo "<br>";
+                                echo $count_female_c." / ".$count_female_p;
+                                echo "</td>";
                             }
+                                
                         }
                         else
                         {
                             if($combo == 1)
                             {
-                                    echo "<td>";
-                                    echo $count_male_t_total + $count_female_t_total;
-                                    echo "</td>";
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $count_male_t_total += $count_male_t;
+                                $count_female_t_total += $count_female_t;
+                                echo "<td>";
+                                echo $count_male_t + $count_female_t;
+                                echo "</td>";
                             }
-                            else if($combo == 2)
+                            else if ($combo == 2)
                             {
-                                    echo "<td>";
-                                    echo $count_male_c_total + $count_female_c_total;
-                                    echo "</td>";
+                                $gender = 'M';
+                                $count_male_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $gender = 'F';
+                                $count_female_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $count_male_c_total += $count_male_c;
+                                $count_female_c_total += $count_female_c;
+                                echo "<td>";
+                                echo $count_male_c + $count_female_c;
+                                echo "</td>";
                             }
-                            else if($combo == 3)
+                            else if ($combo == 3)
                             {
-                                    echo "<td>";
-                                    echo ($count_male_c_total + $count_female_c_total)." / ".($count_male_p_total + $count_female_p_total);
-                                    echo "</td>";
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $count_male_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to);
+                                $count_female_c = get_specimen_count_grouped($specimen_type_id, $date_from, $date_to, $gender, $age_from, $age_to, 1);
+                                $count_male_p = $count_male_t - $count_male_c;
+                                $count_female_p = $count_female_t - $count_female_c;
+                                $count_male_c_total += $count_male_c;
+                                $count_female_c_total += $count_female_c;
+                                $count_male_p_total += $count_male_p;
+                                $count_female_p_total += $count_female_p;
+                                echo "<td>";
+                                echo ($count_male_c + $count_female_c)." / ".($count_male_p + $count_female_p);
+                                echo "</td>";
                             }
+                        }
+                    }
+                    if($byGender == 1)
+                    {
+                        if($combo == 1)
+                        {
+                                echo "<td>";
+                                echo $count_male_t_total;
+                                echo "<br>";
+                                echo $count_female_t_total;
+                                echo "</td>";
+                                echo "<td>";
+                                echo $count_male_t_total + $count_female_t_total;
+                                echo "</td>";
+                        }
+                        else if($combo == 2)
+                        {
+                                echo "<td>";
+                                echo $count_male_c_total;
+                                echo "<br>";
+                                echo $count_female_c_total;
+                                echo "</td>";
+                                echo "<td>";
+                                echo $count_male_c_total + $count_female_c_total;
+                                echo "</td>";
+                        }
+                        else if($combo == 3)
+                        {
+                                echo "<td>";
+                                echo $count_male_c_total." / ".$count_male_p_total;
+                                echo "<br>";
+                                echo $count_female_c_total." / ".$count_female_p_total;
+                                echo "</td>";
+                                echo "<td>";
+                                echo ($count_male_c_total + $count_female_c_total)." / ".($count_male_p_total + $count_female_p_total);
+                                echo "</td>";
                         }
                     }
                     else
                     {
-                        if($byGender == 1)
-                            {
-                                if($combo == 1)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    echo "<td>";
-                                    echo $count_male_t;
-                                    echo "<br>";
-                                    echo $count_female_t;
-                                    echo "</td>";
-                                    echo "<td>";
-                                    echo $count_male_t + $count_female_t;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 2)
-                                {
-                                    $gender = 'M';
-                                    $count_male_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    $gender = 'F';
-                                    $count_female_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    
-                                    echo "<td>";
-                                    echo $count_male_c;
-                                    echo "<br>";
-                                    echo $count_female_c;
-                                    echo "</td>";
-                                    echo "<td>";
-                                    echo $count_male_c + $count_female_c;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 3)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    $count_male_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    $count_female_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    $count_male_p = $count_male_t - $count_male_c;
-                                    $count_female_p = $count_female_t - $count_female_c;
-                                    echo "<td>";
-                                    echo $count_male_c." / ".$count_male_p;
-                                    echo "<br>";
-                                    echo $count_female_c." / ".$count_female_p;
-                                    echo "</td>";
-                                    echo "<td>";
-                                    echo ($count_male_c + $count_female_c)." / ".($count_male_p + $count_female_p);
-                                    echo "</td>";
-                                }
-                                    
-                            }
-                            else
-                            {
-                                 if($combo == 1)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    echo "<td>";
-                                    echo $count_male_t + $count_female_t;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 2)
-                                {
-                                    $gender = 'M';
-                                    $count_male_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    $gender = 'F';
-                                    $count_female_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    echo "<td>";
-                                    echo $count_male_c + $count_female_c;
-                                    echo "</td>";
-                                }
-                                else if ($combo == 3)
-                                {
-                                    $gender = 'M';
-                                    $count_male_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    $count_male_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    $gender = 'F';
-                                    $count_female_t = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender);
-                                    $count_female_c = get_specimen_count_grouped2($test_type_id, $date_from, $date_to, $gender, 1);
-                                    $count_male_p = $count_male_t - $count_male_c;
-                                    $count_female_p = $count_female_t - $count_female_c;
-                                    echo "<td>";
-                                    echo ($count_male_c + $count_female_c)." / ".($count_male_p + $count_female_p);
-                                    echo "</td>";
-                                }
-                            }
+                        if($combo == 1)
+                        {
+                                echo "<td>";
+                                echo $count_male_t_total + $count_female_t_total;
+                                echo "</td>";
+                        }
+                        else if($combo == 2)
+                        {
+                                echo "<td>";
+                                echo $count_male_c_total + $count_female_c_total;
+                                echo "</td>";
+                        }
+                        else if($combo == 3)
+                        {
+                                echo "<td>";
+                                echo ($count_male_c_total + $count_female_c_total)." / ".($count_male_p_total + $count_female_p_total);
+                                echo "</td>";
+                        }
                     }
-                    echo "</tr>";
+                }
+                else
+                {
+                    if($byGender == 1)
+                        {
+                            if($combo == 1)
+                            {
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                echo "<td>";
+                                echo $count_male_t;
+                                echo "<br>";
+                                echo $count_female_t;
+                                echo "</td>";
+                                echo "<td>";
+                                echo $count_male_t + $count_female_t;
+                                echo "</td>";
+                            }
+                            else if ($combo == 2)
+                            {
+                                $gender = 'M';
+                                $count_male_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                $gender = 'F';
+                                $count_female_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                
+                                echo "<td>";
+                                echo $count_male_c;
+                                echo "<br>";
+                                echo $count_female_c;
+                                echo "</td>";
+                                echo "<td>";
+                                echo $count_male_c + $count_female_c;
+                                echo "</td>";
+                            }
+                            else if ($combo == 3)
+                            {
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                $count_male_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                $count_female_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                $count_male_p = $count_male_t - $count_male_c;
+                                $count_female_p = $count_female_t - $count_female_c;
+                                echo "<td>";
+                                echo $count_male_c." / ".$count_male_p;
+                                echo "<br>";
+                                echo $count_female_c." / ".$count_female_p;
+                                echo "</td>";
+                                echo "<td>";
+                                echo ($count_male_c + $count_female_c)." / ".($count_male_p + $count_female_p);
+                                echo "</td>";
+                            }
+                                
+                        }
+                        else
+                        {
+                             if($combo == 1)
+                            {
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                echo "<td>";
+                                echo $count_male_t + $count_female_t;
+                                echo "</td>";
+                            }
+                            else if ($combo == 2)
+                            {
+                                $gender = 'M';
+                                $count_male_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                $gender = 'F';
+                                $count_female_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                echo "<td>";
+                                echo $count_male_c + $count_female_c;
+                                echo "</td>";
+                            }
+                            else if ($combo == 3)
+                            {
+                                $gender = 'M';
+                                $count_male_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                $count_male_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                $gender = 'F';
+                                $count_female_t = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender);
+                                $count_female_c = get_specimen_count_grouped2($specimen_type_id, $date_from, $date_to, $gender, 1);
+                                $count_male_p = $count_male_t - $count_male_c;
+                                $count_female_p = $count_female_t - $count_female_c;
+                                echo "<td>";
+                                echo ($count_male_c + $count_female_c)." / ".($count_male_p + $count_female_p);
+                                echo "</td>";
+                            }
+                        }
+                }
+                echo "</tr>";
                 } 
         ?>
  <!-- ********************************************************************** -->

@@ -67,6 +67,16 @@ td.reports-specimen-daily-remarks {
 		text-align: right;
 	}
 
+.reports-specimen-count tbody tr.range-data td {
+	text-align: right;
+}
+.reports-specimen-count tbody tr.range-data td.specimen-name {
+	text-align: left;
+}
+.reports-specimen-count tbody tr.range-data td.gender {
+	text-align: center;
+}
+
 @media print {
 	#word_format_form {
 		display: none;

@@ -835,44 +835,41 @@ class StatsLib
 	}
 	
 	public static function getDoctorStats($lab_config,$date_from,$date_to) {
-	$retval=array();
-	$saved_db = DbUtil::switchToLabConfig($lab_config->id);
-	$query_string="SELECT doctor,COUNT(specimen_type_id) AS specimen,COUNT(DISTINCT patient_id) as patient FROM specimen ".
-					"WHERE (date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-					"GROUP BY doctor";
-				//echo($query_string);
-	$resultset = query_associative_all($query_string, $row_count);
+		$retval=array();
+		$saved_db = DbUtil::switchToLabConfig($lab_config->id);
+		$query_string="SELECT doctor,COUNT(specimen_type_id) AS specimen,COUNT(DISTINCT patient_id) as patient FROM specimen ".
+						"WHERE (date_collected BETWEEN '$date_from' AND '$date_to' ) ".
+						"GROUP BY doctor";
+					//echo($query_string);
+		$resultset = query_associative_all($query_string, $row_count);
 	
-			if(count($resultset) == 0 || $resultset == null)
-		{
-			
+		if(count($resultset) == 0 || $resultset == null)
+		{			
 			DbUtil::switchRestore($saved_db);
 			return;
 		}
 
-	foreach($resultset AS $record)
-	{
-	$doctor_name=$record['doctor'];
-	$query_string1="SELECT COUNT(test_type_id) as test FROM specimen s , test t ".
-			"WHERE s.specimen_id=t.specimen_id ".
-			"AND doctor='$doctor_name'".
-			"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-			"GROUP BY DOCTOR";
-	
-		$record1 = query_associative_one($query_string1);
-	if($doctor_name=="")
-	$doctor_name="Not Known";
-	$patient_count=$record['patient'];
-	$specimen_count=$record['specimen'];
-	$test_count=$record1['test'];
-	$retval[$doctor_name] = array($patient_count,$specimen_count,$test_count);
+		foreach($resultset AS $record)
+		{
+			$doctor_name=$record['doctor'];
+			$query_string1="SELECT COUNT(test_type_id) as test FROM specimen s , test t ".
+				"WHERE s.specimen_id=t.specimen_id ".
+				"AND doctor='$doctor_name'".
+				"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
+				"GROUP BY DOCTOR";
+		
+			$record1 = query_associative_one($query_string1);
+			if($doctor_name=="") $doctor_name="Not Known";
+			$patient_count=$record['patient'];
+			$specimen_count=$record['specimen'];
+			$test_count=$record1['test'];
+			$retval[$doctor_name] = array($patient_count,$specimen_count,$test_count);
+		}
+		
+		DbUtil::switchRestore($saved_db);
+		return($retval);
 	}
-	
-	DbUtil::switchRestore($saved_db);
-	return($retval);
-	
-	
-	}
+
 	public static function getSpecimenCountStats($lab_config, $date_from, $date_to)
 	{
 		# Returns a list of {specimen_type, number of specimens handled} for the given time period
@@ -1219,7 +1216,8 @@ class StatsLib
 						"AND (s.date_collected BETWEEN '$date_fromp' AND '$date_top') ".
 						"AND  (t.result LIKE 'N,%' OR t.result LIKE 'n�gatif,%' OR t.result LIKE 'negatif,%' OR t.result LIKE 'n,%' OR t.result LIKE 'negative,%')";
 			}
-			else {
+			else 
+			{
 				$query_string = 
 				"SELECT COUNT(*) AS count_val  FROM test t, specimen s ".
 				"WHERE t.test_type_id=$test_type_id ".
@@ -1227,7 +1225,7 @@ class StatsLib
 				"AND ( s.date_collected BETWEEN '$date_fromp' AND '$date_top' )".
 				"AND  (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
 
-				}
+			}
 			$record = query_associative_one($query_string);
 			$count_negative = $record['count_val'];
 			
@@ -1244,14 +1242,12 @@ class StatsLib
 			
 		$date_ts = $second_day_ts;
 		$i=$i+7;
-			
-					
+	}
+	DbUtil::switchRestore($saved_db);
+	
+	return $retval;
+}
 
-	}
-		DbUtil::switchRestore($saved_db);
-		
-		return $retval;
-	}
 public static function getDiscreteInfectionStatsG($lab_config,$test_type_id, $date_from,$date_to,$type) {
 			
 		$retval = array();
@@ -1944,6 +1940,7 @@ $query_string =
 			"AND t.test_type_id=$test_type->testTypeId ".
 			"AND (sp.date_recvd BETWEEN '$date_from' AND '$date_to') ".
 			"AND sp.patient_id=p.patient_id";
+error_log("$query_string\n", 3, '/tmp/error.log');
 		$saved_db = DbUtil::switchToLabConfig($lab_config->id);
 		$resultset = query_associative_all($query_string, $row_count);
 		$measure_list = $test_type->getMeasureIds();

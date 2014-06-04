@@ -142,6 +142,7 @@ if(count($selected_test_types) == 0)
 	<thead>
 		<tr>
 			<th rowspan='2'><?php echo LangUtil::$generalTerms['TEST']; ?></th>
+			<th rowspan='2'><?php echo LangUtil::$generalTerms['MEASURES']; ?></th>
 			<th rowspan='2'><?php echo LangUtil::$generalTerms['RESULTS']; ?></th>
 			<?php
 			if($site_settings->groupByGender == 1)
@@ -182,6 +183,9 @@ if(count($selected_test_types) == 0)
 	foreach($selected_test_types as $test)
 	{
 		StatsLib::setDiseaseSetList($lab_config, $test, $date_from, $date_to);
+// echo "<pre>";
+// print_r(StatsLib::$diseaseSetList);
+// echo "</pre>";
 		$measures = $test->getMeasures();
 		foreach($measures as $measure)
 		{
@@ -201,6 +205,7 @@ if(count($selected_test_types) == 0)
 				break;
 			}
 			$is_range_options = true;
+			$is__numeric_range = false;
 			if(strpos($measure->range, "/") === false)
 			{
 				$is_range_options = false;
@@ -211,33 +216,38 @@ if(count($selected_test_types) == 0)
 				# Alphanumeric options
 				$range_values1 = explode("/", $measure->range);
 				$range_values=str_replace("#","/",$range_values1);
-				
 			}
 			else
 			{
 				# Numeric ranges: Fetch ranges configured for this test-type/measure from DB
 				
-				$range_values = $disease_report->getMeasureGroupAsList();
+				$numeric_free_range = $disease_report->getMeasureGroupAsList();
+				if(count($numeric_free_range) > 0){
+					if($numeric_free_range[0][0] !== ""){
+						//Do something with free text ($freetext$$)
+						$range_values = array("Done");
+					}else{
+						//Assuming its a numeric range. Break it down to Low/Normal/High
+						$range_values = array("Low", "Normal", "High");
+						$is__numeric_range = true;
+					}
+				}
 			}
 			$row_id = "row_".$test->testTypeId."_".$measure->measureId;
 			$grand_total = 0;
 			?>
 			<tr class='range-data' valign='top' id='<?php echo $row_id; ?>'>
+				<td class='left'><?php echo $test->name; ?></td>
 				<td class='left'><?php echo $measure->getName(); ?></td>
 				<td class='left'>
-				<?php 
+			<?php 
 				foreach($range_values as $range_value)
 				{
-					if($is_range_options)
-						echo "$range_value<br>";
-					else
-						echo "$range_value[0]-$range_value[1]<br>";
-					if($site_settings->groupByGender == 1)
-					{
-						echo "<br>";
-					}
+					echo "$range_value<br />";
+					if($site_settings->groupByGender == 1)echo "<br />";
+//						echo "$range_value[0]-$range_value[1]<br>"; //Legacy code
 				}
-				?>
+			?>
 				</td>
 				<?php
 				if($site_settings->groupByGender == 1)
@@ -252,6 +262,9 @@ if(count($selected_test_types) == 0)
 				}
 				if($site_settings->groupByAge == 1)
 				{
+// echo "<pre>";
+// print_r($age_slot_list);
+// echo "</pre>";
 					# Group by age set to true: Fetch age slots from DB
 					$age_slot_list = $site_settings->getAgeGroupAsList();
 					foreach($age_slot_list as $age_slot)
@@ -418,7 +431,7 @@ if(count($selected_test_types) == 0)
 				?>
 			</tr>
 			<?php
-			if($grand_total == 0)
+			if($grand_total == -1)
 			{
 				# Hide current table row
 				?>

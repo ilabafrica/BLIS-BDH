@@ -61,6 +61,10 @@ if($login_correct)
 		$_SESSION['dnum_reset'] = $lab_config->dailyNumReset;
 		$_SESSION['doctor'] = $lab_config->doctor;
 		$_SESSION['pnamehide'] = $lab_config->hidePatientName;
+		$_SESSION['forceVerify'] = $lab_config->forceVerify;
+		$_SESSION['starttime'] = $lab_config->starttime;
+		$_SESSION['endtime'] = $lab_config->endtime;
+		$_SESSION['verify_on_weekends'] = $lab_config->verifyOnWeekends;
 		if($SERVER == $ON_PORTABLE)
 			$_SESSION['langdata_path'] = $LOCAL_PATH."langdata_".$lab_config->id."/";
 		else

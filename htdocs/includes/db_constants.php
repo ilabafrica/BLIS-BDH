@@ -27,16 +27,18 @@ if($SERVER == $ON_ARC)
  */
 
 $DB_HOST = "localhost";
-$DB_USER = "blis_user";
+$DB_USER = "root";
 $GLOBAL_DB_NAME="blis_revamp_prod";
 
 $DB_NAME = $GLOBAL_DB_NAME;	
 
 $DB_PASS = "";
 
+//@lisAdmin#
+
 if($SERVER == $ON_DEV)
 {
-	$DB_PASS = "blis_password";
+	$DB_PASS = "ilab";
 }
 else if($SERVER == $ON_ARC)
 {

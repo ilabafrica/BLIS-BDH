@@ -126,6 +126,10 @@ class LabConfig
 	public $hidePatientName; # Flag to hide patient name at results entry
 	public $ageLimit;
 	public $country;
+	public $forceVerify;
+	public $starttime;
+	public $endtime;
+	public $verifyOnWeekends;
 	
 	public static $ID_AUTOINCR = 1;
 	public static $ID_MANUAL = 2;
@@ -224,7 +228,23 @@ class LabConfig
 		if(isset($record['ageLimit']))
 			$lab_config->ageLimit = $record['ageLimit'];
 		else
-			$lab_config->ageLimit = 5;
+			$lab_config->forceVerify = 5;
+		if(isset($record['force_verify']))
+			$lab_config->forceVerify = $record['force_verify'];
+		else
+			$lab_config->starttime = "-";
+		if(isset($record['start_time']))
+			$lab_config->starttime = $record['start_time'];
+		else
+			$lab_config->starttime = "-";
+		if(isset($record['end_time']))
+			$lab_config->endtime = $record['end_time'];
+		else
+			$lab_config->endtime = "-";
+		if(isset($record['force_verify_on_weekends']))
+			$lab_config->verifyOnWeekends = $record['force_verify_on_weekends'];
+		else
+			$lab_config->verifyOnWeekends = "-";
 		return $lab_config;
 	}
 	
@@ -234,6 +254,17 @@ class LabConfig
 		global $con;
 		//$lab_config_id = mysql_real_escape_string($lab_config_id, $con);
 		$query_config = "SELECT * FROM lab_config WHERE lab_config_id = $lab_config_id LIMIT 1";
+		$record = query_associative_one($query_config);
+		DbUtil::switchRestore($saved_db);
+		return LabConfig::getObject($record);
+	}
+
+	public static function update_force_verify(){
+		$saved_db = DbUtil::switchToGlobal();
+		
+		global $con;
+		//$lab_config_id = mysql_real_escape_string($lab_config_id, $con);
+		$query_config = "UPDATE lab_config set   BLA BLA   WHERE lab_config_id = $lab_config_id LIMIT 1";
 		$record = query_associative_one($query_config);
 		DbUtil::switchRestore($saved_db);
 		return LabConfig::getObject($record);
@@ -8540,6 +8571,17 @@ $record = query_associative_one($query_string);
 		$id = $record['lab_config_id'];
 		
 return $id;
+}
+
+function get_lab_config_id_global_admin($user_id)
+{
+	$saved_db = DbUtil::switchToGlobal();
+
+	$query_string = "SELECT lab_config_id FROM lab_config WHERE admin_user_id='$user_id'";
+	$record = query_associative_one($query_string);
+	$id = $record['lab_config_id'];
+	DbUtil::switchRestore($saved_db);	
+	return $id;
 }
 
 function get_lab_config_id($user_id)

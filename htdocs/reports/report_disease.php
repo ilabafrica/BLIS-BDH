@@ -183,9 +183,6 @@ if(count($selected_test_types) == 0)
 	foreach($selected_test_types as $test)
 	{
 		StatsLib::setDiseaseSetList($lab_config, $test, $date_from, $date_to);
-// echo "<pre>";
-// print_r(StatsLib::$diseaseSetList);
-// echo "</pre>";
 		$measures = $test->getMeasures();
 		foreach($measures as $measure)
 		{
@@ -262,9 +259,6 @@ if(count($selected_test_types) == 0)
 				}
 				if($site_settings->groupByAge == 1)
 				{
-// echo "<pre>";
-// print_r($age_slot_list);
-// echo "</pre>";
 					# Group by age set to true: Fetch age slots from DB
 					$age_slot_list = $site_settings->getAgeGroupAsList();
 					foreach($age_slot_list as $age_slot)
@@ -311,11 +305,11 @@ if(count($selected_test_types) == 0)
 								$disease_filter->rangeValues = $range_value;
 								## Count for males.
 								$disease_filter->patientGender = 'M';
-								$curr_total1 = StatsLib::getDiseaseFilterCount($disease_filter);
+								$curr_total1 = StatsLib::getDiseaseFilterCount($disease_filter, $lab_config_id);
 								$curr_male_total += $curr_total1;
 								## Count for females.
 								$disease_filter->patientGender = 'F';
-								$curr_total2 = StatsLib::getDiseaseFilterCount($disease_filter);
+								$curr_total2 = StatsLib::getDiseaseFilterCount($disease_filter, $lab_config_id);
 								$curr_female_total += $curr_total2;
 								echo "$curr_total1<br>$curr_total2<br>";
 							}
@@ -431,7 +425,7 @@ if(count($selected_test_types) == 0)
 				?>
 			</tr>
 			<?php
-			if($grand_total == -1)
+			if($grand_total == 0)
 			{
 				# Hide current table row
 				?>

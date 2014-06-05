@@ -2076,11 +2076,14 @@ error_log("$query_string\n", 3, '/tmp/error.log');
 		return $retval;
 	}
 	
-	public static function getDiseaseFilterCount($disease_filter)
+	public static function getDiseaseFilterCount($disease_filter, $lab_config_id = 0)
 	{
 		# Returns total number of records matching filter criteria
 		$retval = 0;
-		//print_r($disease_filter);
+		$measure = Measure::getById($disease_filter->measureId);
+		if ($measure->getRangeType() == Measure::$RANGE_NUMERIC) {
+			$rangeListFS = $measure->getReferenceRanges($lab_config_id);
+		}
 		foreach(StatsLib::$diseaseSetList as $disease_set)
 		{
 			# Flag to track if gender and/or age slots have matched for this entry.
@@ -2110,7 +2113,6 @@ error_log("$query_string\n", 3, '/tmp/error.log');
 						($disease_set->resultValues[$disease_filter->measureId] === $disease_filter->rangeValues)
 					)
 					{
-
 						# Do nothing
 						$has_match = true;
 					}
@@ -2121,19 +2123,51 @@ error_log("$query_string\n", 3, '/tmp/error.log');
 				}
 				else if($disease_filter->rangeType == DiseaseSetFilter::$CONTINUOUS)
 				{
-					if
-					(
-						(isset($disease_set->resultValues[$disease_filter->measureId])) &&
-						($disease_set->resultValues[$disease_filter->measureId] >= $disease_filter->rangeValues[0]) &&
-						($disease_set->resultValues[$disease_filter->measureId] < $disease_filter->rangeValues[1])
-					)
-					{
-						# Do nothing
-						$has_match = true;
-					}
-					else
-					{
-						continue;
+					// IF the measure-range-type is NUMERIC, compare this value to the upper and lower limits
+					// of the ReferenceRanges for the measure. ELSE do whatever we were doing before
+					if ($measure->getRangeType() == Measure::$RANGE_NUMERIC) {
+						$rangeList = $measure->getReferenceRanges($lab_config_id);
+						$patientAge = $disease_set->patientAge;
+						$gender = $disease_set->patientGender;
+
+						$normalRange = array();
+						foreach ($rangeList as $refRange) {
+							if($patientAge >= $refRange->ageMin && $patientAge < $refRange->ageMax){
+								// Age is within bracket - we'll check the gender further down
+								if($refRange->sex == "B" || $refRange->sex == $gender){
+									// Now record the normal limits for this measure
+									$normalRange['lower'] = $refRange->rangeLower;
+									$normalRange['upper'] = $refRange->rangeUpper;
+								}
+							}
+						}
+						$result = $disease_set->resultValues[$disease_filter->measureId];
+						//Does the filtered gender match the one for this test?
+						if ($gender == $disease_filter->patientGender) {
+							// Now check if the result for this test is within acceptable limits
+							if($result < $normalRange['lower']){ //Low
+								if(strcmp(strtolower($disease_filter->rangeValues),"low")==0)$retval++;
+							}else if($result > $normalRange['upper']){ //High
+								if($disease_filter->rangeValues == "High")$retval++;
+							}else{ //Normal
+								if($disease_filter->rangeValues == "Normal")$retval++;
+							}
+						}
+					}else{
+						if
+						(
+							(isset($disease_set->resultValues[$disease_filter->measureId])) &&
+							($disease_set->resultValues[$disease_filter->measureId] >= $disease_filter->rangeValues[0]) &&
+							($disease_set->resultValues[$disease_filter->measureId] < $disease_filter->rangeValues[1])
+						)
+						{
+							# Do nothing
+							$has_match = true;
+						}
+						else
+						{
+							continue;
+						}
 					}
 				}
 				if($has_match === true)

@@ -364,7 +364,7 @@ if($lab_config == null)
                             </tr>
                             <tr>
                             <td></td>
-                            <td><input type="button" id="sendback" class="btn" onclick="submit_forcevalidate()" value="Save" /></td>
+                            <td><input type="button" id="sendback" class="btn" onclick="submit_forcevalidate()" value="Save" /> <span style="display:none;" id="succes">&nbsp;&nbsp; Record Updated!</span></td>
                             </tr>
                         </table>
                         </form>
@@ -2059,7 +2059,6 @@ function getForceVerifySettings(){
             //Put this data in UI
             $('#startt').val(data.starttime);
             $('#endt').val(data.endtime);
-   
         });
 }
 
@@ -2067,9 +2066,8 @@ function getForceVerifySettings(){
 function submit_forcevalidate()
 {
     //validate
-    //
-    //
     $("#forceverify").ajaxSubmit();
+    $("#succes").show();
 }
 
 /**

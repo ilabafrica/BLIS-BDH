@@ -4,10 +4,10 @@
 
 require_once("../includes/db_lib.php");
 
-$force_verify = get_request_variable("force_verify", null);
-$starttime = get_request_variable("startt", null);
-$endtime = get_request_variable("endt", null);
-$verify_on_weekends = get_request_variable("verify_on_weekends", null);
+$force_verify = get_request_variable("enabled", 0);
+$starttime = get_request_variable("start_time", null);
+$endtime = get_request_variable("end_time", null);
+$verify_on_weekends = get_request_variable("weekend", null);
 
 $action = get_request_variable("a", null);
 
@@ -20,19 +20,23 @@ else {
 
 function update_forceverify(){
 
+	global $force_verify, $starttime, $endtime, $verify_on_weekends;
 	if($starttime == null || $endtime == null || $verify_on_weekends == null ){
 		return null;
 	}
 
-	$lab_config = new LabConfig(); 
-
-	$lab_config->force_verify = $force_verify; 
+	$lab_config = new LabConfig();
+	$lab_config->force_verify = $force_verify;
 	$lab_config->starttime = $starttime;
 	$lab_config->endtime = $endtime ;
 	$lab_config->verify_on_weekends = $verify_on_weekends;
 
-	LabConfig::update_force_verify();
+	$lab_config_id = get_lab_config_id_global_admin($_SESSION['user_id']);
+	$response = LabConfig::update_force_verify($lab_config, $lab_config_id);
 
+	if(isset($response)){
+		echo 'Success';
+	}
 }
 
 function get_forceverify_settings(){

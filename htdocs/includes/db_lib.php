@@ -164,7 +164,7 @@ class LabConfig
 		if(isset($record['p_addl']))
 			$lab_config->patientAddl = $record['p_addl'];
 		else
-			$lab_config_id->patientAddl = 0;
+			$lab_config->patientAddl = 0;
 		if(isset($record['s_addl']))
 			$lab_config->specimenAddl = $record['s_addl'];
 		else
@@ -172,11 +172,11 @@ class LabConfig
 		if(isset($record['daily_num']))
 			$lab_config->dailyNum = $record['daily_num'];
 		else
-			$lab_config_id->dailyNum = 0;
+			$lab_config->dailyNum = 0;
 		if(isset($record['dnum_reset']))
 			$lab_config->dailyNumReset = $record['dnum_reset'];
 		else
-			$lab_config_id->dailyNumReset = LabConfig::$RESET_DAILY;
+			$lab_config->dailyNumReset = LabConfig::$RESET_DAILY;
 		if(isset($record['pid']))
 			$lab_config->pid = $record['pid'];
 		else
@@ -184,11 +184,11 @@ class LabConfig
 		if(isset($record['pname']))
 			$lab_config->pname = $record['pname'];
 		else
-			$lab_config_id->pname = 0;
+			$lab_config->pname = 0;
 		if(isset($record['sex']))
 			$lab_config->sex = $record['sex'];
 		else
-			$lab_config_id->sex = 0;
+			$lab_config->sex = 0;
 		if(isset($record['age']))
 			$lab_config->age = $record['age'];
 		else
@@ -196,7 +196,7 @@ class LabConfig
 		if(isset($record['dob']))
 			$lab_config->dob = $record['dob'];
 		else
-			$lab_config_id->dob = 0;
+			$lab_config->dob = 0;
 		if(isset($record['sid']))
 			$lab_config->sid = $record['sid'];
 		else
@@ -228,11 +228,11 @@ class LabConfig
 		if(isset($record['ageLimit']))
 			$lab_config->ageLimit = $record['ageLimit'];
 		else
-			$lab_config->forceVerify = 5;
+			$lab_config->ageLimit = 5;
 		if(isset($record['force_verify']))
 			$lab_config->forceVerify = $record['force_verify'];
 		else
-			$lab_config->starttime = "-";
+			$lab_config->forceVerify = "-";
 		if(isset($record['start_time']))
 			$lab_config->starttime = $record['start_time'];
 		else
@@ -259,13 +259,26 @@ class LabConfig
 		return LabConfig::getObject($record);
 	}
 
-	public static function update_force_verify(){
+	public static function update_force_verify($lab_config, $lab_config_id){
 		$saved_db = DbUtil::switchToGlobal();
 		
+		if($lab_config->force_verify == null) {
+			$lab_config->force_verify = 0;
+		}
+		else if($lab_config->force_verify ==  "on"){
+			$lab_config->force_verify = 1;
+		}
+		if($lab_config->verify_on_weekends == "No"){
+			 $lab_config->verify_on_weekends = 0 ;
+		} 
+		else if ($lab_config->verify_on_weekends == "Yes"){
+			$lab_config->verify_on_weekends = 1;
+		}
+
 		global $con;
-		//$lab_config_id = mysql_real_escape_string($lab_config_id, $con);
-		$query_config = "UPDATE lab_config set   BLA BLA   WHERE lab_config_id = $lab_config_id LIMIT 1";
-		$record = query_associative_one($query_config);
+		
+		$query_config = "UPDATE lab_config set  force_verify = $lab_config->force_verify, start_time = '$lab_config->starttime', end_time = '$lab_config->endtime'  , force_verify_on_weekends = '$lab_config->verify_on_weekends'   WHERE lab_config_id = $lab_config_id";
+		$record = query_blind($query_config);
 		DbUtil::switchRestore($saved_db);
 		return LabConfig::getObject($record);
 	}

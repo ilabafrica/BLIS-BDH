@@ -2981,9 +2981,9 @@ class Specimen
 		else
 			$specimen->ts_collected = null;
 		if(isset($record['bench']))
-			$specimen->ts_collected = $record['bench'];
+			$specimen->bench = $record['bench'];
 		else
-			$specimen->ts_collected = null;
+			$specimen->bench = null;
 		return $specimen;
 	}
 	public function getSpecimenCollector()
@@ -5667,26 +5667,7 @@ class UserStats
 
 		$query_string = "SELECT ".
 			"DISTINCT(LEFT(tc.name,3)) AS bench,".
-			"s.specimen_id as specimen_id, ".
-			"s.patient_id as patient_id, ".
-			"s.specimen_type_id as specimen_type_id, ".
-			"s.user_id as user_id, ".
-			"s.ts as ts, ".
-			"s.status_code_id as status_code_id, ".
-			"s.referred_to as referred_to, ".
-			"s.comments as comments, ".
-			"s.aux_id as aux_id, ".
-			"s.date_collected as date_collected, ".
-			"s.date_recvd as date_recvd, ".
-			"s.session_num as session_num, ".
-			"s.time_collected as time_collected, ".
-			"s.report_to as report_to, ".
-			"s.doctor as doctor, ".
-			"s.date_reported as date_reported, ".
-			"s.referred_to_name as referred_to_name, ".
-			"s.daily_num as daily_num, ".
-			"s.external_lab_no as external_lab_no, ".
-			"s.ts_collected as ts_collected ".
+			"s.* ".
 			"FROM ".
 			"specimen s, ".
 			"test_category tc, ".
@@ -7907,9 +7888,6 @@ function get_specimen_by_id($specimen_id)
 	global $con;
 	$specimen_id = mysql_real_escape_string($specimen_id, $con);
 	# Fetches a specimen record by specimen id
-	/*$query_string = 
-		"SELECT * FROM specimen WHERE specimen_id=$specimen_id LIMIT 1";*/
-
 
 	$query_string = 
 		"SELECT DISTINCT(LEFT(tc.name,3)) AS bench, s.* ".
@@ -7918,7 +7896,7 @@ function get_specimen_by_id($specimen_id)
 		"AND tt.test_type_id = t.test_type_id ".
 		"AND t.specimen_id = s.specimen_id ".
 		"AND s.specimen_id=$specimen_id LIMIT 1";
-		
+
 	$record = query_associative_one($query_string);
 	return Specimen::getObject($record);
 }

@@ -260,7 +260,10 @@ foreach($record_list as $record)
 }
 ?>	
 <br>
- <?php if($cat_code != 0){ echo LangUtil::$generalTerms['LAB_SECTION']; ?>: <?php }
+ <?php 
+ 	 if($cat_code != 0){ 
+	 	echo LangUtil::$generalTerms['LAB_SECTION'].": ";
+	 }
 	if($cat_code == 0)
 	{
 		//echo LangUtil::$generalTerms['ALL'];
@@ -270,12 +273,12 @@ foreach($record_list as $record)
 		$cat_name = get_test_category_name_by_id($cat_code);
 		echo $cat_name;
 	}
-	 if($ttype != 0 && $cat_code != 0)
-	 {
- ?>
- |<?php  
- }
- if($ttype != 0) { echo LangUtil::$generalTerms['TEST_TYPE']; ?>: <?php }
+	if($ttype != 0 && $cat_code != 0)
+	{
+		echo " | ";
+ 	}
+
+ 	if($ttype != 0) { echo LangUtil::$generalTerms['TEST_TYPE']; ?>: <?php }
 	if($ttype == 0)
 	{
 		//echo LangUtil::$generalTerms['ALL'];
@@ -306,6 +309,7 @@ foreach($test_types as $test_type_id)
 {
 	$record_list[] = get_records_to_print($lab_config, $test_type_id, $date_from, $date_to);
 }
+
 $total_tests = 0;
 foreach($record_list as $record)
 {

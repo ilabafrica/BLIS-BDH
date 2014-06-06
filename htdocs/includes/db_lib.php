@@ -2895,6 +2895,7 @@ class Specimen
 	public $labSection;
 	public $external_lab_no;
 	public $ts_collected;
+	public $bench;
 	
 	public static $STATUS_PENDING = 0;
 	public static $STATUS_DONE = 1;
@@ -2918,6 +2919,7 @@ class Specimen
 		$specimen->patientId = $record['patient_id'];
 		$specimen->userId = $record['user_id'];
 		$specimen->dateCollected = $record['date_collected'];
+		$specimen->bench = $record['bench'];
 		if(isset($record['date_recvd']))
 			$specimen->dateRecvd = $record['date_recvd'];
 		else
@@ -2976,6 +2978,10 @@ class Specimen
 		
 		if(isset($record['ts_collected']))
 			$specimen->ts_collected = $record['ts_collected'];
+		else
+			$specimen->ts_collected = null;
+		if(isset($record['bench']))
+			$specimen->ts_collected = $record['bench'];
 		else
 			$specimen->ts_collected = null;
 		return $specimen;
@@ -5659,22 +5665,50 @@ class UserStats
         $date_to_ts=mktime(0, 0, 0, $date_to_parts[1], $date_to_parts[2], $date_to_parts[0]);
         $date_to_ts = date( 'Y-m-d H:i:s', $date_to_ts );
 
-        $query_string = 
-				"SELECT * FROM specimen ".
-				"WHERE ts BETWEEN '$date_from_ts' AND '$date_to_ts' ".
-				"AND user_id = $user_id";
-	
-	$resultset = query_associative_all($query_string, $row_count);
-	$test_list = array();
-	if(count($resultset) > 0)
-	{
-		foreach($resultset as $record)
+		$query_string = "SELECT ".
+			"DISTINCT(LEFT(tc.name,3)) AS bench,".
+			"s.specimen_id as specimen_id, ".
+			"s.patient_id as patient_id, ".
+			"s.specimen_type_id as specimen_type_id, ".
+			"s.user_id as user_id, ".
+			"s.ts as ts, ".
+			"s.status_code_id as status_code_id, ".
+			"s.referred_to as referred_to, ".
+			"s.comments as comments, ".
+			"s.aux_id as aux_id, ".
+			"s.date_collected as date_collected, ".
+			"s.date_recvd as date_recvd, ".
+			"s.session_num as session_num, ".
+			"s.time_collected as time_collected, ".
+			"s.report_to as report_to, ".
+			"s.doctor as doctor, ".
+			"s.date_reported as date_reported, ".
+			"s.referred_to_name as referred_to_name, ".
+			"s.daily_num as daily_num, ".
+			"s.external_lab_no as external_lab_no, ".
+			"s.ts_collected as ts_collected ".
+			"FROM ".
+			"specimen s, ".
+			"test_category tc, ".
+			"test_type tt, ".
+			"test t ".
+			"WHERE ".
+			"tc.test_category_id = tt.test_category_id ".
+			"AND tt.test_type_id = t.test_type_id ".
+			"AND t.specimen_id = s.specimen_id ".
+			"AND s.ts BETWEEN '$date_from_ts' ".
+			"AND '$date_to_ts' AND s.user_id = $user_id";
+	 	$resultset = query_associative_all($query_string, $row_count);
+		$test_list = array();
+		if(count($resultset) > 0)
 		{
-			$test_list[] = Specimen::getObject($record);
+			foreach($resultset as $record)
+			{
+				$test_list[] = Specimen::getObject($record);
+			}
 		}
-	}
-        DbUtil::switchRestore($saved_db);
-        return $test_list;
+	        DbUtil::switchRestore($saved_db);
+	        return $test_list;
     }
     
     public function getTestRegLog($user_id, $lab_config_id, $date_from, $date_to)
@@ -7873,8 +7907,18 @@ function get_specimen_by_id($specimen_id)
 	global $con;
 	$specimen_id = mysql_real_escape_string($specimen_id, $con);
 	# Fetches a specimen record by specimen id
+	/*$query_string = 
+		"SELECT * FROM specimen WHERE specimen_id=$specimen_id LIMIT 1";*/
+
+
 	$query_string = 
-		"SELECT * FROM specimen WHERE specimen_id=$specimen_id LIMIT 1";
+		"SELECT DISTINCT(LEFT(tc.name,3)) AS bench, s.* ".
+		"FROM specimen s, test_category tc, test_type tt, test t ".
+		"WHERE tc.test_category_id = tt.test_category_id ".
+		"AND tt.test_type_id = t.test_type_id ".
+		"AND t.specimen_id = s.specimen_id ".
+		"AND s.specimen_id=$specimen_id LIMIT 1";
+		
 	$record = query_associative_one($query_string);
 	return Specimen::getObject($record);
 }

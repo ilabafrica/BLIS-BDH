@@ -276,7 +276,9 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                     <td>
                         <?php 
                             if($entry->specimenId != '')
-                               echo $entry->specimenId; 
+                            {
+                               echo $entry->bench.'-'.$entry->specimenId; 
+                            }
                             else
                                 echo '-';
                         ?>

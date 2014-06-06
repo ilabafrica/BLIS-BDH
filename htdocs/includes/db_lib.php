@@ -16434,6 +16434,21 @@ class API
     
     public static function updateExternalLabrequest($patient_id, $lab_no, $result, $comment=null){
     	
+    	//Check if we should update externalabrequest so as to send data back to sanitas.
+    	//If configs force verification we dont update
+    	//
+    	$lab_config = get_lab_config_by_id($lab_config_id); 
+    	if($lab_config->forceVerify == 1){
+    		//Check if we are within the set time
+    		$start = Date("Hi", strtotime($lab_config->starttime));
+    		$end = Date("Hi", strtotime($lab_config->endtime));
+    		$now = Date("Hi");
+
+    		if($start < $now && $end > $now){
+    			//We need to validate before sending.	
+    		}
+    	}
+
     	global $con;
     	$patient_id = mysql_real_escape_string($patient_id, $con);
     	$query_string = 

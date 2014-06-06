@@ -2066,6 +2066,10 @@ function getForceVerifySettings(){
 function submit_forcevalidate()
 {
     //validate
+    
+    // Date.parse($('#startt').val()) > ;
+    
+    
     $("#forceverify").ajaxSubmit();
     $("#succes").show();
 }

@@ -2097,7 +2097,7 @@ else
 
 				{
 
-					echo "<td>".$specimen->specimenId."</td>";
+					echo "<td>".$specimen->bench."-".$specimen->specimenId."</td>";
 
 				}
 

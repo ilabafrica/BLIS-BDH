@@ -2895,6 +2895,7 @@ class Specimen
 	public $labSection;
 	public $external_lab_no;
 	public $ts_collected;
+	public $bench;
 	
 	public static $STATUS_PENDING = 0;
 	public static $STATUS_DONE = 1;
@@ -2918,6 +2919,7 @@ class Specimen
 		$specimen->patientId = $record['patient_id'];
 		$specimen->userId = $record['user_id'];
 		$specimen->dateCollected = $record['date_collected'];
+		$specimen->bench = $record['bench'];
 		if(isset($record['date_recvd']))
 			$specimen->dateRecvd = $record['date_recvd'];
 		else
@@ -2978,6 +2980,10 @@ class Specimen
 			$specimen->ts_collected = $record['ts_collected'];
 		else
 			$specimen->ts_collected = null;
+		if(isset($record['bench']))
+			$specimen->bench = $record['bench'];
+		else
+			$specimen->bench = null;
 		return $specimen;
 	}
 	public function getSpecimenCollector()
@@ -5659,22 +5665,31 @@ class UserStats
         $date_to_ts=mktime(0, 0, 0, $date_to_parts[1], $date_to_parts[2], $date_to_parts[0]);
         $date_to_ts = date( 'Y-m-d H:i:s', $date_to_ts );
 
-        $query_string = 
-				"SELECT * FROM specimen ".
-				"WHERE ts BETWEEN '$date_from_ts' AND '$date_to_ts' ".
-				"AND user_id = $user_id";
-	
-	$resultset = query_associative_all($query_string, $row_count);
-	$test_list = array();
-	if(count($resultset) > 0)
-	{
-		foreach($resultset as $record)
+		$query_string = "SELECT ".
+			"DISTINCT(LEFT(tc.name,3)) AS bench,".
+			"s.* ".
+			"FROM ".
+			"specimen s, ".
+			"test_category tc, ".
+			"test_type tt, ".
+			"test t ".
+			"WHERE ".
+			"tc.test_category_id = tt.test_category_id ".
+			"AND tt.test_type_id = t.test_type_id ".
+			"AND t.specimen_id = s.specimen_id ".
+			"AND s.ts BETWEEN '$date_from_ts' ".
+			"AND '$date_to_ts' AND s.user_id = $user_id";
+	 	$resultset = query_associative_all($query_string, $row_count);
+		$test_list = array();
+		if(count($resultset) > 0)
 		{
-			$test_list[] = Specimen::getObject($record);
+			foreach($resultset as $record)
+			{
+				$test_list[] = Specimen::getObject($record);
+			}
 		}
-	}
-        DbUtil::switchRestore($saved_db);
-        return $test_list;
+	        DbUtil::switchRestore($saved_db);
+	        return $test_list;
     }
     
     public function getTestRegLog($user_id, $lab_config_id, $date_from, $date_to)
@@ -7873,8 +7888,15 @@ function get_specimen_by_id($specimen_id)
 	global $con;
 	$specimen_id = mysql_real_escape_string($specimen_id, $con);
 	# Fetches a specimen record by specimen id
+
 	$query_string = 
-		"SELECT * FROM specimen WHERE specimen_id=$specimen_id LIMIT 1";
+		"SELECT DISTINCT(LEFT(tc.name,3)) AS bench, s.* ".
+		"FROM specimen s, test_category tc, test_type tt, test t ".
+		"WHERE tc.test_category_id = tt.test_category_id ".
+		"AND tt.test_type_id = t.test_type_id ".
+		"AND t.specimen_id = s.specimen_id ".
+		"AND s.specimen_id=$specimen_id LIMIT 1";
+
 	$record = query_associative_one($query_string);
 	return Specimen::getObject($record);
 }

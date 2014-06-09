@@ -917,7 +917,7 @@ function update_ttype()
                             alert("<?php echo LangUtil::$generalTerms['INVALID']." ".LangUtil::$generalTerms['AGE']; ?>: '"+upper_value+"'");
                             return;
                         }
-                        else if((upper_value.trim()-lower_value.trim())<=0)
+                        else if((upper_value.trim()-lower_value.trim())<0)
                         {
                             alert("Age range cannot be negative");
                             return;

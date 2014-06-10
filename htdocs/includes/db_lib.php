@@ -16431,32 +16431,50 @@ class API
     	$retval = $resultset['patientVisitNumber'];
     	return $retval;
     }
+
+    /**
+     * Checks if the current time is within the set times when we must verify results before sending
+     * 
+     * @return boolean true or false, if false then no need to verify
+     */
     
-    public static function updateExternalLabrequest($patient_id, $lab_no, $result, $comment=null){
-    	
-    	//Check if we should update externalabrequest so as to send data back to sanitas.
-    	//If configs force verification we dont update
-    	//
+    public static function checkforceverification(){
+
+    	$lab_config_id = get_lab_config_id_global_admin($_SESSION['user_id']);	
     	$lab_config = get_lab_config_by_id($lab_config_id); 
     	if($lab_config->forceVerify == 1){
     		//Check if we are within the set time
+    		
     		$start = Date("Hi", strtotime($lab_config->starttime));
     		$end = Date("Hi", strtotime($lab_config->endtime));
-    		$now = Date("Hi");
-
-    		if($start < $now && $end > $now){
-    			//We need to validate before sending.	
+    		$nowt = Date("Hi");
+    		
+    		// Check if its saturday or sunday
+    		if(Date("N") == 6 || Date("N") == 7){
+    			return false;
     		}
+    		if( $nowt > $start && $nowt < $end ){
+    			return true;
+    		}
+    		return false;
     	}
-
+    	else {
+    		return false;
+    	}
+    }
+    
+    public static function updateExternalLabrequest($patient_id, $lab_no, $result, $comment=null){
+    	
     	global $con;
     	$patient_id = mysql_real_escape_string($patient_id, $con);
+    	$status = Specimen::$STATUS_TOVERIFY;
+
     	$query_string = 
     	"UPDATE external_lab_request 
     	SET 
     	result = '$result',
     	comments = '$comment',
-    	test_status = ".Specimen::$STATUS_TOVERIFY."
+    	test_status = '$status'
     	WHERE patient_id='$patient_id' 
     	AND labNo='$lab_no'";
     	$saved_db = DbUtil::switchToGlobal();

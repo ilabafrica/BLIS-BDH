@@ -3757,7 +3757,7 @@ class PageElems
 			</td>
 			<td>
 				<?php if($is_modal &&  $user->canverify == 1 && $test->userId != $user->userId ){?> 
-				<a href="javascript:verify_result('<?php echo $test->testId; ?>');" 
+				<a href="javascript:verify_result('<?php echo $test->testId; ?>', '<?php echo $test->specimenId; ?>');" 
 					title="Click to Verify" class="btn green mini" id='verifybtn<?php echo $test->testId;?>'>
 					<i class="icon-ok"></i>Verify result
 				</a>

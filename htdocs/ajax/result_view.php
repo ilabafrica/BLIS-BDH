@@ -55,30 +55,9 @@ Verified by
 </th>
 </thead>
 <tbody>
- <?php $page_elems->getTestInfoRow($test, true);
- 
- $child_tests = get_child_tests($test_type->testTypeId);
- if (count($child_tests)>0){
- 	foreach($child_tests as $child_test)
- 	{
- 		$chid_test_entry = get_test_entry($specimen_id, $child_test['test_type_id']);
- 			
- 		$page_elems->getTestInfoRow($chid_test_entry, true);
- 		$child_tests = get_child_tests($child_test['test_type_id']);
- 		if (count($child_tests)>0){
- 			foreach($child_tests as $child_test)
- 			{
- 				$chid_test_entry = get_test_entry($specimen_id, $child_test['test_type_id']);
- 				$page_elems->getTestInfoRow($chid_test_entry, true);
- 			}
- 		}
- 	}
- }
- 
- 
+ <?php 
+ $page_elems->getTestInfoRow($test, true);
  ?>
- 
- 
  </tbody>
  </table>
 
@@ -89,7 +68,7 @@ Verified by
 <a id="<?php echo $modal_close_link_id . "_2"; ?>" href="javascript:close_modal('<?php echo $modal_close_link_id . "_2"; ?>');" class='btn success'>Close</a>
 </div>
 <script>
-function verify_result(test_id){
+function verify_result(test_id, spec_id){
 	var el = jQuery('.portlet .tools a.reload').parents(".portlet");
 	App.blockUI(el);
 	//Mark test as cancelled
@@ -101,12 +80,20 @@ function verify_result(test_id){
 			$('#verifydby'+test_id).removeClass('label-warning');
 			$('#verifydby'+test_id).addClass('label-success');
 			$('#verifybtn'+test_id).addClass('disabled');
-			$('#verifydby'+test_id).html(result);
-			$("tr#"+test_id).remove();
+			$('#verifybtn'+test_id).text("Verified");
+
+			$('#span'+test_id).removeClass('label-info');
+			$('#span'+test_id).addClass('label-success');
+			$('#span'+test_id).text("Verified");
+			$('#actionA'+test_id).html( '<a href="javascript:view_test_result('+test_id+',9);" title="Click to view results" class="btn green mini"><i class="icon-edit"></i> View Results</a>' );
 			App.unblockUI(el);
 		}
 		);
-	
+
+	 var url = 'ajax/update_and_send.php';
+	 $.post(url, {test_id: test_id}, function(result){
+	 	console.log("Sent");
+	 }); 
 }
 
 </script>

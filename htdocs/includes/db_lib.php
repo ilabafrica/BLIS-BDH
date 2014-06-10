@@ -16440,7 +16440,7 @@ class API
     
     public static function checkforceverification(){
 
-    	$lab_config_id = get_lab_config_id_global_admin($_SESSION['user_id']);	
+    	$lab_config_id = get_lab_config_id($_SESSION['user_id']);	
     	$lab_config = get_lab_config_by_id($lab_config_id); 
     	if($lab_config->forceVerify == 1){
     		//Check if we are within the set time
@@ -16468,13 +16468,20 @@ class API
     	global $con;
     	$patient_id = mysql_real_escape_string($patient_id, $con);
     	$status = Specimen::$STATUS_TOVERIFY;
+		$returned = 0;
+
+    	if(API::checkforceverification()){
+    		//Changin result returned to 2 so It wont be picked up for sending back to sanitas.
+    		$returned = 2;	
+    	}
 
     	$query_string = 
     	"UPDATE external_lab_request 
     	SET 
     	result = '$result',
     	comments = '$comment',
-    	test_status = '$status'
+    	test_status = '$status',
+    	result_returned = $returned
     	WHERE patient_id='$patient_id' 
     	AND labNo='$lab_no'";
     	$saved_db = DbUtil::switchToGlobal();
@@ -17405,4 +17412,31 @@ class Culture
 
 }
 
+function update_after_verification($test_id){
+
+	global $con;
+
+	$querystr = "SELECT lab_no from test_measure where test_id = $test_id";
+	$saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
+	$res = query_associative_all($querystr, $cnt);
+	DbUtil::switchRestore($saved_db);
+
+	$saved_db = DbUtil::switchToGlobal();
+	foreach ($res as $val) {
+		//Update children
+		$labno = $val['lab_no'];
+		$upd  =  "UPDATE external_lab_request SET result_returned = 0 where labNo = $labno ";
+		query_update($upd);
+	}
+
+	// Update parent
+	$test = Test::getById($test_id);
+	$external_lab_no = $test->external_lab_no;
+
+	$qry = "UPDATE external_lab_request SET result_returned = 0 where labNo = $external_lab_no";
+
+	query_associative_one($qry);
+	DbUtil::switchRestore($saved_db);
+
+}
 ?>

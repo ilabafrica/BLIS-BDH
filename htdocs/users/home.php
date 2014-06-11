@@ -12,7 +12,7 @@ $profile_tip = LangUtil::getPageTerm("TIPS_PWD");
 						<ul class="breadcrumb">
 							<li>
 								<i class="icon-home"></i>
-								<a href="index.php">Home</a> 
+								Home
 							</li>
 							<!--li><a href="#">Home</a></li-->
 							<li class="pull-right no-text-shadow">

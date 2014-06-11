@@ -15,7 +15,7 @@ $test_categories = TestCategory::geAllTestCategories($lab_config->id);
 						<ul class="breadcrumb">
 							<li>
 								<i class="icon-beaker"></i>
-								<a href="index.html">Tests</a>
+								Tests
 							</li>
 						</ul>
 						<!-- END PAGE TITLE & BREADCRUMB-->

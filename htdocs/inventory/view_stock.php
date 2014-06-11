@@ -30,7 +30,7 @@ $lid = $_SESSION['$lab_config_id'];
 						<ul class="breadcrumb">
 							<li>
 								<i class="icon-truck"></i>
-								<a href="index.php">Inventory</a> 
+								Inventory
 							</li>
 						</ul>
 						<!-- END PAGE TITLE & BREADCRUMB-->

@@ -17418,6 +17418,7 @@ function update_after_verification($test_id){
 
 	$querystr = "SELECT lab_no from test_measure where test_id = $test_id";
 	$saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
+	$test = Test::getById($test_id);
 	$res = query_associative_all($querystr, $cnt);
 	DbUtil::switchRestore($saved_db);
 
@@ -17430,12 +17431,10 @@ function update_after_verification($test_id){
 	}
 
 	// Update parent
-	$test = Test::getById($test_id);
+	
 	$external_lab_no = $test->external_lab_no;
-
-	$qry = "UPDATE external_lab_request SET result_returned = 0 where labNo = $external_lab_no";
-
-	query_associative_one($qry);
+	$qry = "UPDATE external_lab_request SET result_returned = 0, result = 'Done and verified' where labNo = $external_lab_no";
+	query_update($qry);
 	DbUtil::switchRestore($saved_db);
 
 }

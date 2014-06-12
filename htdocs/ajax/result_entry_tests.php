@@ -12,7 +12,9 @@ $attrib_type = get_request_variable('t');
 $date_from = get_request_variable('df');
 $date_to = get_request_variable('dt');
 $status = get_request_variable('s');
-$search_term = get_request_variable('st');
+global $con;
+$unsanitized_search_term = get_request_variable('st');
+$search_term = mysql_real_escape_string($unsanitized_search_term);
 $dynamic = 1;
 $search_settings = get_lab_config_settings_search();
 $rcap = $search_settings['results_per_page'];
@@ -356,7 +358,7 @@ else{
  	$url="javascript:fetch_tests('$status'";
  	$limit=10;
  
- 	$pagination_array = setPagination($query_string, $limit, $page, $url, $num_records, $search_term);
+ 	$pagination_array = setPagination($query_string, $limit, $page, $url, $num_records, $unsanitized_search_term);
 	$resultset = query_associative_all($pagination_array['query_string'], $row_count);
 }
 

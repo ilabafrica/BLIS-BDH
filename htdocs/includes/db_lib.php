@@ -126,6 +126,10 @@ class LabConfig
 	public $hidePatientName; # Flag to hide patient name at results entry
 	public $ageLimit;
 	public $country;
+	public $forceVerify;
+	public $starttime;
+	public $endtime;
+	public $verifyOnWeekends;
 	
 	public static $ID_AUTOINCR = 1;
 	public static $ID_MANUAL = 2;
@@ -160,7 +164,7 @@ class LabConfig
 		if(isset($record['p_addl']))
 			$lab_config->patientAddl = $record['p_addl'];
 		else
-			$lab_config_id->patientAddl = 0;
+			$lab_config->patientAddl = 0;
 		if(isset($record['s_addl']))
 			$lab_config->specimenAddl = $record['s_addl'];
 		else
@@ -168,11 +172,11 @@ class LabConfig
 		if(isset($record['daily_num']))
 			$lab_config->dailyNum = $record['daily_num'];
 		else
-			$lab_config_id->dailyNum = 0;
+			$lab_config->dailyNum = 0;
 		if(isset($record['dnum_reset']))
 			$lab_config->dailyNumReset = $record['dnum_reset'];
 		else
-			$lab_config_id->dailyNumReset = LabConfig::$RESET_DAILY;
+			$lab_config->dailyNumReset = LabConfig::$RESET_DAILY;
 		if(isset($record['pid']))
 			$lab_config->pid = $record['pid'];
 		else
@@ -180,11 +184,11 @@ class LabConfig
 		if(isset($record['pname']))
 			$lab_config->pname = $record['pname'];
 		else
-			$lab_config_id->pname = 0;
+			$lab_config->pname = 0;
 		if(isset($record['sex']))
 			$lab_config->sex = $record['sex'];
 		else
-			$lab_config_id->sex = 0;
+			$lab_config->sex = 0;
 		if(isset($record['age']))
 			$lab_config->age = $record['age'];
 		else
@@ -192,7 +196,7 @@ class LabConfig
 		if(isset($record['dob']))
 			$lab_config->dob = $record['dob'];
 		else
-			$lab_config_id->dob = 0;
+			$lab_config->dob = 0;
 		if(isset($record['sid']))
 			$lab_config->sid = $record['sid'];
 		else
@@ -225,6 +229,22 @@ class LabConfig
 			$lab_config->ageLimit = $record['ageLimit'];
 		else
 			$lab_config->ageLimit = 5;
+		if(isset($record['force_verify']))
+			$lab_config->forceVerify = $record['force_verify'];
+		else
+			$lab_config->forceVerify = "-";
+		if(isset($record['start_time']))
+			$lab_config->starttime = $record['start_time'];
+		else
+			$lab_config->starttime = "-";
+		if(isset($record['end_time']))
+			$lab_config->endtime = $record['end_time'];
+		else
+			$lab_config->endtime = "-";
+		if(isset($record['force_verify_on_weekends']))
+			$lab_config->verifyOnWeekends = $record['force_verify_on_weekends'];
+		else
+			$lab_config->verifyOnWeekends = "-";
 		return $lab_config;
 	}
 	
@@ -235,6 +255,30 @@ class LabConfig
 		//$lab_config_id = mysql_real_escape_string($lab_config_id, $con);
 		$query_config = "SELECT * FROM lab_config WHERE lab_config_id = $lab_config_id LIMIT 1";
 		$record = query_associative_one($query_config);
+		DbUtil::switchRestore($saved_db);
+		return LabConfig::getObject($record);
+	}
+
+	public static function update_force_verify($lab_config, $lab_config_id){
+		$saved_db = DbUtil::switchToGlobal();
+		
+		if($lab_config->force_verify == null) {
+			$lab_config->force_verify = 0;
+		}
+		else if($lab_config->force_verify ==  "on"){
+			$lab_config->force_verify = 1;
+		}
+		if($lab_config->verify_on_weekends == "No"){
+			 $lab_config->verify_on_weekends = 0 ;
+		} 
+		else if ($lab_config->verify_on_weekends == "Yes"){
+			$lab_config->verify_on_weekends = 1;
+		}
+
+		global $con;
+		
+		$query_config = "UPDATE lab_config set  force_verify = $lab_config->force_verify, start_time = '$lab_config->starttime', end_time = '$lab_config->endtime'  , force_verify_on_weekends = '$lab_config->verify_on_weekends'   WHERE lab_config_id = $lab_config_id";
+		$record = query_blind($query_config);
 		DbUtil::switchRestore($saved_db);
 		return LabConfig::getObject($record);
 	}
@@ -8564,6 +8608,17 @@ $record = query_associative_one($query_string);
 return $id;
 }
 
+function get_lab_config_id_global_admin($user_id)
+{
+	$saved_db = DbUtil::switchToGlobal();
+
+	$query_string = "SELECT lab_config_id FROM lab_config WHERE admin_user_id='$user_id'";
+	$record = query_associative_one($query_string);
+	$id = $record['lab_config_id'];
+	DbUtil::switchRestore($saved_db);	
+	return $id;
+}
+
 function get_lab_config_id($user_id)
 {
 	$saved_db = DbUtil::switchToGlobal();
@@ -16398,17 +16453,57 @@ class API
     	$retval = $resultset['patientVisitNumber'];
     	return $retval;
     }
+
+    /**
+     * Checks if the current time is within the set times when we must verify results before sending
+     * 
+     * @return boolean true or false, if false then no need to verify
+     */
+    
+    public static function checkforceverification(){
+
+    	$lab_config_id = get_lab_config_id($_SESSION['user_id']);	
+    	$lab_config = get_lab_config_by_id($lab_config_id); 
+    	if($lab_config->forceVerify == 1){
+    		//Check if we are within the set time
+    		
+    		$start = Date("Hi", strtotime($lab_config->starttime));
+    		$end = Date("Hi", strtotime($lab_config->endtime));
+    		$nowt = Date("Hi");
+    		
+    		// Check if its saturday or sunday
+    		if(Date("N") == 6 || Date("N") == 7){
+    			return false;
+    		}
+    		if( $nowt > $start && $nowt < $end ){
+    			return true;
+    		}
+    		return false;
+    	}
+    	else {
+    		return false;
+    	}
+    }
     
     public static function updateExternalLabrequest($patient_id, $lab_no, $result, $comment=null){
     	
     	global $con;
     	$patient_id = mysql_real_escape_string($patient_id, $con);
+    	$status = Specimen::$STATUS_TOVERIFY;
+		$returned = 0;
+
+    	if(API::checkforceverification()){
+    		//Changin result returned to 2 so It wont be picked up for sending back to sanitas.
+    		$returned = 2;	
+    	}
+
     	$query_string = 
     	"UPDATE external_lab_request 
     	SET 
     	result = '$result',
     	comments = '$comment',
-    	test_status = ".Specimen::$STATUS_TOVERIFY."
+    	test_status = '$status',
+    	result_returned = $returned
     	WHERE patient_id='$patient_id' 
     	AND labNo='$lab_no'";
     	$saved_db = DbUtil::switchToGlobal();
@@ -17339,4 +17434,30 @@ class Culture
 
 }
 
+function update_after_verification($test_id){
+
+	global $con;
+
+	$querystr = "SELECT lab_no from test_measure where test_id = $test_id";
+	$saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
+	$test = Test::getById($test_id);
+	$res = query_associative_all($querystr, $cnt);
+	DbUtil::switchRestore($saved_db);
+
+	$saved_db = DbUtil::switchToGlobal();
+	foreach ($res as $val) {
+		//Update children
+		$labno = $val['lab_no'];
+		$upd  =  "UPDATE external_lab_request SET result_returned = 0 where labNo = $labno ";
+		query_update($upd);
+	}
+
+	// Update parent
+	
+	$external_lab_no = $test->external_lab_no;
+	$qry = "UPDATE external_lab_request SET result_returned = 0, result = 'Done and verified' where labNo = $external_lab_no";
+	query_update($qry);
+	DbUtil::switchRestore($saved_db);
+
+}
 ?>

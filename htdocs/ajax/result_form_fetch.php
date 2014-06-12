@@ -367,6 +367,7 @@ $modal_link_id = "test_result_link_$test_id";
 	<?php 		
 	$page_elems->getPatientTestInfo($patient->patientId, $specimen_id, $test_id);
 	?>
+
 	</div>
 	</div>
 	</div>
@@ -374,7 +375,16 @@ $modal_link_id = "test_result_link_$test_id";
 	</div>
 </div>
 <div class="modal-footer">
-	<input type='button' class="btn yellow" id="sanitas" value='<?php echo "Send to Sanitas"//LangUtil::$generalTerms['CMD_SUBMIT']; ?>'></input>
+	<?php
+	if(API::checkforceverification()) {
+		echo "<p>Results will not be sent to sanitas until they are verified.</p>"; } ?>
+	<input type='button' class="btn yellow" id="sanitas" value='<?php if(API::checkforceverification()) {
+		echo "Save only";
+	}
+	else {
+		echo "Send to Sanitas";
+	}
+	//LangUtil::$generalTerms['CMD_SUBMIT']; ?>'></input>
 	<a id="<?php echo $modal_link_id.'2'; ?>" class="btn red" href='javascript:close_modal("<?php echo $modal_link_id.'2'; ?>");' class='btn'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 	<!-- <input type='button' class="btn green" id="blis" value='<?php echo "Save to BLIS"//LangUtil::$generalTerms['CMD_SUBMIT']; ?>'></input> -->
 </div>

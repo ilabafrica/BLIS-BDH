@@ -10,10 +10,19 @@ LangUtil::setPageId("catalog");
 
 $drug_type = get_drug_type_by_id($_REQUEST['did']);
 ?>
-
 <br>
-<b><?php echo LangUtil::$pageTerms['EDIT_DRUG_TYPE']; ?></b>
-| <a href="catalog.php?show_tc=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+
+<div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i><?php echo LangUtil::$pageTerms['EDIT_DRUG_TYPE']; ?></h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body">
+		<br>
+<a href="catalog.php?show_tc=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 <br><br>
 <?php
 if($drug_type == null)
@@ -63,6 +72,10 @@ $page_elems->getDrugTypeInfo($drug_type->name, true);
     
 </form>
 </div>
+		
+				</div>
+	</div>
+
 <div id='drug_help' style='display:none'>
 <small>
 Use Ctrl+F to search easily through the list. Ctrl+F will prompt a box where you can enter the test name you are looking for.

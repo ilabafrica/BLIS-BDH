@@ -34,6 +34,8 @@ $DB_NAME = $GLOBAL_DB_NAME;
 
 $DB_PASS = "";
 
+//@lisAdmin#
+
 if($SERVER == $ON_DEV)
 {
 	$DB_PASS = "";

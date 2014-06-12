@@ -311,6 +311,68 @@ if($lab_config == null)
         </div>
        </div>
 
+
+<div class="portlet box green right_pane" id="verify_div" style="display: none">
+        <div class="portlet-title" >
+                                <h4><i class="icon-reorder"></i>Force verification</h4>
+                                <div class="tools">
+                                    <a href="javascript:;" class="collapse"></a>
+                                    <a data-toggle="modal" class="config"></a>
+                                </div>
+        </div>
+        <div class="portlet-body">
+            <div id='verify' style='margin-left:10px;'>
+                        
+                        <p style="text-align: right;"><a rel='facebox' href='#search_config'>Page Help</a></p>
+                        <h4>This setting allows you to send results ONLY after verification</h4>
+                        </br>
+                        <p></p>
+                        <?php
+                            $lab_config_id = get_lab_config_id_global_admin($_SESSION['user_id']);
+                            $lab_config = get_lab_config_by_id($lab_config_id);
+                        ?>
+                        <form action="ajax/force_verify.php" method="post" name="forcev" id="forceverify">
+                        <table id="verify_table" class="table table-striped table-bordered table-hover" style="width:600px">
+                            <tr>
+                                <td>Enable </td> 
+                                <td><input type="checkbox" id="chkbx" name="enabled" <?php if($lab_config->forceVerify == 1){ echo 'checked="checked"'; }  ?>/></td>
+                            </tr>
+                            <tr>
+                                <td>Start time  </td> 
+                                <td>
+                                    <div class="input-append bootstrap-timepicker-component">
+                                    <input class="m-wrap m-ctrl-small timepicker-24" name="start_time" type="text" value='' id="startt"/>
+                                    <span class="add-on"><i class="icon-time"></i></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>End time </td> 
+                                <td>
+                                    <div class="input-append bootstrap-timepicker-component">
+                                    <input class="m-wrap m-ctrl-small timepicker-24" name="end_time" type="text" value='' id='endt' />
+                                    <span class="add-on"><i class="icon-time"></i></span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Verify on Weekends </td> 
+                                <td>
+                                Yes  <input type="radio" id="yesv" name="weekend" value="Yes" <?php if($lab_config->verifyOnWeekends == 1) {echo 'checked="checked"';} ?> > <br>
+                                 No <input type="radio" id="nov" name="weekend" value="No"  <?php if($lab_config->verifyOnWeekends == 0) {echo 'checked="checked"';} ?> >
+                                </td>
+                            </tr>
+                            <tr>
+                            <td></td>
+                            <td><input type="button" id="sendback" class="btn" onclick="submit_forcevalidate()" value="Save" /> <span style="display:none;" id="succes">&nbsp;&nbsp; Record Updated!</span></td>
+                            </tr>
+                        </table>
+                        </form>
+                            
+            </div>
+    </div>
+</div>       
+
 <div class="portlet box green right_pane" id="worksheet_config_div" style="display: none">
         <div class="portlet-title" >
                                 <h4><i class="icon-reorder"></i><?php echo LangUtil::$pageTerms['MENU_WORKSHEETCONFIG']; ?></h4>
@@ -1983,7 +2045,34 @@ $(document).ready(function(){
 		toggle_dboption_help();
 	});
 	stype_toggle();
+    getForceVerifySettings();
 });
+
+/**
+ * Gets current force verify settings and sticks them to the UI for possible
+ *  manipulation by the user
+ * @return {JSON} lab_config json_encoded array.
+ */
+function getForceVerifySettings(){
+    $.getJSON('ajax/force_verify.php?a=settings', function(data)
+        {
+            //Put this data in UI
+            $('#startt').val(data.starttime);
+            $('#endt').val(data.endtime);
+        });
+}
+
+
+function submit_forcevalidate()
+{
+    //validate
+    
+    // Date.parse($('#startt').val()) > ;
+    
+    
+    $("#forceverify").ajaxSubmit();
+    $("#succes").show();
+}
 
 /**
  * Takes content of the cell and puts it in a input tag, for editing

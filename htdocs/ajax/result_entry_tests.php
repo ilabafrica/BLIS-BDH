@@ -664,13 +664,13 @@ else{
 				echo 'label-info">Tested';
 				echo '</span></td>';
 				echo '
-			<td style="width:150px;" class="test-actions">
+			<td style="width:150px;" id=actionA'.$test->testId.' class="test-actions">
 			<a href="javascript:fetch_test_edit_form('.$quote.$test->testId.$quote.');" title="Click to Edit results" class="btn blue mini">
 				<i class="icon-edit"></i> Edit</a>
 			<a href="javascript:view_test_result('.$quote.$test->testId.$quote.');" title="Click to view and verify results of this Specimen" class="btn blue mini">
 				<i class="icon-edit"></i> Verify</a> 
 			</td>
-			<td style="width:130px;"><a href="javascript:specimen_info('.$quote.$specimen->specimenId.$quote.');" title="View specimen details" class="btn mini">
+			<td style="width:130px;" id=actionB'.$test->testId.'><a href="javascript:specimen_info('.$quote.$specimen->specimenId.$quote.');" title="View specimen details" class="btn mini">
 				<i class="icon-search"></i> View Details</a>
 			</td>';
 			}else
@@ -722,10 +722,10 @@ else{
 				echo 'label-success">Verified';
 				echo '</span></td>';
 				echo '
-			<td style="width:130px;" class="test-actions"><a href="javascript:view_test_result('.$quote.$test->testId.$quote.','.Specimen::$STATUS_VERIFIED.');" title="Click to view results" class="btn green mini">
+			<td style="width:130px;" id=actionA'.$test->testId.' class="test-actions"><a href="javascript:view_test_result('.$quote.$test->testId.$quote.','.Specimen::$STATUS_VERIFIED.');" title="Click to view results" class="btn green mini">
 				<i class="icon-edit"></i> View Results</a>
 			</td>
-			<td style="width:130px;"><a href="javascript:specimen_info('.$quote.$specimen->specimenId.$quote.');" title="View specimen details" class="btn mini">
+			<td style="width:130px;" id=actionB'.$test->testId.'><a href="javascript:specimen_info('.$quote.$specimen->specimenId.$quote.');" title="View specimen details" class="btn mini">
 				<i class="icon-search"></i> View Details</a>
 			</td>';
 			}else if (!isset($test_status)){

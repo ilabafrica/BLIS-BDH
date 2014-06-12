@@ -12,27 +12,38 @@ $test_category = get_test_category_by_id($_REQUEST['tcid']);
 ?>
 
 <br>
-<b><?php echo "Edit Test Category"; ?></b>
-| <a href="catalog.php?show_tc=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
-<br><br>
-<?php
-if($test_category == null)
-{
-?>
-	<div class='sidetip_nopos'>
-	<?php echo LangUtil::$generalTerms['MSG_NOTFOUND']; ?>
-	</div>
-<?php
-	include("includes/footer.php");
-	return;
-}
-$page_elems->getTestCategoryInfo($test_category->name, true);
-?>
-<br>
-<br>
-<div class='pretty_box'>
-<form name='edit_testcategory_form' id='edit_testcategory_form' action='ajax/test_category_update.php' method='post'>
-<input type='hidden' name='tcid' id='tcid' value='<?php echo $_REQUEST['tcid']; ?>'></input>
+
+<div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i>Test Category Update Form</h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body">
+		<br>
+		<b><?php echo "Edit Test Category"; ?></b>
+		| <a href="catalog.php?show_tc=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+		<br><br>
+		<?php
+		if($test_category == null)
+		{
+		?>
+			<div class='sidetip_nopos'>
+			<?php echo LangUtil::$generalTerms['MSG_NOTFOUND']; ?>
+			</div>
+		<?php
+			include("includes/footer.php");
+			return;
+		}
+		$page_elems->getTestCategoryInfo($test_category->name, true);
+		?>
+		<br>
+		<br>
+				<div class='pretty_box'>
+		<form name='edit_testcategory_form' id='edit_testcategory_form' action='ajax/test_category_update.php' method='post'>
+		<input type='hidden' name='tcid' id='tcid' value='<?php echo $_REQUEST['tcid']; ?>'></input>
 	<table cellspacing='4px'>
 		<tbody>
 			<tr valign='top'>
@@ -63,6 +74,11 @@ $page_elems->getTestCategoryInfo($test_category->name, true);
     
 </form>
 </div>
+		
+				</div>
+	</div>
+
+
 <div id='test_help' style='display:none'>
 <small>
 Use Ctrl+F to search easily through the list. Ctrl+F will prompt a box where you can enter the test name you are looking for.

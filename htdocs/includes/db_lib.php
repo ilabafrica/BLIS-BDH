@@ -2963,7 +2963,7 @@ class Specimen
 		$specimen->patientId = $record['patient_id'];
 		$specimen->userId = $record['user_id'];
 		$specimen->dateCollected = $record['date_collected'];
-		$specimen->bench = $record['bench'];
+		$specimen->bench = isset($record['bench'])?$record['bench']:"";
 		if(isset($record['date_recvd']))
 			$specimen->dateRecvd = $record['date_recvd'];
 		else

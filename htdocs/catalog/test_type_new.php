@@ -32,7 +32,7 @@ LangUtil::setPageId("catalog");
 		</div>
 		<div class="portlet-body"> 	
                 	
-			| <a href='catalog.php?show_t=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+			<a href='catalog.php?show_t=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 			<br><br>
 			<div class='pretty_box'>
 			<form name='new_test_form' id='new_test_form' action='test_type_add.php' method='post'>

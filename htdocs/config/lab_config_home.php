@@ -1775,6 +1775,7 @@ require_once("includes/script_elems.php");
 $script_elems->enableTableSorter();
 $script_elems->enableJQueryForm();
 $script_elems->enableDatePicker();
+$script_elems->enableFacebox();
 ?>
 <script type="text/javascript" src="js/jquery.ui.js"></script>
 <script type="text/javascript" src="js/dialog/jquery.ui.core.js"></script>

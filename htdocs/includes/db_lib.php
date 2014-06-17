@@ -7600,6 +7600,41 @@ function get_tests_by_specimen_id($specimen_id)
 	return $retval;
 }
 
+function get_test_TAT_by_test_type($lab_config, $test_type_id, $from="", $to="", $test_category_id = 0)
+{
+	# Returns list of tests of a particular type that were registered between date_from and date_to
+
+	global $con;
+	$test_type_id = mysql_real_escape_string($test_type_id, $con);
+	$test_category_id = mysql_real_escape_string($test_category_id, $con);
+	$from = mysql_real_escape_string($from, $con);
+	$to = mysql_real_escape_string($to, $con);
+
+	$query_string = 
+		"SELECT UNIX_TIMESTAMP(s.ts) AS ts, t.specimen_id, UNIX_TIMESTAMP(s.date_collected) AS date_collected, ".
+		"UNIX_TIMESTAMP(s.ts_collected) as ts_collected, UNIX_TIMESTAMP(t.ts_result_entered) as ts_completed, ".
+		"tt.specimen as specimen_type, tt.name as test_name, tc.name as category, tt.target_tat, ".
+		"IF(t.result <> '',0,1) AS pending ".
+		"FROM test t, specimen s, test_type tt, test_category tc ".
+		"WHERE s.specimen_id=t.specimen_id AND t.test_type_id=tt.test_type_id ".
+		"AND tt.test_category_id = tc.test_category_id ".
+		(($test_type_id == 0)?"":"AND t.test_type_id=$test_type_id ").
+		(($test_category_id==0)?"":"AND tt.test_category_id = $test_category_id ");
+
+	if(!($from == "" || $to == ""))
+		$query_string .= "AND s.date_collected BETWEEN '$from' AND '$to' ";
+
+	 $query_string .= "ORDER BY s.date_collected";
+
+	$saved_db = DbUtil::switchToLabConfig($lab_config->id);
+	$resultset = query_associative_all($query_string, $row_count);
+	DbUtil::switchRestore($saved_db);
+
+	# Entries for {ts, specimen_id, date_collected, ts_collected, ts_completed,
+	# specimen_type, test_name, category, target_tat, pending} are returned
+	return $resultset;
+}
+
 function get_completed_tests_by_type($test_type_id, $date_from="", $date_to="", $test_category_id = 0)
 {
 	global $con;

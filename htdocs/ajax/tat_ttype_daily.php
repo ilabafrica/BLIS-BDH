@@ -15,9 +15,7 @@
 
 	$date_from = $_REQUEST['df'];
 	$date_to = $_REQUEST['dt'];
-	$date_from_js = date("Y, n, j",strtotime($date_from));
-	$date_to_js = date("Y, n, j",strtotime($date_to));
-
+	
 	$include_pending = false;
 	$labNamesArray = array();
 
@@ -135,7 +133,7 @@
 			$formattedDate = bcmul($key,1000);
 			$progressData[] = array($formattedDate,$formattedValue);
 			$waitingTimeData[] = array($formattedDate,$waitValue);
-			$testETAT = $value[2]/24; //In days
+			$testETAT = $value[2]; //In Hours
 		}
 		$progressTrendsData[] = $progressData;
 		$progressTrendsData[] = $waitingTimeData;
@@ -155,7 +153,6 @@
 		// var namesArray = <?php echo json_encode($namesArray); ?>;
 		var namesArray = new Array("Expected TAT", "Actual TAT", "Waiting Time");
 		var progressTrendsDataTemp = <?php echo json_encode($progressTrendsData); ?>;
-		var dateStart = Date.UTC(<?php echo $date_from_js; ?>); 
 
 		var values, value1, value2;
 		/* Convert the string timestamps to floatvalue timestamps */
@@ -195,17 +192,20 @@
 		  },
 		  yAxis: {
 			 title: {
-				text: 'TurnAround Time (Days)'
+				text: 'TurnAround Time (Hours)'
 			 },
 		  },
 		  tooltip: {
 			 formatter: function() {
-			 	yval = Math.round(this.y*24);
+			 	hrs = Math.floor(this.y);
 			 	yshow = "";
-			 	if(this.y > yval){
-			 		yshow = Math.round(this.y*24*60) + " Minutes";
+			 	mins = Math.round((this.y - hrs)*60);
+			 	if(hrs < 1){
+			 		yshow = mins + " Minutes";
+			 	}else if(mins == 0){
+			 		yshow = hrs + " Hours";
 			 	}else{
-			 		yshow = yval + " Hours";
+			 		yshow = hrs + " Hours " + mins + " Minutes";
 			 	}
 			   return '<b>'+ this.series.name +'</b><br/>' + Highcharts.dateFormat('%e. %b', this.x) +': '+ yshow;
 			 }
@@ -225,8 +225,12 @@
 				});
 			}
 		}
-		
-	  new Highcharts.Chart(options);
+		Highcharts.setOptions({
+		    global: {
+		        useUTC: false
+		    }
+		});
+		new Highcharts.Chart(options);
 
 	</script>
 
@@ -306,6 +310,3 @@
 		<?php
 	}
 ?>
-<pre>
-<?php print_r($stat_list); ?>
-</pre>

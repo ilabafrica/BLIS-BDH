@@ -751,15 +751,19 @@ class StatsLib
 	{
 		# Calculates weekly progression of TAT values for a given test type and time period
 		global $DEFAULT_PENDING_TAT, $TURNAROUND_REPORT; # Default TAT value for pending tests (in days)
-		$saved_db = DbUtil::switchToLabConfig($lab_config->id);
+		$work_with_hours = true;
+		if(strcmp(strtolower($TURNAROUND_REPORT['Y_AXIS_UNIT']), "days") == 0)$work_with_hours = false;
+
 		$resultset = get_completed_tests_by_type($test_type_id, $date_from, $date_to, $test_category_id);
-		# {resultentry_ts, specimen_id, date_collected_ts}
+		# {resultentry_ts, specimen_id, date_collected_ts, ...}
+
 		$progression_val = array();
 		$progression_count = array();
 		$percentile_tofind = 90;
 		$percentile_count = array();
 		$goal_val = array();
 		# Return {day=>[avg tat, percentile tat, goal tat, [overdue specimen_ids], [pending specimen_ids]]}
+
 		foreach($resultset as $record)
 		{
 			$date_collected = $record['date_collected'];
@@ -797,22 +801,24 @@ class StatsLib
 		{
 			# Find average TAT
 			$progression_val[$key][0] = $value[0]/$progression_count[$key];
-			// if(strcmp(strtolower($TURNAROUND_REPORT['Y_AXIS_UNIT']), "hours") == 0) # Convert from sec timestamp to Hours
-			// 	$progression_val[$key][0] = ($progression_val[$key][0]/(60*60));
-			// else # Convert from sec timestamp to days
+			if($work_with_hours){ # Convert from sec timestamp to Hours
+				$progression_val[$key][0] = ($progression_val[$key][0]/(60*60));
+				$progression_val[$key][1] = ($value[1]/$progression_count[$key])/(60*60);
+				$progression_val[$key][3] = $progression_val[$key][3]/(60*60);
+			}else{ # Convert from sec timestamp to days
 				$progression_val[$key][0] = ($progression_val[$key][0]/(60*60*24));
+				$progression_val[$key][1] = ($value[1]/$progression_count[$key])/(60*60*24);
+				$progression_val[$key][3] = $progression_val[$key][3]/(60*60*24);
+			}
 
 			# Find average wait time in days
-			$progression_val[$key][1] = ($value[1]/$progression_count[$key])/(60*60*24);
 			$progression_val[$key][2] = $goal_tat[$key];
 
 			# Determine percentile value
 			$progression_val[$key][3] = StatsLib::getPercentile($percentile_count[$key], $percentile_tofind);
 
 			# Convert percentile value to days
-			$progression_val[$key][3] = $progression_val[$key][3]/(60*60*24);
 		}
-		DbUtil::switchRestore($saved_db);
 		# Return {week=>[avg tat, percentile tat, goal tat, [overdue specimen_ids], [pending specimen_ids], avg wait time]}
 		return $progression_val;
 	}

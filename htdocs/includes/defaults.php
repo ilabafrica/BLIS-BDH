@@ -94,6 +94,6 @@ $PATIENT_HASH_LENGTH = 40;
 $DISABLE_UPDATE_PATIENT_PROFILE = false;
 
 $TURNAROUND_REPORT = array(
-	'Y_AXIS_UNIT'=>'Days'
+	'Y_AXIS_UNIT'=>'Hours'
 	);
 ?>

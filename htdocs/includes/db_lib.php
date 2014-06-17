@@ -401,7 +401,7 @@ class LabConfig
 		$saved_db = DbUtil::switchToLabConfig($this->id);
 		$test_type_id = mysql_real_escape_string($test_type_id, $con);
 		$query_string = "SELECT target_tat FROM test_type ".
-					    "WHERE test_type_id=$test_type_id ORDER BY ts DESC LIMIT 1";
+					    "WHERE test_type_id=$test_type_id AND disabled = 0";
 		$record = query_associative_one($query_string);
 		$retval = $record['target_tat'];
 		DbUtil::switchRestore($saved_db);
@@ -417,7 +417,7 @@ class LabConfig
 		$tat_value = mysql_real_escape_string($tat_value, $con);
 
 		# Update TAT value
-		$query_string = "UPDATE test_type SET target_tat=$tat_value WHERE test_type_id=$test_type_id";
+		$query_string = "UPDATE test_type SET target_tat=$tat_value WHERE test_type_id=$test_type_id AND disabled = 0";
 		query_update($query_string);
 
 		DbUtil::switchRestore($saved_db);
@@ -7612,22 +7612,26 @@ function get_completed_tests_by_type($test_type_id, $date_from="", $date_to="", 
 	{
 		$query_string = 
 			"SELECT UNIX_TIMESTAMP(s.ts) as ts, t.specimen_id, UNIX_TIMESTAMP(s.date_collected) as date_collected, ".
-			"UNIX_TIMESTAMP(s.ts_collected) as ts_collected, UNIX_TIMESTAMP(t.ts_result_entered) as ts_completed ".
-			"FROM test t, specimen s".($test_category_id==0?" ":", test_type tt ").
-			"WHERE t.result <> '' AND s.specimen_id=t.specimen_id ".
+			"UNIX_TIMESTAMP(s.ts_collected) as ts_collected, UNIX_TIMESTAMP(t.ts_result_entered) as ts_completed, ".
+			"tt.specimen as specimen_type, tt.name as test_name, tc.name as category, tt.target_tat ".
+			"FROM test t, specimen s, test_type tt, test_category tc ".
+			"WHERE t.result <> '' AND s.specimen_id=t.specimen_id AND t.test_type_id=tt.test_type_id ".
+			"AND tt.test_category_id = tc.test_category_id ".
 			(($test_type_id == 0)?"":"AND t.test_type_id=$test_type_id ").
-			(($test_category_id==0)?"":"AND t.test_type_id = tt.test_type_id AND tt.test_category_id = $test_category_id ").
+			(($test_category_id==0)?"":"AND tt.test_category_id = $test_category_id ").
 			"ORDER BY s.date_collected";
 	}
 	else
 	{
 		$query_string = 
 			"SELECT UNIX_TIMESTAMP(s.ts) as ts, t.specimen_id, UNIX_TIMESTAMP(s.date_collected) as date_collected, ".
-			"UNIX_TIMESTAMP(s.ts_collected) as ts_collected, UNIX_TIMESTAMP(t.ts_result_entered) as ts_completed ".
-			"FROM test t, specimen s".($test_category_id==0?" ":", test_type tt ").
-			"WHERE t.result <> '' AND s.specimen_id=t.specimen_id ".
+			"UNIX_TIMESTAMP(s.ts_collected) as ts_collected, UNIX_TIMESTAMP(t.ts_result_entered) as ts_completed, ".
+			"tt.specimen as specimen_type, tt.name as test_name, tc.name as category, tt.target_tat ".
+			"FROM test t, specimen s, test_type tt, test_category tc ".
+			"WHERE t.result <> '' AND s.specimen_id=t.specimen_id AND t.test_type_id=tt.test_type_id ".
+			"AND tt.test_category_id = tc.test_category_id ".
 			(($test_type_id == 0)?"":"AND t.test_type_id=$test_type_id ").
-			(($test_category_id==0)?"":"AND t.test_type_id = tt.test_type_id AND tt.test_category_id = $test_category_id ").
+			(($test_category_id==0)?"":"AND tt.test_category_id = $test_category_id ").
 			"AND s.date_collected between '$date_from' AND '$date_to' ORDER BY s.date_collected";
 	}
 

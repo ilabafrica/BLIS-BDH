@@ -129,9 +129,9 @@ Page loader
 Header and header elements.
 ***/
 .header {
-  padding: 0 !important;
+/*  padding: 0 !important;
   margin: 0 !important;
-}
+*/}
 
 .header .brand {
   margin-top: -1px;

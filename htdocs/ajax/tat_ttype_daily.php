@@ -69,7 +69,7 @@
 			$stat_lists[] = $stat_list;
 			unset($stat_list);
 		}
-	}	
+	}
 	else {
 		/* Build Array Map with Lab Id as Key and Test Id as corresponding Value, if using aggregation */
 		$testIds = array();
@@ -106,7 +106,7 @@
 			$test_type_id = $testIds[$lab_config->id];
 			$labName = $lab_config->name;
 			$namesArray[] = $labName;
-			$stat_list = StatsLib::getTatDailyProgressionStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
+			$stat_list = StatsLib::getTATDailyStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
 			ksort($stat_list);
 			$stat_lists[] = $stat_list;
 		}
@@ -130,7 +130,7 @@
 	$waitingTimeData = array();
 	foreach($stat_lists as $stat_list) {
 		foreach($stat_list as $key => $value) {
-			$waitValue = round($value[5],2);
+			$waitValue = round($value[1],2);
 			$formattedValue = round($value[0],2);
 			$formattedDate = bcmul($key,1000);
 			$progressData[] = array($formattedDate,$formattedValue);
@@ -149,7 +149,6 @@
 	$legend_id = "tlegend_".$testTypeId;
 
 	?>
-	<div id="trendsDiv" style="width: 800px; height: 400px; margin: 0 auto"></div>
 	<script type='text/javascript'>
 		var progressTrendsData = new Array();
 		var expectedTAT = new Array;
@@ -231,173 +230,82 @@
 
 	</script>
 
+	<div id="trendsDiv" style="width: 800px; height: 400px; margin: 0 auto"></div>
 	<?php
 
 	if($testTypeId != 0) {
-		# Show table of tat-exceeded specimens
-		$is_exceeded = false;
-		foreach($stat_list as $key=>$value)
-		{
-			if(count($value[3]) != 0)
+		# Show table of graph data
+
+			$table_id = 'graph-data-table-'.$testTypeId;
+			$count['TOTAL'] = 0;
+			$count['GT_TAT'] = 0;
+			$count['TARGET_TAT'] = 0;
+			$graph_data = "";
+			foreach($stat_list as $key=>$graph_records)
 			{
-				$is_exceeded = true;
-				break;
+				foreach($graph_records[4] as $datum)
+				{
+					$spec_id = substr($datum['category'], 0, 3)."-".$datum['specimen_id'];
+					$time_r = $datum['ts'];
+					$time_c = $datum['ts_collected'];
+					$time_f = $datum['ts_completed'];
+					$count['TOTAL']++;
+					if((($time_f-$time_c)/60/60)>$datum['target_tat'])$count['GT_TAT']++;
+					$count['TARGET_TAT'] = $datum['target_tat'];
+
+					$graph_data .= "<tr><td>".$count['TOTAL']."</td>";
+					$graph_data .= "<td>$spec_id</td>";
+					$graph_data .= "<td>".$datum['specimen_type']."</td>";
+					$graph_data .= "<td>".$datum['test_name']."</td>";
+					$graph_data .= "<td>".date("Y-m-d H:i:s", $datum['ts'])."</td>";
+					$graph_data .= "<td>".round(($time_c-$time_r)/60, 2)."</td>";
+					$graph_data .= "<td>".round(($time_f-$time_c)/60, 2)."</td></tr>";
+				}
 			}
-		}
-		if($is_exceeded === false)
-		{
+			$graph_summary_style = "style='width:320px;font-size:1.1em;border:1px solid #cdcdcd;margin:5px;padding:5px 15px;'";
 			?>
-			<center>
-			<div class='sidetip_nopos' style='width:300px;'>
-			<?php echo LangUtil::$pageTerms['TIPS_TATEXCEED']; ?>
+			<div class='sidetip_nopos' <?php echo $graph_summary_style; ?>>
+				<div>
+					<span>Target TAT:</span>
+					<span style='float:right;'><?php echo $count['TARGET_TAT']; ?> Hours</span>
+				</div>
+				<div>
+					<span>Total Number of Specimen in Interval:</span>
+					<span style='float:right;'><?php echo $count['TOTAL']; ?></span>
+				</div>
+				<div>
+					<span>Specimen Exceeding Target TAT:</span>
+					<span style='float:right;'><?php echo $count['GT_TAT']; ?></span>
+				</div>
+				<a href="javascript:toggle('<?php echo $table_id; ?>');">
+					View/Hide Details &raquo;</a>
 			</div>
-			</center>
-			<?php
-		}
-		else
-		{
-			$saved_db = DbUtil::switchToLabConfig($lab_config->id);
-			$table_id = 'exceededtable_'.$testTypeId;
-			?>
-			<center>
-			<div class='sidetip_nopos' style='width:300px;'>
-			<?php
-			$total_exceeded = 0;
-			foreach($stat_list as $key=>$value)
-			{
-				$total_exceeded += count($value[3]);
-			}
-			echo $total_exceeded." ".LangUtil::$pageTerms['TIPS_TATEXCEEDNUM'];
-			?>
-			<a href="javascript:toggle('<?php echo $table_id; ?>');">&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['CMD_VIEW'] ?> &raquo;</a>
-			</div>
-			</center>
 			
 			<table class='tablesorter' id='<?php echo $table_id; ?>' style='display:none;'>
 				<thead>
 					<tr>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td style='text-align:right;'>
-							<a href="javascript:toggle('<?php echo $table_id; ?>');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
-						</td>
-					</tr>
-					<tr>
-						<th>#</th>
+						<th style="padding:5px;">#</th>
 						<th><?php echo LangUtil::$generalTerms['SPECIMEN_ID']; ?></th>
 						<th><?php echo LangUtil::$generalTerms['TYPE']; ?></th>
 						<th><?php echo LangUtil::$generalTerms['TESTS']; ?></th>
 						<th><?php echo LangUtil::$generalTerms['C_DATE']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['REGD_BY']; ?></th>
+						<th>Waiting Time (Mins)</th>
+						<th>TAT (Mins)</th>
 					</tr>
 				</thead>
 				<tbody>
-				<?php
-				$count = 1;
-				foreach($stat_list as $key=>$value)
-				{
-					if(count($value[3]) == 0)
-						continue;
-					foreach($value[3] as $specimen_id)
-					{
-						$specimen = get_specimen_by_id($specimen_id);
-						$page_elems->getSpecimenExceededInfoRow($specimen, $count);
-						$count++;
-					}
-				}
-				?>
+					<?php echo $graph_data; ?>
 				</tbody>
 			</table>
 			<script type='text/javascript'>
-			$(function () {
-				$('#<?php echo $table_id; ?>').tablesorter();
-			});
-			</script><br>
-			<?php
-			DbUtil::switchRestore($saved_db);
-		}
-		if($include_pending === false)
-			return;
-
-		# Show table of tat-pending specimens
-		$is_pending = false;
-		foreach($stat_list as $key=>$value)
-		{
-			if(count($value[4]) != 0)
-			{
-				$is_pending = true;
-				break;
-			}
-		}
-		if($is_pending === false) {
-			?>
-			<center>
-			<div class='sidetip_nopos' style='width:300px;'>
-			<?php echo LangUtil::$pageTerms['TIPS_TATNOPENDING']; ?>
-			</div>
-			</center>
-			<?php
-		}
-		else {
-			$saved_db = DbUtil::switchToLabConfig($lab_config->id);
-			$table_id = 'pendingtable_'.$testTypeId;
-			?>
-			<center>
-			<div class='sidetip_nopos' style='width:300px;'>
-			<?php
-			$total_pending = 0;
-			foreach($stat_list as $key=>$value)
-			{
-				$total_pending += count($value[4]);
-			}
-			echo $total_pending." ".LangUtil::$pageTerms['TIPS_TATPENDING'];
-			?>	
-			<a href="javascript:toggle('<?php echo $table_id; ?>');">&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['CMD_VIEW'] ?> &raquo;</a>
-			</div>
-			</center>
-			<table class='tablesorter' id='<?php echo $table_id; ?>' style='display:none;'>
-				<thead>
-					<tr>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td style='text-align:right;'>
-							<a href="javascript:toggle('<?php echo $table_id; ?>');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
-						</td>
-					</tr>
-					<tr>
-						<th>#</th>
-						<th><?php echo LangUtil::$generalTerms['SPECIMEN_ID']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['TYPE']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['TESTS']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['C_DATE']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['REGD_BY']; ?></th>
-					</tr>
-				</thead>
-				<tbody>
-				<?php
-				$count = 1;
-				foreach($stat_list as $key=>$value)
-				{
-					if(count($value[4]) == 0)
-						continue;
-					foreach($value[4] as $specimen_id)
-					{
-						$specimen = get_specimen_by_id($specimen_id);
-						$page_elems->getSpecimenExceededInfoRow($specimen, $count);
-						$count++;
-					}
-				}
-				?>
-				</tbody>
-			</table>
-			<?php
-			DbUtil::switchRestore($saved_db);
-		}
+				$(function () {
+					$('#<?php echo $table_id; ?>').tablesorter();
+				});
+			</script>
+			<br>
+		<?php
 	}
 ?>
+<pre>
+<?php print_r($stat_list); ?>
+</pre>

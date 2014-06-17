@@ -110,7 +110,6 @@ if($_REQUEST['pending'] == 'Y')
                 <br><br>
                 <?php
                 $stat_list = StatsLib::getTatStats($lab_config, $date_from, $date_to);
-                
                 if(count($stat_list) == 0)
                 {
                     ?>
@@ -122,9 +121,7 @@ if($_REQUEST['pending'] == 'Y')
                 }
                 ?>
                 <div id='stats_testwise_div'></div>
-                <div id='stats_cumul_div'>
-                
-                </div>
+                <div id='stats_cumul_div'></div>
           </div>
      </div>
 </div>

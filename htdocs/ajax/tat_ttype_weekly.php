@@ -256,19 +256,16 @@
 			$saved_db = DbUtil::switchToLabConfig($lab_config->id);
 			$table_id = 'exceededtable_'.$testTypeId;
 			?>
-			<center>
-			<div class='sidetip_nopos' style='width:300px;'>
-			<?php
-			$total_exceeded = 0;
-			foreach($stat_list as $key=>$value)
-			{
-				$total_exceeded += count($value[3]);
-			}
-			echo $total_exceeded." ".LangUtil::$pageTerms['TIPS_TATEXCEEDNUM'];
-			?>
-			<a href="javascript:toggle('<?php echo $table_id; ?>');">&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['CMD_VIEW'] ?> &raquo;</a>
+			<div class='sidetip_nopos' style='width:320px;'>
+				<?php
+					$total_exceeded = 0;
+					foreach($stat_list as $key=>$value)
+						$total_exceeded += count($value[3]);
+					echo $total_exceeded." ".LangUtil::$pageTerms['TIPS_TATEXCEEDNUM'];
+				?>
+				<a href="javascript:toggle('<?php echo $table_id; ?>');" style="float:right">
+					<?php echo LangUtil::$generalTerms['CMD_VIEW'] ?> &raquo;</a>
 			</div>
-			</center>
 			
 			<table class='tablesorter' id='<?php echo $table_id; ?>' style='display:none;'>
 				<thead>
@@ -331,30 +328,27 @@
 		}
 		if($is_pending === false) {
 			?>
-			<center>
+			<!-- <center> -->
 			<div class='sidetip_nopos' style='width:300px;'>
 			<?php echo LangUtil::$pageTerms['TIPS_TATNOPENDING']; ?>
 			</div>
-			</center>
+			<!-- </center> -->
 			<?php
 		}
 		else {
 			$saved_db = DbUtil::switchToLabConfig($lab_config->id);
 			$table_id = 'pendingtable_'.$testTypeId;
 			?>
-			<center>
-			<div class='sidetip_nopos' style='width:300px;'>
-			<?php
-			$total_pending = 0;
-			foreach($stat_list as $key=>$value)
-			{
-				$total_pending += count($value[4]);
-			}
-			echo $total_pending." ".LangUtil::$pageTerms['TIPS_TATPENDING'];
-			?>	
-			<a href="javascript:toggle('<?php echo $table_id; ?>');">&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['CMD_VIEW'] ?> &raquo;</a>
+			<div class='sidetip_nopos' style='width:320px;'>
+				<?php
+					$total_pending = 0;
+					foreach($stat_list as $key=>$value)
+						$total_pending += count($value[4]);
+					echo $total_pending." ".LangUtil::$pageTerms['TIPS_TATPENDING'];
+				?>	
+				<a href="javascript:toggle('<?php echo $table_id; ?>');" style="float:right">
+					<?php echo LangUtil::$generalTerms['CMD_VIEW'] ?> &raquo;</a>
 			</div>
-			</center>
 			<table class='tablesorter' id='<?php echo $table_id; ?>' style='display:none;'>
 				<thead>
 					<tr>

@@ -92,4 +92,8 @@ $PATIENT_HASH_LENGTH = 40;
 
 # Disable updating of patient profile by users
 $DISABLE_UPDATE_PATIENT_PROFILE = false;
+
+$TURNAROUND_REPORT = array(
+	'Y_AXIS_UNIT'=>'Days'
+	);
 ?>

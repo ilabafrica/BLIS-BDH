@@ -762,6 +762,7 @@ class StatsLib
 		{
 			$count_value = get_tests_done_count($lab_config, $test_type_id, $date_from, $date_to);
 			$test_count=get_test_count($lab_config, $test_type_id, $date_from, $date_to);
+			$tests_all[] = (int)$test_count;
 			$tests_done_count_list[] = $count_value;
 			$tests_pending_list[]=$test_count-$count_value;
 
@@ -771,7 +772,7 @@ class StatsLib
 		for($i = 0; $i < count($test_type_list); $i++)
 		{
 			# Add to return value if test count not zero
-			if($tests_pending_list[$i] != 0)
+			if($tests_all[$i] != 0)
 				$retval[$test_type_list[$i]] = array($tests_done_count_list[$i],$tests_pending_list[$i]);
 		}
 		DbUtil::switchRestore($saved_db);

@@ -1154,7 +1154,7 @@ class PageElems
 		</table>
 		<?php
 	}
-
+	#	Begin function to display drug type information
 	public function getDrugTypeInfo($drug_name, $show_db_name=false)
 	{
 		# Returns HTML for displaying drug type information
@@ -1188,7 +1188,42 @@ class PageElems
 		</table>
 		<?php
 	}
-	
+	#	End function to get drug type information
+	#	Begin function to retrieve organism information
+	public function getOrganismInfo($organism_name, $show_db_name=false)
+	{
+		# Returns HTML for displaying drug type information
+		# Fetch specimen type record
+		$organism = get_organism_by_name($organism_name);
+		?>
+		<table class='hor-minimalist-b'>
+			<tbody>
+				<tr valign='top'>
+					<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?></td>
+					<td>
+						<?php
+						if($show_db_name === true)
+						{
+							# Show original name stored in DB
+							echo $organism->name;
+						}
+						else
+						{
+							# Show name store din locale string
+							echo $organism->getName();
+						}
+						?>
+					</td>
+				</tr>
+				<tr valign='top'>
+					<td><?php echo LangUtil::$generalTerms['DESCRIPTION']; ?></td>
+					<td><?php echo $organism->getOrganismDescription(); ?></td>
+				</tr>
+			</tbody>
+		</table>
+		<?php
+	}
+	#	End function to retrieve organism information
 	public function getSpecimenTypeInfo($specimen_name, $show_db_name=false)
 	{
 		# Returns HTML for displaying specimen type information
@@ -1385,6 +1420,68 @@ class PageElems
 		<?php
 	}
 	
+	#	Begin Function to return table of organisms
+	public function getOrganismsTable($lab_config_id)
+	{
+		# Returns HTML table listing all organisms in catalog
+		?>
+		<?php
+		$organisms = get_organisms_catalog($lab_config_id);
+		if(count($organisms) == 0)
+		{
+			echo "<div class='sidetip_nopos'>".LangUtil::$pageTerms['TIPS_ORGANISMSNOTFOUND']."</div>";
+			return;
+		}
+		?>
+
+		<table id="sample_1" class='table table-striped table-condensed table-bordered table-hover dataTable' style="width: 100%;">
+			<thead>
+					<th>#</th>
+					<th><?php echo LangUtil::$generalTerms['ORGANISM']; ?></th>
+					<th><?php echo "Action(s)"; ?></th>
+					<th></th>
+			</thead>
+		<tbody>
+		<?php
+		$count = 1;
+		foreach($organisms as $key => $value)
+		{
+			$organism = get_organism_by_id($key);
+			$organism_name = Organism::getOrganismNameById($organism->organismId);
+			?>
+			<tr>
+			<td>
+				<?php echo $count; ?>.
+			</td>
+			<td>
+				<?php echo $value; ?>
+			</td>
+			<td>
+				<a href='organism_edit.php?oid=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Organism Info'><i class='icon-pencil'></i>  <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
+
+			</td>
+			<?php
+			$user = get_user_by_id($_SESSION['user_id']);
+			if(is_country_dir($user) || is_super_admin($user)|| is_admin($user))
+			{
+			?>
+			<td>
+				<a href='organism_delete.php?oid=<?php echo $key; ?>' class="btn mini red-stripe"><i class='icon-remove'></i>  <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a>
+			</td>
+			<?php
+			}
+			?>
+			</tr>
+			<?php
+			$count++;
+		}
+		?>
+		</tbody>
+		</table>
+		<?php
+	}
+	#	End Function to return table of organisms
+
 	public function getSpecimenTypeTable($lab_config_id)
 	{
 		# Returns HTML table listing all specimen types in catalog

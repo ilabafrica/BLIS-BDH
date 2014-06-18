@@ -352,7 +352,7 @@ if($attrib_type == 12||$attrib_type == 13)
 }
 else{
  	
- 	$num_records = 1000;
+ 	$num_records = count_total_tests();
  	//Set Pagination
  	$page = $_REQUEST['p'];
  	$url="javascript:fetch_tests('$status'";

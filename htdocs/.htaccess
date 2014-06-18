@@ -121,6 +121,13 @@ RewriteRule ^drug_type_edit\.php$ catalog/drug_type_edit.php
 RewriteRule ^drug_type_updated\.php$ catalog/drug_type_updated.php
 RewriteRule ^drug_type_delete\.php$ catalog/drug_type_delete.php
 
+RewriteRule ^organism_new\.php$ catalog/organism_new.php
+RewriteRule ^organism_add\.php$ catalog/organism_add.php
+RewriteRule ^organism_added\.php$ catalog/organism_added.php
+RewriteRule ^organism_edit\.php$ catalog/organism_edit.php
+RewriteRule ^organism_updated\.php$ catalog/organism_updated.php
+RewriteRule ^organism_delete\.php$ catalog/organism_delete.php
+
 RewriteRule ^country_catalog\.php$ catalog/country_catalog.php
 RewriteRule ^test_type_edit_agg\.php$ catalog/test_type_edit_agg.php
 RewriteRule ^test_type_edit_dir\.php$ catalog/test_type_edit_dir.php

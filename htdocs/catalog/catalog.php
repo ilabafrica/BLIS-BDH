@@ -111,6 +111,29 @@ if(is_super_admin($user) || is_country_dir($user))
 	</div>
 	</div>
 	<!--End Drugs Div-->
+
+	<!--Organisms Div-->
+	<div id='organism_types_div' class='content_div'>
+    <div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i><?php echo LangUtil::$generalTerms['ORGANISMS']; ?></h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body">
+		<p style="text-align: right;"><a rel='facebox' href='#Organism_tc'>Page Help</a></p>
+		<a href='javascript:add_organism();' class="btn blue-stripe" title='Click to Add a New Organism'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
+		<br><br>
+		<div id='sdel_msg' class='clean-orange' style='display:none;'>
+			<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+		</div>
+		<?php $page_elems->getOrganismsTable($_SESSION['lab_config_id']); ?>
+		</div>
+	</div>
+	</div>
+	<!--End Organisms Div-->
     
     <div id='test_categories_div' class='content_div'>
     <div class="portlet box green">
@@ -226,6 +249,12 @@ $(document).ready(function(){
 		load_right_pane('drug_types_div');
 		<?php
 	}
+	else if(isset($_REQUEST['show_o']))
+	{
+		?>
+		load_right_pane('organism_types_div');
+		<?php
+	}
 	else if(isset($_REQUEST['show_tc']))
 	{
 		?>
@@ -243,6 +272,20 @@ $(document).ready(function(){
 		?>
 		$('#tdel_msg').show();
 		load_right_pane('test_types_div');
+		<?php
+	}
+	else if(isset($_REQUEST['dtdel']))
+	{
+		?>
+		$('#tdel_msg').show();
+		load_right_pane('drug_types_div');
+		<?php
+	}
+	else if(isset($_REQUEST['odel']))
+	{
+		?>
+		$('#tdel_msg').show();
+		load_right_pane('organism_types_div');
 		<?php
 	}
 	else if(isset($_REQUEST['sdel']))
@@ -318,6 +361,24 @@ function add_drug(){
 	App.blockUI(el);
 	
 	var url = 'catalog/drug_type_new.php';
+	$('#form').html("");
+	var target_div = "form";
+	$("#"+ target_div).load(url, 
+		{lab_config: "" }, 
+		function() 
+		{
+			$('#'+target_div).modal('show');
+			App.unblockUI(el);
+		}
+	);
+	
+}
+
+function add_organism(){
+	var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+	App.blockUI(el);
+	
+	var url = 'catalog/organism_new.php';
 	$('#form').html("");
 	var target_div = "form";
 	$("#"+ target_div).load(url, 

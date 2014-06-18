@@ -1739,6 +1739,132 @@ class DrugType
 		return $retval;
 	}
 }
+#	Begin Organisms Class
+class Organism
+{
+	public $organismId;
+	public $name;
+	public $description;
+	
+	public static function getObject($record)
+	{
+		if($record == null)
+			return null;
+			
+		$organism = new Organism();
+		
+		if(isset($record['organism_id']))
+			$organism->organismId = $record['organism_id'];
+		else
+			$organism->organismId = null;
+		
+		if(isset($record['name']))
+			$organism->name = $record['name'];
+		else
+			$organism->name = null;
+			
+		if(isset($record['description']))
+			$organism->description = $record['description'];
+		else
+			$organism->description = null;
+			
+		return $organism;
+	}
+	
+	public function getName()
+	{
+		global $CATALOG_TRANSLATION;
+		if($CATALOG_TRANSLATION === true)
+		{
+			return LangUtil::getOrganismName($this->organismId);
+		}
+		else
+		{
+			return $this->name;
+		}
+	}
+	
+	public function getOrganismName()
+	{
+		global $CATALOG_TRANSLATION;
+		if($CATALOG_TRANSLATION === true)
+		{
+			return $this->name;
+		}
+		else
+		{
+			return $this->name;
+		}
+	}
+	
+	public function getOrganismDescription()
+	{
+		if(trim($this->description) == "" || $this->description == null)
+			return "-";
+		else 
+			return trim($this->description);
+	}
+	
+	public static function getById($organism_id)
+	{
+		# Returns a organism entry fetch by ID
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		$query_string = 
+			"SELECT * FROM organisms ".
+			"WHERE organism_id=$organism_id";
+		$record = query_associative_one($query_string);
+		DbUtil::switchRestore($saved_db);
+		return Organism::getObject($record);
+	}
+
+	public static function getOrganismNameById($organism_id)
+	{
+		# Returns a organism name fetch by ID
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		$query_string = 
+			"SELECT name FROM organisms ".
+			"WHERE organism_id=$organism_id";
+		$record = query_associative_one($query_string);
+		DbUtil::switchRestore($saved_db);
+		return $record['name'];
+	}
+	
+	public static function deleteById($organism_id)
+	{
+		# Deletes organism from database
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		$query_string =
+			"UPDATE organisms SET disabled=1 WHERE organism_id=$organism_id";
+		query_blind($query_string);
+		DbUtil::switchRestore($saved_db);
+	}
+	
+	public static function geAllOrganisms($lab_config_id)
+	{
+		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
+		$query_string =
+		"SELECT organism_id, name FROM organisms";
+	
+		$retval = array();
+		$organism_details =  array();
+		$resultset = query_associative_all($query_string, $row_count);
+		foreach($resultset as $record)
+		{
+			$organism_details['organism_id'] = $record['organism_id'];
+			$organism_details['name'] = $record['name'];
+			array_push($retval, $organism_details);
+		}
+		DbUtil::switchRestore($saved_db);
+		return $retval;
+	}
+}
+#	End Organisms Class
 /* Begin Class for drug susceptibility functionality */
 class DrugSusceptibility
 {
@@ -7845,7 +7971,17 @@ function add_test_result($test_id, $result_entry, $comments="", $specimen_id="",
 	if($specimen_id != "")
 		update_specimen_status($specimen_id);
 }
-
+#	Function to get total tests
+function count_total_tests()
+{
+	# Searches for patients with similar name
+	global $con;
+	$query_string = 
+		"SELECT count(*) as val FROM test;";
+	$resultset = query_associative_one($query_string);
+	return $resultset['val'];
+}
+#	End function to get total tests
 function update_specimen_status($specimen_id)
 {
 	global $con;
@@ -9318,6 +9454,23 @@ function add_drug_type($drug_name, $drug_descr="")
 	return get_max_drug_type_id();
 }
 
+#	Function to save organism details
+function add_organism($organism_name, $organism_descr="")
+{
+	global $con;
+	$organism_name = mysql_real_escape_string($organism_name, $con);
+	$organism_descr = mysql_real_escape_string($organism_descr, $con);
+	# Adds a new organism to catalog
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = 
+		"INSERT INTO organisms(name, description) ".
+		"VALUES ('$organism_name', '$organism_descr')";
+	query_insert_one($query_string);
+	# Return primary key of the record just inserted
+	DbUtil::switchRestore($saved_db);
+	return get_max_organism_id();
+}
+
 function add_rejection_phase($phase_name, $phase_descr)
 {
 	global $con;
@@ -9382,6 +9535,29 @@ function update_drug_type($updated_entry)
 		"SET name='$updated_entry->name', ".
 		"description='$updated_entry->description', ".
 		"WHERE drug_id=$updated_entry->drugTypeId";
+	query_blind($query_string);
+	DbUtil::switchRestore($saved_db);
+}
+///////////////////////////////////////////////////////////////////////////
+
+////////////function to update drug types//////////////////
+function update_organism($updated_entry)
+{
+	# Updates organism info in DB catalog
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$existing_entry = get_organism_by_id($updated_entry->organismId);
+	if($existing_entry == null)
+	{
+		# No record found
+		DbUtil::switchRestore($saved_db);
+		return;
+	}
+	$query_string =
+		"UPDATE organisms ".
+		"SET name='$updated_entry->name', ".
+		"description='$updated_entry->description', ".
+		"WHERE organism_id=$updated_entry->organismId";
+		echo $query_string;
 	query_blind($query_string);
 	DbUtil::switchRestore($saved_db);
 }
@@ -9570,7 +9746,40 @@ function get_drug_types_catalog($lab_config_id=null, $reff=null)
 	return $retval;
 }
 
-
+#	Begin function to return organisms from catalog
+function get_organisms_catalog($lab_config_id=null, $reff=null)
+{
+	# Returns a list of all organisms available in catalog
+	global $CATALOG_TRANSLATION;
+        //NC3065
+               // global $LIS_ADMIN, $LIS_SUPERADMIN, $LIS_COUNTRYDIR;
+        if($reff == 1 && $reff != 2)
+        {
+            $user = get_user_by_id($_SESSION['user_id']);
+            $lab_config_id = $user->labConfigId;
+        }
+        //-NC3065
+	if($lab_config_id == null)
+		return;
+	//else
+		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
+	$query_string =
+		"SELECT organism_id, name FROM organisms WHERE disabled=0 ORDER BY name";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset) {
+		foreach($resultset as $record)
+		{
+			if($CATALOG_TRANSLATION === true)
+				$retval[$record['organism_id']] = LangUtil::getOrganismName($record['organism_id']);
+			else
+				$retval[$record['organism_id']] = $record['name'];
+		}
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
+#	End  function to return catalog organisms
 /******/
 function get_test_categories_catalog($lab_config_id=null, $reff=null)
 {
@@ -10113,6 +10322,22 @@ function get_drug_type_by_name($drug_type_name)
 	return DrugType::getObject($record);
 }
 
+#	Get organism by name
+function get_organism_by_name($organism_name)
+{
+	global $con;
+	$organism_name = mysql_real_escape_string($organism_name, $con);
+	# Returns drug type record in DB
+	$user = get_user_by_id($_SESSION['user_id']);
+	$lab_config_id = $user->labConfigId;
+	$saved_db = DbUtil::switchToLabConfigRevamp($lab_config_id);
+	$query_string = 
+		"SELECT * FROM organisms WHERE name='$organism_name' LIMIT 1";
+	$record = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return Organism::getObject($record);
+}
+
 //get rejection phase by name
 function get_rejection_phase_by_name($rejection_phase_name)
 {
@@ -10320,6 +10545,21 @@ function get_drug_type_by_id($drug_id)
 	return DrugType::getObject($record);
 }
 
+#	Begin get_organism_by_id function
+function get_organism_by_id($organism_id)
+{
+	global $con;
+	$organism_id = mysql_real_escape_string($organism_id, $con);
+	# Returns organism record in DB
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string =
+		"SELECT * FROM organisms WHERE organism_id=$organism_id LIMIT 1";
+	$record = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return DrugType::getObject($record);
+}
+# 	End function
+
 function get_rejection_phase_by_id($rejection_phase_id)
 {
 	global $con;
@@ -10515,6 +10755,16 @@ function get_max_drug_type_id()
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string =
 		"SELECT MAX(drug_id) as maxval FROM drugs";
+	$resultset = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return $resultset['maxval'];
+}
+function get_max_organism_id()
+{
+	# Returns the largest organism ID
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string =
+		"SELECT MAX(organism_id) as maxval FROM organisms";
 	$resultset = query_associative_one($query_string);
 	DbUtil::switchRestore($saved_db);
 	return $resultset['maxval'];

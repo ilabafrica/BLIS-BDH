@@ -335,9 +335,9 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 										?>
 											<input type='text' class='range_field span2 m-wrap' name='range_l_<?php echo $i; ?>[]' value='<?php echo $ref_range->rangeLower; ?>' /> :
 											<input type='text' class='range_field span2 m-wrap' name='range_u_<?php echo $i; ?>[]' value='<?php echo $ref_range->rangeUpper; ?>' />
-											<input type='text' class='range_field span3 m-wrap' name='gender_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->sex; ?>'/>
-											<input type='text' class='range_field span2 m-wrap agerange_l_<?php echo $i; ?>' name='agerange_l_<?php echo $i; ?>_<?php echo $ref_count; ?>' id='agerange_l_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMin; ?>' /> :
-											<input type='text' class='range_field span2 m-wrap agerange_u_<?php echo $i; ?>' name='agerange_u_<?php echo $i; ?>_<?php echo $ref_count; ?>' id='agerange_u_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMax; ?>' />
+											<input type='text' class='range_field span3 m-wrap' name='gender_<?php echo $i; ?>[]' value='<?php echo $ref_range->sex; ?>'/>
+											<input type='text' class='range_field span2 m-wrap agerange_l_<?php echo $i; ?>' name='agerange_l_<?php echo $i; ?>[]' id='agerange_l_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMin; ?>' /> :
+											<input type='text' class='range_field span2 m-wrap agerange_u_<?php echo $i; ?>' name='agerange_u_<?php echo $i; ?>[]' id='agerange_u_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMax; ?>' />
 											<br><br>
 											<?php
 											$ref_count++;

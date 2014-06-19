@@ -2,6 +2,7 @@
 	#
 	# Main page for creating weekly TAT progression charts
 	# Called via Ajax from reports_tat.php 
+	# We only handle one lab (No multiple labs)
 	#
 
 	include("../includes/user_lib.php");
@@ -17,7 +18,6 @@
 	$date_to = $_REQUEST['dt'];
 	
 	$include_pending = false;
-	$labNamesArray = array();
 
 	if($_REQUEST['p'] == 1)
 		$include_pending = true;
@@ -34,39 +34,14 @@
 
 	$stat_list = array();
 		
-	/* All Tests & All Labs */ 
-	if ( $test_type_id == 0 && $lab_config_id == 0 ) { 
-		$site_list = get_site_list($_SESSION['user_id']);
-
-		foreach( $site_list as $key => $value) {
-			$lab_config = get_lab_config_by_id($key);
-			$labName = $lab_config->name;
-			$namesArray[] = $labName;
-			$stat_list = StatsLib::getTatDailyProgressionStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending, $test_category_id);
-			ksort($stat_list);
-			$stat_lists[] = $stat_list;
-			unset($stat_list);
-		}
-	}
 	/* All Tests for Single Lab */
-	else if ( $test_type_id == 0 && count($lab_config_ids) == 1 ) {
+	if ( $test_type_id == 0 && count($lab_config_ids) == 1 ) {
 		$lab_config = get_lab_config_by_id($lab_config_id);
 		$labName = $lab_config->name;
 		$namesArray[] = $labName;
-		$stat_list = StatsLib::getTatDailyProgressionStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending, $test_category_id);
+		$stat_list = StatsLib::getTATDailyStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending, $test_category_id);
 		ksort($stat_list);
 		$stat_lists[] = $stat_list;
-	}
-	/* All Tests for Multiple Labs */
-	else if ( $test_type_id == 0 && count($lab_config_ids) > 1 ) {
-		foreach( $lab_config_ids as $key) {
-			$lab_config = LabConfig::getById($key);
-			$namesArray[] = $lab_config->name;
-			$stat_list = StatsLib::getTatDailyProgressionStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
-			ksort($stat_list); 
-			$stat_lists[] = $stat_list;
-			unset($stat_list);
-		}
 	}
 	else {
 		/* Build Array Map with Lab Id as Key and Test Id as corresponding Value, if using aggregation */
@@ -84,22 +59,8 @@
 				$testIds[$lab_config_id] = $test_type_id;
 		}
 		
-		/* Single Test for All Labs */
-		if ( $test_type_id != 0 && $lab_config_id == 0 ) {
-			$site_list = get_site_list($_SESSION['user_id']);
-
-			foreach( $site_list as $key => $value) {
-				$lab_config = LabConfig::getById($key);
-				$test_type_id = $testIds[$lab_config->id];
-				$namesArray[] = $lab_config->name;
-				$stat_list = StatsLib::getTatDailyProgressionStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
-				ksort($stat_list); 
-				$stat_lists[] = $stat_list;
-				unset($stat_list);
-			}
-		}
 		/* Single Test for Single Lab */
-		else if ( $test_type_id != 0 && count($lab_config_ids) == 1 ) {
+		if ( $test_type_id != 0 && count($lab_config_ids) == 1 ) {
 			$lab_config = get_lab_config_by_id($lab_config_id);
 			$test_type_id = $testIds[$lab_config->id];
 			$labName = $lab_config->name;
@@ -107,19 +68,6 @@
 			$stat_list = StatsLib::getTATDailyStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
 			ksort($stat_list);
 			$stat_lists[] = $stat_list;
-		}
-		/* Single Test for Multiple Labs */
-		else if ( $test_type_id != 0 && count($lab_config_ids) > 1 ) {
-			
-			foreach( $lab_config_ids as $key) {
-				$lab_config = LabConfig::getById($key);
-				$test_type_id = $testIds[$lab_config->id];
-				$namesArray[] = $lab_config->name;
-				$stat_list = StatsLib::getTatDailyProgressionStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
-				ksort($stat_list); 
-				$stat_lists[] = $stat_list;
-				unset($stat_list);
-			}
 		}
 	}
 
@@ -192,7 +140,7 @@
 		  },
 		  yAxis: {
 			 title: {
-				text: 'TurnAround Time (Hours)'
+				text: 'Time Taken (Hours)'
 			 },
 		  },
 		  tooltip: {
@@ -213,8 +161,6 @@
 		  series: []
 	   };
 
-		// namesArray.push("Waiting Time");
-		// namesArray.unshift("Expected TAT");
 		progressTrendsData.unshift(expectedTAT);
 		
 		for(var i=0;i<namesArray.length;i++) {

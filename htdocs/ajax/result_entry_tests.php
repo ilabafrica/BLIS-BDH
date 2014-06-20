@@ -286,7 +286,7 @@ else
                                         test_status = 0 
                                         AND (labNo != '' OR labNo IS NOT NULL) 
                                         AND (patient_id != '' OR patient_id IS NOT NULL) 
-                                        AND requestDate >= CURDATE() - 365
+                                        AND requestDate >= CURDATE() - 50
                                         AND parentLabNo = 0
                                         AND (patient_id = '$search_term' 
                                             OR replace(full_name, ' ', '') LIKE replace('%$search_term%', ' ', '') 
@@ -352,7 +352,15 @@ if($attrib_type == 12||$attrib_type == 13)
 }
 else{
  	
- 	$num_records = 1000;
+    if($search_term == '' || strlen($search_term) < 3){
+        $num_records = 1000;
+    } 
+    else {
+        //$num_record is passed by reference
+        query_associative_all($query_string, $num_records);
+    }
+
+ 	//$num_records = 1000;//query_associative_all($query_string, $num_records);
  	//Set Pagination
  	$page = $_REQUEST['p'];
  	$url="javascript:fetch_tests('$status'";

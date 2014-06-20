@@ -747,14 +747,14 @@ class StatsLib
 		return $progression_val;
 	}
 	
-	public static function getTATDailyStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending=false, $test_category_id=0)
+	public static function getTATDailyStats($lab_config, $test_type_id, $from, $to, $pending=false, $test_category_id=0)
 	{
-		# Calculates weekly progression of TAT values for a given test type and time period
-		global $DEFAULT_PENDING_TAT, $TURNAROUND_REPORT; # Default TAT value for pending tests (in days)
+		# Calculates Daily progression of TAT values for a given test type and time period
+		global $TURNAROUND_REPORT; # Default TAT Report configs
 		$work_with_hours = true;
 		if(strcmp(strtolower($TURNAROUND_REPORT['Y_AXIS_UNIT']), "days") == 0)$work_with_hours = false;
 
-		$resultset = get_completed_tests_by_type($test_type_id, $date_from, $date_to, $test_category_id);
+		$resultset = get_test_TAT_by_test_type($lab_config, $test_type_id, $from, $to, $test_category_id);
 		# {resultentry_ts, specimen_id, date_collected_ts, ...}
 
 		$progression_val = array();
@@ -766,6 +766,7 @@ class StatsLib
 
 		foreach($resultset as $record)
 		{
+			if($record['pending'] == 1)continue; //We ignore all pending. Wait Time & TAT for these make no sense
 			$date_collected = $record['date_collected'];
 			$wait_diff = ($record['ts_collected'] - $record['ts']); //Waiting time
 			$date_diff = ($record['ts_completed'] - $record['ts_collected']); //Turnaround time
@@ -801,11 +802,16 @@ class StatsLib
 		{
 			# Find average TAT
 			$progression_val[$key][0] = $value[0]/$progression_count[$key];
-			if($work_with_hours){ # Convert from sec timestamp to Hours
+
+			# Determine percentile value
+			$progression_val[$key][3] = StatsLib::getPercentile($percentile_count[$key], $percentile_tofind);
+
+			# Convert from sec timestamp to Hours/Days
+			if($work_with_hours){
 				$progression_val[$key][0] = ($progression_val[$key][0]/(60*60));
 				$progression_val[$key][1] = ($value[1]/$progression_count[$key])/(60*60);
 				$progression_val[$key][3] = $progression_val[$key][3]/(60*60);
-			}else{ # Convert from sec timestamp to days
+			}else{
 				$progression_val[$key][0] = ($progression_val[$key][0]/(60*60*24));
 				$progression_val[$key][1] = ($value[1]/$progression_count[$key])/(60*60*24);
 				$progression_val[$key][3] = $progression_val[$key][3]/(60*60*24);
@@ -814,10 +820,6 @@ class StatsLib
 			# Find average wait time in days
 			$progression_val[$key][2] = $goal_tat[$key];
 
-			# Determine percentile value
-			$progression_val[$key][3] = StatsLib::getPercentile($percentile_count[$key], $percentile_tofind);
-
-			# Convert percentile value to days
 		}
 		# Return {week=>[avg tat, percentile tat, goal tat, [overdue specimen_ids], [pending specimen_ids], avg wait time]}
 		return $progression_val;

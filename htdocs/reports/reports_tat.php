@@ -41,7 +41,9 @@ if($_REQUEST['pending'] == 'Y')
 
     <div class="portlet box green" id="prevalence_div">
         <div class="portlet-title" >
-            <h4><i class="icon-reorder"></i><?php echo LangUtil::$pageTerms['MENU_TAT']; ?></h4>           
+            <h4><i class="icon-reorder"></i><?php echo LangUtil::$pageTerms['MENU_TAT']; ?></h4>
+            <a href='reports.php?show_t' style="float:right; color:#ffffff;">
+                &laquo; <?php echo LangUtil::$pageTerms['MSG_BACKTOREPORTS']; ?></a>
         </div>
         
           <div class="portlet-body" >
@@ -56,8 +58,7 @@ if($_REQUEST['pending'] == 'Y')
                     <?php
                 }
                 ?>
-                 <a href='reports.php?show_t'>&laquo; <?php echo LangUtil::$pageTerms['MSG_BACKTOREPORTS']; ?></a>
-                <br><br>    
+                 
                 <?php
                 if($lab_config == null)
                 {
@@ -79,7 +80,7 @@ if($_REQUEST['pending'] == 'Y')
                 <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
                     <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to-date-tat" type="text" value="<?php echo $date_to ?>"><span class="add-on"><i class="icon-calendar"></i></span>
                  </div>
-                <br><br>
+                <br />
                 <span class="tat-label"><?php echo LangUtil::$generalTerms['LAB_SECTION']; ?></span>
                 <select name='cat_code' id='cat_code13' class='uniform_width'>
                     <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
@@ -87,12 +88,13 @@ if($_REQUEST['pending'] == 'Y')
                         $page_elems->getTestCategorySelect();
                     ?>
                 </select>
+                <br />
                 <span class="tat-label"><?php echo LangUtil::$generalTerms['TEST_TYPE']; ?></span>
                 <select name='ttype' id='ttype' style='font-family:Tahoma;'>
                     <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
                     <?php $page_elems->getTestTypesSelect($lab_config->id); ?>
                 </select>
-                <br><br>
+                <br />
                 <span class="tat-label">Interval</span>
                 <small>
                 <select name='tattype' id='tattype' style='font-family:Tahoma;'>
@@ -100,7 +102,7 @@ if($_REQUEST['pending'] == 'Y')
                     <option value='w' selected><?php echo LangUtil::$pageTerms['PROGRESSION_W']; ?></option>
                     <option value='d'><?php echo LangUtil::$pageTerms['PROGRESSION_D']; ?></option>
                 </select>
-                <span><input type="checkbox" id='pending_chk' name='pending'></input>
+                <span style="display:none;"><input type="checkbox" id='pending_chk' name='pending'></input>
                         <?php echo LangUtil::$pageTerms['MSG_INCLUDEPENDING']; ?>
                 </span>
                 &nbsp;&nbsp;&nbsp;

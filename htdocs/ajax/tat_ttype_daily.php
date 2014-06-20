@@ -1,6 +1,6 @@
 <?php
 	#
-	# Main page for creating weekly TAT progression charts
+	# Main page for creating Daily TAT progression charts
 	# Called via Ajax from reports_tat.php 
 	# We only handle one lab (No multiple labs)
 	#
@@ -37,8 +37,6 @@
 	/* All Tests for Single Lab */
 	if ( $test_type_id == 0 && count($lab_config_ids) == 1 ) {
 		$lab_config = get_lab_config_by_id($lab_config_id);
-		$labName = $lab_config->name;
-		$namesArray[] = $labName;
 		$stat_list = StatsLib::getTATDailyStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending, $test_category_id);
 		ksort($stat_list);
 		$stat_lists[] = $stat_list;
@@ -63,8 +61,6 @@
 		if ( $test_type_id != 0 && count($lab_config_ids) == 1 ) {
 			$lab_config = get_lab_config_by_id($lab_config_id);
 			$test_type_id = $testIds[$lab_config->id];
-			$labName = $lab_config->name;
-			$namesArray[] = $labName;
 			$stat_list = StatsLib::getTATDailyStats($lab_config, $test_type_id, $date_from, $date_to, $include_pending);
 			ksort($stat_list);
 			$stat_lists[] = $stat_list;
@@ -98,7 +94,6 @@
 	<script type='text/javascript'>
 		var progressTrendsData = new Array();
 		var expectedTAT = new Array;
-		// var namesArray = <?php echo json_encode($namesArray); ?>;
 		var namesArray = new Array("Expected TAT", "Actual TAT", "Waiting Time");
 		var progressTrendsDataTemp = <?php echo json_encode($progressTrendsData); ?>;
 
@@ -180,7 +175,7 @@
 
 	</script>
 
-	<div id="trendsDiv" style="width: 800px; height: 400px; margin: 0 auto"></div>
+	<div id="trendsDiv"></div>
 	<?php
 
 	if($testTypeId != 0) {
@@ -200,7 +195,11 @@
 					$time_c = $datum['ts_collected'];
 					$time_f = $datum['ts_completed'];
 					$count['TOTAL']++;
-					if((($time_f-$time_c)/60/60)>$datum['target_tat'])$count['GT_TAT']++;
+					$count['EXCEED_STYLE'] = "";
+					if((($time_f-$time_c)/60/60)>$datum['target_tat']){ //Exceeded Target TAT
+						$count['GT_TAT']++;
+						$count['EXCEED_STYLE'] = " class='label label-warning'";
+					}
 					$count['TARGET_TAT'] = $datum['target_tat'];
 
 					$graph_data .= "<tr><td>".$count['TOTAL']."</td>";
@@ -209,12 +208,11 @@
 					$graph_data .= "<td>".$datum['test_name']."</td>";
 					$graph_data .= "<td>".date("Y-m-d H:i:s", $datum['ts'])."</td>";
 					$graph_data .= "<td>".round(($time_c-$time_r)/60, 2)."</td>";
-					$graph_data .= "<td>".round(($time_f-$time_c)/60, 2)."</td></tr>";
+					$graph_data .= "<td><span".$count['EXCEED_STYLE'].">".round(($time_f-$time_c)/60, 2)."</span></td></tr>";
 				}
 			}
-			$graph_summary_style = "style='width:320px;font-size:1.1em;border:1px solid #cdcdcd;margin:5px;padding:5px 15px;'";
 			?>
-			<div class='sidetip_nopos' <?php echo $graph_summary_style; ?>>
+			<div class='sidetip_nopos graph-summary'>
 				<div>
 					<span>Target TAT:</span>
 					<span style='float:right;'><?php echo $count['TARGET_TAT']; ?> Hours</span>
@@ -231,7 +229,7 @@
 					View/Hide Details &raquo;</a>
 			</div>
 			
-			<table class='tablesorter' id='<?php echo $table_id; ?>' style='display:none;'>
+			<table class='tablesorter graph-data-table' id='<?php echo $table_id; ?>' style='display:none;'>
 				<thead>
 					<tr>
 						<th style="padding:5px;">#</th>

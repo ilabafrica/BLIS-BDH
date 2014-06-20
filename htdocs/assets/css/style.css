@@ -3408,9 +3408,24 @@ Styler Panel
     width: auto;
 }
 
-/**/
+/*Turnaround Time Reports*/
+#trendsDiv{
+  width: 800px;
+  height: 400px;
+  margin: 0 auto;
+}
 span.tat-label {
   min-width: 80px;
   padding-left: 10px;
   display: inline-block;
+}
+table.tablesorter.graph-data-table {
+  border: 1px solid #cdcdcd;
+}
+.graph-summary{
+  width:320px;
+  font-size:1.1em;
+  border:1px solid #cdcdcd;
+  margin:5px;
+  padding:5px 15px;
 }

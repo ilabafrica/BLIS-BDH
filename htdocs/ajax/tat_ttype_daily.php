@@ -8,22 +8,18 @@
 	include("../includes/user_lib.php");
 	include("../includes/db_lib.php");
 	include("../includes/stats_lib.php");
-	include("../includes/page_elems.php");
 
 	LangUtil::setPageId("reports");
 
-	$page_elems = new PageElems();
+	global $TURNAROUND_REPORT; # Default TAT Report configs
 
 	$date_from = $_REQUEST['df'];
 	$date_to = $_REQUEST['dt'];
 	
 	$include_pending = false;
-
-	if($_REQUEST['p'] == 1)
-		$include_pending = true;
+	if($_REQUEST['p'] == 1)	$include_pending = true;
 
 	$test_type_id = $_REQUEST['tt'];
-	$testTypeId = $test_type_id;
 	$test_category_id = $_REQUEST['tc'];
 	$lab_config_id = $_REQUEST['l'];
 
@@ -33,6 +29,9 @@
 		$lab_config_ids[] = $lab_config_id;
 
 	$stat_list = array();
+
+	$show_in_hours = true;
+	if(strcmp(strtolower($TURNAROUND_REPORT['Y_AXIS_UNIT']), "days") == 0)$show_in_hours = false;
 		
 	/* All Tests for Single Lab */
 	if ( $test_type_id == 0 && count($lab_config_ids) == 1 ) {
@@ -47,11 +46,11 @@
 		if( strstr($test_type_id,";") ) {
 			$labIdTestIds = explode(";",$test_type_id);
 			foreach( $labIdTestIds as $labIdTestId) {
-					$labIdTestIdsSeparated = explode(":",$labIdTestId);
-					$labId = $labIdTestIdsSeparated[0];
-					$testId = $labIdTestIdsSeparated[1];
-					$testIds[$labId] = $testId;
-			}	
+				$labIdTestIdsSeparated = explode(":",$labIdTestId);
+				$labId = $labIdTestIdsSeparated[0];
+				$testId = $labIdTestIdsSeparated[1];
+				$testIds[$labId] = $testId;
+			}
 		}
 		else {
 				$testIds[$lab_config_id] = $test_type_id;
@@ -67,29 +66,31 @@
 		}
 	}
 
-	$testETAT = 0;
+	$testETAT = 0; //Test Estimated TAT
 	$progressData = array();
 	$waitingTimeData = array();
+
 	foreach($stat_lists as $stat_list) {
 		foreach($stat_list as $key => $value) {
+			$displayDate = bcmul($key,1000);
 			$waitValue = round($value[1],2);
-			$formattedValue = round($value[0],2);
-			$formattedDate = bcmul($key,1000);
-			$progressData[] = array($formattedDate,$formattedValue);
-			$waitingTimeData[] = array($formattedDate,$waitValue);
-			$testETAT = $value[2]; //In Hours
+			$TATValue = round($value[0],2);
+			$testETAT = $value[2];
+
+			if (!$show_in_hours) {	// Show in days.
+				$waitValue = $waitValue/24;
+				$TATValue = $TATValue/24;
+				$testETAT = $testETA/24;
+			}
+			$progressData[] = array($displayDate, $TATValue);
+			$waitingTimeData[] = array($displayDate, $waitValue);
 		}
 		$progressTrendsData[] = $progressData;
 		$progressTrendsData[] = $waitingTimeData;
 		unset($progressData);
 	}
-	# Obtain stats as date_collected(millisec ts) => tat value
 
 	# Build chart with time series
-	$div_id = "tplaceholder_".$testTypeId;
-	$ylabel_id = "tylabel_".$testTypeId;
-	$legend_id = "tlegend_".$testTypeId;
-
 	?>
 	<script type='text/javascript'>
 		var progressTrendsData = new Array();
@@ -135,7 +136,7 @@
 		  },
 		  yAxis: {
 			 title: {
-				text: 'Time Taken (Hours)'
+				text: <?php echo "'Time Taken (" . ($show_in_hours?'Hours':'Days') . ")'"; ?>
 			 },
 		  },
 		  tooltip: {
@@ -178,10 +179,10 @@
 	<div id="trendsDiv"></div>
 	<?php
 
-	if($testTypeId != 0) {
+	if($test_type_id != 0) {
 		# Show table of graph data
 
-			$table_id = 'graph-data-table-'.$testTypeId;
+			$table_id = 'graph-data-table-'.$test_type_id;
 			$count['TOTAL'] = 0;
 			$count['GT_TAT'] = 0;
 			$count['TARGET_TAT'] = 0;
@@ -198,7 +199,7 @@
 					$count['EXCEED_STYLE'] = "";
 					if((($time_f-$time_c)/60/60)>$datum['target_tat']){ //Exceeded Target TAT
 						$count['GT_TAT']++;
-						$count['EXCEED_STYLE'] = " class='label label-warning'";
+						$count['EXCEED_STYLE'] = " class='label label-important' title='Exceeded target TAT'";
 					}
 					$count['TARGET_TAT'] = $datum['target_tat'];
 
@@ -206,51 +207,55 @@
 					$graph_data .= "<td>$spec_id</td>";
 					$graph_data .= "<td>".$datum['specimen_type']."</td>";
 					$graph_data .= "<td>".$datum['test_name']."</td>";
-					$graph_data .= "<td>".date("Y-m-d H:i:s", $datum['ts'])."</td>";
+					$graph_data .= "<td>".date("Y-m-d H:i:s", $time_c)."</td>";
 					$graph_data .= "<td>".round(($time_c-$time_r)/60, 2)."</td>";
 					$graph_data .= "<td><span".$count['EXCEED_STYLE'].">".round(($time_f-$time_c)/60, 2)."</span></td></tr>";
 				}
 			}
 			?>
-			<div class='sidetip_nopos graph-summary'>
-				<div>
-					<span>Target TAT:</span>
-					<span style='float:right;'><?php echo $count['TARGET_TAT']; ?> Hours</span>
+			<div class="graph-data container-fluid">
+				<div class='sidetip_nopos graph-summary row'>
+					<div class="span8">
+						<div>
+							<span>Target TAT:</span>
+							<span style='float:right;'><?php echo $count['TARGET_TAT']; ?> Hours</span>
+						</div>
+						<div>
+							<span>Total Number of Specimen in Interval:</span>
+							<span style='float:right;'><?php echo $count['TOTAL']; ?></span>
+						</div>
+						<div>
+							<span>Specimen Exceeding Target TAT:</span>
+							<span style='float:right;'><?php echo $count['GT_TAT']; ?></span>
+						</div>
+					</div>
+					<div class="span4">
+						<a class="btn btn-default" href="javascript:toggle('<?php echo $table_id; ?>');">
+							View/Hide Details &raquo;</a>
+					</div>
 				</div>
-				<div>
-					<span>Total Number of Specimen in Interval:</span>
-					<span style='float:right;'><?php echo $count['TOTAL']; ?></span>
-				</div>
-				<div>
-					<span>Specimen Exceeding Target TAT:</span>
-					<span style='float:right;'><?php echo $count['GT_TAT']; ?></span>
-				</div>
-				<a href="javascript:toggle('<?php echo $table_id; ?>');">
-					View/Hide Details &raquo;</a>
+				<table class='tablesorter graph-data-table' id='<?php echo $table_id; ?>' style='display:none;'>
+					<thead>
+						<tr>
+							<th style="padding:5px;">#</th>
+							<th><?php echo LangUtil::$generalTerms['SPECIMEN_ID']; ?></th>
+							<th><?php echo LangUtil::$generalTerms['TYPE']; ?></th>
+							<th><?php echo LangUtil::$generalTerms['TESTS']; ?></th>
+							<th><?php echo LangUtil::$generalTerms['C_DATE']; ?></th>
+							<th>Waiting Time (Mins)</th>
+							<th>TAT (Mins)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php echo $graph_data; ?>
+					</tbody>
+				</table>
 			</div>
-			
-			<table class='tablesorter graph-data-table' id='<?php echo $table_id; ?>' style='display:none;'>
-				<thead>
-					<tr>
-						<th style="padding:5px;">#</th>
-						<th><?php echo LangUtil::$generalTerms['SPECIMEN_ID']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['TYPE']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['TESTS']; ?></th>
-						<th><?php echo LangUtil::$generalTerms['C_DATE']; ?></th>
-						<th>Waiting Time (Mins)</th>
-						<th>TAT (Mins)</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php echo $graph_data; ?>
-				</tbody>
-			</table>
 			<script type='text/javascript'>
 				$(function () {
 					$('#<?php echo $table_id; ?>').tablesorter();
 				});
 			</script>
-			<br>
 		<?php
 	}
 ?>

@@ -72,44 +72,52 @@ if($_REQUEST['pending'] == 'Y')
                 
                 DbUtil::switchToLabConfig($lab_config_id);
                 ?>
-                <span class="tat-label"><?php echo LangUtil::$generalTerms['FROM_DATE']; ?></span>
-                <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
-                    <input class="m-wrap m-ctrl-medium" size="16" name="from-report-date" id="from-date-tat" type="text" value="<?php echo $date_from ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                <div class="container-fluid graph-filter">
+                    <div class="row">
+                        <div class="span12">
+                            <span class="tat-label"><?php echo LangUtil::$generalTerms['FROM_DATE']; ?></span>
+                            <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
+                                <input class="m-wrap m-ctrl-medium" size="16" name="from-report-date" id="from-date-tat" type="text" value="<?php echo $date_from ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                            </div><!-- </div> -->
+                        <!-- <div class="span6"> -->
+                            <span class="tat-label"><?php echo LangUtil::$generalTerms['TO_DATE']; ?></span>
+                            <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
+                                <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to-date-tat" type="text" value="<?php echo $date_to ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                             </div></div><br>
+                    </div>
+                    <div class="row">
+                        <div class="span12">
+                            <span class="tat-label"><?php echo LangUtil::$generalTerms['LAB_SECTION']; ?></span>
+                            <select name='cat_code' id='cat_code13' class='uniform_width'>
+                                <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
+                                <?php
+                                    $page_elems->getTestCategorySelect();
+                                ?>
+                            </select>
+<!--                         </div>
+                        <div class="span4">
+  -->                           <span class="tat-label"><?php echo LangUtil::$generalTerms['TEST_TYPE']; ?></span>
+                            <select name='ttype' id='ttype' style='font-family:Tahoma;'>
+                                <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
+                                <?php $page_elems->getTestTypesSelect($lab_config->id); ?>
+                            </select>
+<!--                         </div>
+                        <div class="span4">
+  -->                           <span class="tat-label">Interval</span>
+                            <select name='tattype' id='tattype' style='font-family:Tahoma;'>
+                                <option value='m'><?php echo LangUtil::$pageTerms['PROGRESSION_M']; ?></option>
+                                <option value='w' selected><?php echo LangUtil::$pageTerms['PROGRESSION_W']; ?></option>
+                                <option value='d'><?php echo LangUtil::$pageTerms['PROGRESSION_D']; ?></option>
+                            </select>
+                        <a href="javascript:void(0);" class="btn" onclick='javascript:view_tat();'>
+                            <?php echo LangUtil::$generalTerms['CMD_VIEW']; ?></a>
+                        <span id='progress_spinner' style='display:none'>
+                            <?php $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_FETCHING']); ?></span>
+                        </div>
+                    </div>
                 </div>
-                <span class="tat-label"><?php echo LangUtil::$generalTerms['TO_DATE']; ?></span>
-                <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
-                    <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to-date-tat" type="text" value="<?php echo $date_to ?>"><span class="add-on"><i class="icon-calendar"></i></span>
-                 </div>
-                <br />
-                <span class="tat-label"><?php echo LangUtil::$generalTerms['LAB_SECTION']; ?></span>
-                <select name='cat_code' id='cat_code13' class='uniform_width'>
-                    <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
-                    <?php
-                        $page_elems->getTestCategorySelect();
-                    ?>
-                </select>
-                <br />
-                <span class="tat-label"><?php echo LangUtil::$generalTerms['TEST_TYPE']; ?></span>
-                <select name='ttype' id='ttype' style='font-family:Tahoma;'>
-                    <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
-                    <?php $page_elems->getTestTypesSelect($lab_config->id); ?>
-                </select>
-                <br />
-                <span class="tat-label">Interval</span>
-                <small>
-                <select name='tattype' id='tattype' style='font-family:Tahoma;'>
-                    <option value='m'><?php echo LangUtil::$pageTerms['PROGRESSION_M']; ?></option>
-                    <option value='w' selected><?php echo LangUtil::$pageTerms['PROGRESSION_W']; ?></option>
-                    <option value='d'><?php echo LangUtil::$pageTerms['PROGRESSION_D']; ?></option>
-                </select>
-                <span style="display:none;"><input type="checkbox" id='pending_chk' name='pending'></input>
-                        <?php echo LangUtil::$pageTerms['MSG_INCLUDEPENDING']; ?>
-                </span>
-                &nbsp;&nbsp;&nbsp;
-                <a href="javascript:void(0);" class="btn" onclick='javascript:view_tat();'><?php echo LangUtil::$generalTerms['CMD_VIEW']; ?></a>
-                &nbsp;&nbsp;&nbsp;
-                <span id='progress_spinner' style='display:none'><?php $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_FETCHING']); ?></span>
-                <br><br>
+                <span style="display:none;"><input type="checkbox" id='pending_chk' name='pending' />
+                        <?php echo LangUtil::$pageTerms['MSG_INCLUDEPENDING']; ?></span>
                 <?php
                 $stat_list = StatsLib::getTatStats($lab_config, $date_from, $date_to);
                 if(count($stat_list) == 0)

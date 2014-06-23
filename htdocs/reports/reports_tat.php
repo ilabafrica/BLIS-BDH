@@ -6,16 +6,14 @@ include("redirect.php");
 include("includes/header.php");
 include("includes/stats_lib.php");
 LangUtil::setPageId("reports");
-$lab_config_id = $_REQUEST['location'];
-$date_from = $_REQUEST['from-report-date'];
-$date_to = $_REQUEST['to-report-date'];
-$include_pending = false;
-$uiinfo = "from=".$date_from."&to=".$date_to."&ip=".$_REQUEST['pending'];
+$lab_config_id = get_request_variable('location', '301'); //301  is Bungoma - Hardcoded
+$defaultDate = date("Y-m-d", time());
+$date_from = get_request_variable('from-report-date', $defaultDate);
+$date_to = get_request_variable('to-report-date', $defaultDate);
+$include_pending = get_request_variable('pending', false);
+$uiinfo = "from=".$date_from."&to=".$date_to."&ip=".($include_pending?"Y":"N");
 putUILog('reports_tat', $uiinfo, basename($_SERVER['REQUEST_URI'], ".php"), 'X', 'X', 'X');
-if($_REQUEST['pending'] == 'Y')
-{
-	$include_pending = true;
-}
+
 ?>
  <!-- BEGIN PAGE TITLE & BREADCRUMB-->       
             <h3>
@@ -78,8 +76,7 @@ if($_REQUEST['pending'] == 'Y')
                             <span class="tat-label"><?php echo LangUtil::$generalTerms['FROM_DATE']; ?></span>
                             <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
                                 <input class="m-wrap m-ctrl-medium" size="16" name="from-report-date" id="from-date-tat" type="text" value="<?php echo $date_from ?>"><span class="add-on"><i class="icon-calendar"></i></span>
-                            </div><!-- </div> -->
-                        <!-- <div class="span6"> -->
+                            </div>
                             <span class="tat-label"><?php echo LangUtil::$generalTerms['TO_DATE']; ?></span>
                             <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
                                 <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to-date-tat" type="text" value="<?php echo $date_to ?>"><span class="add-on"><i class="icon-calendar"></i></span>
@@ -94,16 +91,12 @@ if($_REQUEST['pending'] == 'Y')
                                     $page_elems->getTestCategorySelect();
                                 ?>
                             </select>
-<!--                         </div>
-                        <div class="span4">
-  -->                           <span class="tat-label"><?php echo LangUtil::$generalTerms['TEST_TYPE']; ?></span>
+                            <span class="tat-label"><?php echo LangUtil::$generalTerms['TEST_TYPE']; ?></span>
                             <select name='ttype' id='ttype' style='font-family:Tahoma;'>
                                 <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
                                 <?php $page_elems->getTestTypesSelect($lab_config->id); ?>
                             </select>
-<!--                         </div>
-                        <div class="span4">
-  -->                           <span class="tat-label">Interval</span>
+                            <span class="tat-label">Interval</span>
                             <select name='tattype' id='tattype' style='font-family:Tahoma;'>
                                 <option value='m'><?php echo LangUtil::$pageTerms['PROGRESSION_M']; ?></option>
                                 <option value='w' selected><?php echo LangUtil::$pageTerms['PROGRESSION_W']; ?></option>
@@ -158,6 +151,7 @@ $(document).ready(function(){
     ?>
     view_testwise_weekly();
     $('#cat_code13').change( function() { get_test_types_bycat() });
+    $('#progress_spinner').hide();
 });
 function get_test_types_bycat()
 {

@@ -175,7 +175,7 @@
 		new Highcharts.Chart(options);
 
 	</script>
-<pre><?php print_r($progressTrendsData); ?></pre>
+
 	<div id="trendsDiv"></div>
 	<?php
 

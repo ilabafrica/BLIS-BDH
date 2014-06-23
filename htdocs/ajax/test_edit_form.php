@@ -210,7 +210,7 @@ function get_result_form($test_type, $test, $num_tests, $patient)
 			<textarea name='comments' id='<?php echo $curr_form_id; ?>_comments'  class='uniform_width abbreviation' 
 				onfocus="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, 
 				<?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, 
-				'<?php echo $patient->sex;?>');" ><?php echo trim($test->getComments()) ?>
+				'<?php echo $patient->sex;?>', '<?php echo $test->testId?>');" ><?php echo trim($test->getComments()) ?>
 			</textarea>
 			</span>
 		</td>
@@ -476,7 +476,7 @@ $modal_link_id = "test_edit_link_$test_id";
 			alert("Value expected for result is numeric.");
 			return;
 		}
-		update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>');
+		update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, '<?php  echo $patient->sex;?>', '<?php echo $test->testId?>');
 	}
 
 	/*Begin update drug susceptibility*/	

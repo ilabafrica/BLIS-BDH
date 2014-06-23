@@ -2218,8 +2218,9 @@ class Measure
 		foreach($range_l_list as $range_value)
 				{
 			//insert query
-			$query_string="INSERT INTO NUMERIC_INTERPRETATION (range_u, range_l, age_u, age_l, gender, description, measure_id) ".
-			"VALUES($range_u_list[$count],$range_l_list[$count],$age_u_list[$count],$age_l_list[$count],'$gender_list[$count]','$remarks_list[$count]',$this->measureId)";
+			$query_string="INSERT INTO numeric_interpretation (range_u, range_l, age_u, age_l, gender, description, measure_id) ".
+			"VALUES('$range_u_list[$count]', '$range_l_list[$count]' , '$age_u_list[$count]', '$age_l_list[$count]', '$gender_list[$count]', '$remarks_list[$count]', $this->measureId)";
+			echo $query_string;
 			query_insert_one($query_string);
 			$count++;
 				}
@@ -2233,7 +2234,7 @@ class Measure
 						if($remarks_list[$count]=="")
 							{
 						//delete
-						$query_string="DELETE FROM NUMERIC_INTERPRETATION WHERE id=$id_list[$count]";
+						$query_string="DELETE FROM numeric_interpretation WHERE id=$id_list[$count]";
 						query_delete($query_string);
 						}else
 							{

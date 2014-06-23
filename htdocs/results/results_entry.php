@@ -1177,7 +1177,7 @@ function restrictCharacters(e) {
 		return true;
 }
 
-function update_remarks(test_type_id, count, patient_age, patient_sex)
+function update_remarks(test_type_id, count, patient_age, patient_sex, test_id)
 {
 	 <?php # See ajax/specimen_form_fetch.php for field names ?>
 	 var values_csv = "";

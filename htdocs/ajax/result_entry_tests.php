@@ -533,7 +533,7 @@ else{
 			<?php
 			}
 			?>
-				<td style='width:75px;'><?php echo $specimen->ts_collected; ?></td>
+				<td <?php echo 'id="specimenId'.$test->specimenId.'"'?> style='width:75px;'><?php echo $specimen->ts_collected; ?></td>
 			<?php
 			if($_SESSION['pid'] != 0)
 			{

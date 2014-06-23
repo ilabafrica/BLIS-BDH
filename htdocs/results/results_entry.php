@@ -739,7 +739,9 @@ function accept_specimen(specimen_id,test_id)
 			$('#actionA'+test_id).html(''+
 					'<a href="javascript:start_test('+test_id+');"'+ 
 					'title="Click to begin testing this Specimen" class="btn red mini">'+
-					'<i class="icon-ok"></i> Start Test</a>');
+					'<i class="icon-ok"></i> Start Test</a>'+
+					'<a href="javascript:load_specimen_rejection('+specimen_id+');"'+
+					'class="btn mini yellow"><i class="icon-thumbs-down"></i> Reject</a>');
 			$('#actionB'+test_id).html(''+
 					'<a href="javascript:specimen_info('+specimen_id+');"'+ 
 					'title="View specimen details" class="btn mini">'+
@@ -747,6 +749,11 @@ function accept_specimen(specimen_id,test_id)
 			App.unblockUI(el);
 		}
 	);
+  		$.post('ajax/get_specimen_detailByID.php',{sid:specimen_id },function(result) 
+			{
+                $('#specimenId'+specimen_id).html(result);
+			}
+		);
 		
 }
 function start_test(test_id)

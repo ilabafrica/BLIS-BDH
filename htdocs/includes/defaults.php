@@ -24,11 +24,11 @@ $labIdArray = array(
 	 "Drc" =>4001
 );
 
-# Default target turnaround time value (in days) for tests if not yet specified by lab admin
+# Default target turnaround time value (in Hours) for tests if not yet specified by lab admin
 # Can be modified by lab admin on config/lab_config_home.php
 $DEFAULT_TARGET_TAT = 1;
 
-# Default turnaround time value (in days) for tests that are still pending
+# Default turnaround time value (in Hours) for tests that are still pending
 # Can be modified by lab admin on config/lab_config_home.php
 $DEFAULT_PENDING_TAT = 2;
 
@@ -92,4 +92,8 @@ $PATIENT_HASH_LENGTH = 40;
 
 # Disable updating of patient profile by users
 $DISABLE_UPDATE_PATIENT_PROFILE = false;
+
+$TURNAROUND_REPORT = array(
+	'Y_AXIS_UNIT'=>'Hours'
+	);
 ?>

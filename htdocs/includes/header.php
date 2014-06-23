@@ -346,7 +346,7 @@ if(strpos($_SERVER['PHP_SELF'], 'login.php') === false)
 													<a href='javascript:show_selection(".$quote."specimen_count".$quote.");'> <i class='icon-tag'></i> ".LangUtil::$allTerms['MENU_COUNTS']."</a>
 												</li>
 												<li class='menu_option' id='tat_menu'>
-													<a href='javascript:show_selection(".$quote."tat".$quote.");'> <i class='icon-tag'></i> ".LangUtil::$allTerms['MENU_TAT']."</a>
+													<a href='reports_tat.php'> <i class='icon-tag'></i> ".LangUtil::$allTerms['MENU_TAT']."</a>
 												</li>
 												<li class='menu_option' id='disease_report_menu'>
 													<a href='javascript:show_selection(".$quote."disease_report".$quote.");'> <i class='icon-tag'></i> ".LangUtil::$allTerms['MENU_INFECTIONREPORT']."</a>

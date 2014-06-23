@@ -129,9 +129,9 @@ Page loader
 Header and header elements.
 ***/
 .header {
-  padding: 0 !important;
+/*  padding: 0 !important;
   margin: 0 !important;
-}
+*/}
 
 .header .brand {
   margin-top: -1px;
@@ -3408,9 +3408,38 @@ Styler Panel
     width: auto;
 }
 
-/**/
-span.tat-label {
-  min-width: 80px;
-  padding-left: 10px;
-  display: inline-block;
+/*
+*Turnaround Time Reports
+*/
+
+.graph-filter{
+  border-bottom: 1px solid #CCCCCC;
+  padding-bottom: 30px;
+  margin-bottom: 30px;
 }
+.graph-filter .row .span12 .btn{
+  margin-top: -14px;
+}#trendsDiv{
+  width: 800px;
+  height: 400px;
+  margin: 0 auto;
+}
+.graph-data{
+  margin-top: 30px;
+  border-top: 1px solid #CCCCCC;
+}
+  table.tablesorter.graph-data-table {
+    border: 1px solid #cdcdcd;
+  }
+  .graph-summary{
+    width:500px;
+    font-size:1.1em;
+    /*border:1px solid #cdcdcd;*/
+    margin:5px;
+    padding:5px 15px;
+  }
+    span.tat-label {
+      min-width: 80px;
+      padding-left: 10px;
+      display: inline-block;
+    }

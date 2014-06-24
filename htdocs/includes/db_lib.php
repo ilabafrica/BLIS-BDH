@@ -3276,6 +3276,15 @@ class Specimen
 		return $retval;
 	}
 
+	public function getLabSectionByextLabNo($labNo)
+	{
+		$query_string = "SELECT DISTINCT(LEFT(tc.name,3)) AS bench, t.specimen_id FROM test_category tc,
+						test_type tt, test t WHERE tc.test_category_id = tt.test_category_id 
+						AND tt.test_type_id = t.test_type_id AND t.external_lab_no = $labNo";
+						$record = query_associative_one($query_string);
+						return Specimen::getObject($record);
+	}
+
 	public function getDailyNum()
 	{
 		if(trim($this->dailyNum) == "" || $this->dailyNum == 0)

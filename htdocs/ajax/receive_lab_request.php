@@ -450,6 +450,16 @@ function add_specimens(labNo)
 				$('#result_form_pane_'+labNo).attr('id','result_form_pane_'+test_details[1]+'');
 			}
 		);
+     $.post(
+            'ajax/get_test_category.php',
+            {labno:labNo}, 
+            function(result) 
+            {
+                var test_details = result.split('%');
+
+                $('#bench'+labNo).html(test_details[0]+'-'+test_details[1]);
+            }
+        );
 }
 function add_specimenbox()
 {

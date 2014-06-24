@@ -529,11 +529,24 @@ else{
 			if($_SESSION['sid'] != 0)
 			{
 			?>
-				<td style='width:75px;'><?php echo $test->getLabSectionByTest(); ?></td>
+				<td <?php 
+                        if (!empty($test->specimenId)) {    
+                            echo 'id="bench'.$test->specimenId.'"';  
+                         }else{
+                            echo 'id="bench'.$record["external_lab_no"].'"';     
+                         }
+
+                 ?> style='width:75px;'><?php echo $test->getLabSectionByTest(); ?></td>
 			<?php
 			}
 			?>
-				<td <?php echo 'id="specimenId'.$test->specimenId.'"'?> style='width:75px;'><?php echo $specimen->ts_collected; ?></td>
+				<td <?php 
+                        if (!empty($test->specimenId)) {    
+                            echo 'id="specimenId'.$test->specimenId.'"'; 
+                         }else{
+                            echo 'id="extLabNo'.$record["external_lab_no"].'"';      
+                         }
+                ?> style='width:75px;'><?php echo $specimen->ts_collected; ?></td>
 			<?php
 			if($_SESSION['pid'] != 0)
 			{

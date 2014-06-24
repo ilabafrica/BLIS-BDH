@@ -9455,7 +9455,7 @@ function add_drug_type($drug_name, $drug_descr="")
 }
 
 #	Function to save organism details
-function add_organism($organism_name, $organism_descr="")
+function add_organism($organism_name, $organism_descr="", $new_drugs_list)
 {
 	global $con;
 	$organism_name = mysql_real_escape_string($organism_name, $con);
@@ -9464,9 +9464,21 @@ function add_organism($organism_name, $organism_descr="")
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
 		"INSERT INTO organisms(name, description) ".
-		"VALUES ('$organism_name', '$organism_descr')";
+		"VALUES ('$organism_name', '$organism_descr');";
 	query_insert_one($query_string);
 	# Return primary key of the record just inserted
+	$organism_id = get_max_organism_id();
+
+	# Add entries for new compatible drugs
+	foreach($new_drugs_list as $drugs_type_id)
+	{
+		# Add entry in mapping table
+		$query_ins = 
+			"INSERT INTO organism_drug (organism_id, drug_id) ".
+			"VALUES ($organism_id,$drugs_type_id)";
+		query_blind($query_ins);
+	}
+
 	DbUtil::switchRestore($saved_db);
 	return get_max_organism_id();
 }
@@ -9541,7 +9553,7 @@ function update_drug_type($updated_entry)
 ///////////////////////////////////////////////////////////////////////////
 
 ////////////function to update drug types//////////////////
-function update_organism($updated_entry)
+function update_organism($updated_entry, $new_drugs_list)
 {
 	# Updates organism info in DB catalog
 	$saved_db = DbUtil::switchToLabConfigRevamp();
@@ -9555,10 +9567,50 @@ function update_organism($updated_entry)
 	$query_string =
 		"UPDATE organisms ".
 		"SET name='$updated_entry->name', ".
-		"description='$updated_entry->description', ".
-		"WHERE organism_id=$updated_entry->organismId";
+		"description='$updated_entry->description' ".
+		"WHERE organism_id=$updated_entry->organismId;";
 		echo $query_string;
+		
 	query_blind($query_string);
+
+	# Delete entries for removed compatible drugs
+	$existing_drugs = get_compatible_drugs($updated_entry->organismId);
+	foreach($existing_drugs as $drugs_type_id)
+	{
+		if(in_array($drugs_type_id, $new_drugs_list))
+		{
+			# Compatible drugs not removed
+			# Do nothing
+		}
+		else
+		{
+			# Remove entry from mapping table
+			$query_del = 
+				"DELETE from organism_drug ".
+				"WHERE organism_id=$updated_entry->organismId ".
+				"AND drug_id=$drugs_type_id";
+			query_blind($query_del);
+		}
+	}
+	# Add entries for new compatible drugs
+	foreach($new_drugs_list as $drugs_type_id)
+	{
+		if(in_array($drugs_type_id, $existing_drugs))
+		{
+			# Entry already exists
+			# Do nothing
+		}
+		else
+		{
+			# Add entry in mapping table
+			$query_ins = 
+				"INSERT INTO organism_drug (organism_id, drug_id) ".
+				"VALUES ($updated_entry->organismId, $drugs_type_id);";
+			query_blind($query_ins);
+		}
+		
+	}
+
 	DbUtil::switchRestore($saved_db);
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -10556,7 +10608,7 @@ function get_organism_by_id($organism_id)
 		"SELECT * FROM organisms WHERE organism_id=$organism_id LIMIT 1";
 	$record = query_associative_one($query_string);
 	DbUtil::switchRestore($saved_db);
-	return DrugType::getObject($record);
+	return Organism::getObject($record);
 }
 # 	End function
 
@@ -11213,14 +11265,14 @@ function get_compatible_specimens($test_type_id)
 	return $retval;
 }
 
-function get_compatible_drugs($test_type_id)
+function get_compatible_drugs($organism_id)
 {
 	# Returns a list of compatible drugs for a given test type in catalog
 	global $con;
-	$test_type_id = mysql_real_escape_string($test_type_id, $con);
+	$organism_id = mysql_real_escape_string($organism_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"SELECT drug_id FROM drug_test WHERE test_type_id=$test_type_id";
+		"SELECT drug_id FROM organism_drug WHERE organism_id=$organism_id";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	if($resultset == null)

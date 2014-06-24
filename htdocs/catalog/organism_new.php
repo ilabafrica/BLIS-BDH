@@ -25,32 +25,40 @@ function check_input()
 }
 
 </script>
-<br>
-<b style="margin-left:50px;"><?php echo LangUtil::$pageTerms['NEW_ORGANISM']; ?></b>
-| <a href='catalog.php?show_o=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
-<br><br>
-<div class='pretty_box' style='margin-left:50px;' >
-<form name='new_organism_form' id='new_organism_form' action='organism_add.php' method='post'>
-<table class='smaller_font'>
-<tr>
-<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?><?php $page_elems->getAsterisk(); ?></td>
-<td><input type='text' name='organism_name' id='organism_name' class='span4 m-wrap' /></td>
-</tr>
-<tr valign='top'>
-<td><?php echo LangUtil::$generalTerms['DESCRIPTION']; ?></td>
-<td><textarea name='organism_desc' id='organism_desc' class='span4 m-wrap'></textarea></td>
-<td></td></tr></table>
-<br><br>
-<div class="form-actions">
-                              <button type="submit" onclick='check_input();' class="btn blue"><?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?></button>
-                              <a href='catalog.php?show_o=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
-                              </div>
-</form>
+<div class="portlet box green">
+	<div class="portlet-title">
+		<h4><i class="icon-reorder"></i><?php echo LangUtil::$pageTerms['NEW_ORGANISM']; ?></h4>
+		<div class="tools">
+			<a href="javascript:;" class="collapse"></a>
+			
+		</div>
+	</div>
+	<div class="portlet-body">
+		<a style='margin-left:5px;' href='catalog.php?show_o=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a><p></p>
+		<div class='pretty_box' style='margin-left:5px;' >
+			<form name='new_organism_form' id='new_organism_form' action='organism_add.php' method='post'>
+				<table cellspacing='4px' class="table table-bordered table-hover">
+					<tbody>
+						<tr valign='top'>
+							<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?><?php $page_elems->getAsterisk(); ?></td>
+							<td><input type='text' name='organism_name' id='organism_name' class='span4 m-wrap' /></td>
+						</tr>
+						<tr valign='top'>
+							<td><?php echo LangUtil::$generalTerms['DESCRIPTION']; ?></td>
+							<td><textarea name='organism_desc' id='organism_desc' class='span4 m-wrap'></textarea></td>
+						</tr>
+						<tr valign='top' class='drugsClass'>
+			                <td><?php echo LangUtil::$generalTerms['COMPATIBLE_DRUGS']; ?><?php $page_elems->getAsterisk(); ?>  [<a href='#drugs_help' rel='facebox'>?</a>] </td>
+			                <td><?php $page_elems->getDrugsCheckboxes($lab_config_id, false,$organism->organismId); ?><br></td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="form-actions">
+	              <button type="submit" onclick='check_input();' class="btn blue"><?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?></button>
+	              <a href='catalog.php?show_o=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+              	</div>
+			</form>
+		</div>
+	</div>
 </div>
-<div id='drug_type_help' style='display:none'>
-<small>
-Use Ctrl+F to search easily through the list. Ctrl+F will prompt a box where you can enter the drug you are looking for.
-</small>
-</div>
-<?php //include("includes/footer.php"); ?>
 

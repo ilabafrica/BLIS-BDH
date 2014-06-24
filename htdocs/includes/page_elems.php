@@ -1196,9 +1196,12 @@ class PageElems
 		# Fetch specimen type record
 		$organism = get_organism_by_name($organism_name);
 		?>
-		<table class='hor-minimalist-b'>
+		<div class="portlet-title" style="width: 96.5%">
+        <h4></i>Organism Information</h4>
+        </div>
+		<table class='table table-bordered table-hover' style="width: 98%;">
 			<tbody>
-				<tr valign='top'>
+				<tr>
 					<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?></td>
 					<td>
 						<?php
@@ -1218,6 +1221,10 @@ class PageElems
 				<tr valign='top'>
 					<td><?php echo LangUtil::$generalTerms['DESCRIPTION']; ?></td>
 					<td><?php echo $organism->getOrganismDescription(); ?></td>
+				</tr>
+				<tr valign='top'>
+					<td><?php echo LangUtil::$generalTerms['COMPATIBLE_DRUGS']; ?></td>
+					<td><?php $this->getDrugsCheckboxes($lab_config_id, false,$organism->organismId); ?><br></td>
 				</tr>
 			</tbody>
 		</table>
@@ -1434,7 +1441,7 @@ class PageElems
 		}
 		?>
 
-		<table id="sample_1" class='table table-striped table-condensed table-bordered table-hover dataTable' style="width: 100%;">
+		<table class='table table-striped table-condensed table-bordered table-hover' style="width: 100%;">
 			<thead>
 					<th>#</th>
 					<th><?php echo LangUtil::$generalTerms['ORGANISM']; ?></th>
@@ -5578,7 +5585,7 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 		<?php
 	}
 
-	public function getDrugsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $test_type_id=null)
+	public function getDrugsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $organism_id=null)
 	{
 		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
 		# else only returns checkboxes with available Drug names
@@ -5604,7 +5611,7 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 			<tr style='background:#E9E9E9;'>
 			<?php
 			$count = 0;
-			$compatible_drug_types = get_compatible_drugs($test_type_id);
+			$compatible_drug_types = get_compatible_drugs($organism_id);
 			foreach($drugs_list as $key=>$value)
 			{
 				$drug_id = $key;

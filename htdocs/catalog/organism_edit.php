@@ -37,31 +37,38 @@ if($organism == null)
 }
 $page_elems->getOrganismInfo($organism->name, true);
 ?>
-<br>
-<br>
-<div class='pretty_box'>
+
+<div class="portlet-title" style="width: 98%;">
+        <h4></i>Edit Organism Details</h4>
+    </div>
 <form name='edit_organism_form' id='edit_organism_form' action='ajax/organism_update.php' method='post'>
 <input type='hidden' name='oid' id='oid' value='<?php echo $_REQUEST['oid']; ?>'></input>
-	<table cellspacing='4px'>
-		<tbody>
+	<table cellspacing='4px' class="table table-bordered table-hover">
+        <tbody>
 			<tr valign='top'>
 				<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?><?php $page_elems->getAsterisk(); ?></td>
-				<td><input type='text' name='name' id='name' class='span12 m-wrap' value='<?php echo $organism->getName(); ?>' class='uniform_width'></input></td>
+				<td><input type='text' name='name' id='name' class='span12 m-wrap' value='<?php echo $organism->getName(); ?>'></input></td>
 			</tr>
 			<tr valign='top'>
 				<td><?php echo LangUtil::$generalTerms['DESCRIPTION']; ?></td>
 				<td><textarea type='text' name='description' id='description' class='span12 m-wrap'><?php echo trim($organism->description); ?></textarea></td>
 			</tr>
-
+			<!-- Show Drug Checkboxes -->
+            <tr valign='top' class='drugsClass'>
+                <td><?php echo LangUtil::$generalTerms['COMPATIBLE_DRUGS']; ?><?php $page_elems->getAsterisk(); ?>  [<a href='#drugs_help' rel='facebox'>?</a>] </td>
+                <td>
+                    <?php $page_elems->getDrugsCheckboxes($lab_config_id, false,$organism->organismId); ?>
+                    <br>
+                </td>
+            </tr>
+            <!-- End Drug Checkboxes -->
 			<tr>
 				<td></td>
 				<td>
                 
-                <div class="form-actions">
-
-                      <input class='btn yellow' type='button' value='<?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?>' onclick='javascript:update_organism();'></input>
+                <input class='btn yellow' type='button' value='<?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?>' onclick='javascript:update_organism();'></input>
                       <a href='catalog.php?show_o=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
-                </div>
+                
                	<span id='update_organism_progress' style='display:none;'>
 						<?php $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_SUBMITTING']); ?>
 					</span>

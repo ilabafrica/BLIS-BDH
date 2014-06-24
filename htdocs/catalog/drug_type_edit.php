@@ -1,6 +1,6 @@
 <?php
 #
-# Main page for modifying an existing specimen type
+# Main page for modifying an existing drug type
 #
 include("redirect.php");
 include("includes/header.php");

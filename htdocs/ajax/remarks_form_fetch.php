@@ -130,11 +130,10 @@ foreach($measure_list as $measure)
 		else if($range_type == Measure::$RANGE_OPTIONS)
 		{
 		$range_list=$measure->getRangeValues();
+		$interpretation = $measure->getInterpretation();
 			foreach($range_list as $key=>$value)
 			{
-				$inter_value=$remarks_list[$key];
-				if($inter_value=="")
-				$inter_value=$value;
+				$inter_value=$interpretation[$key];
 				echo "<tr>";
 				echo "<td>";
 				echo $value;

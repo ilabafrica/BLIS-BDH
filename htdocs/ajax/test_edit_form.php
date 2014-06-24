@@ -88,7 +88,7 @@ function get_result_form($test_type, $test, $num_tests, $patient)
 		if($range_type == Measure::$RANGE_OPTIONS)
 		{
 		?>
-			<select name='result[]' id='<?php echo $input_id; ?>' class='uniform_width validate[groupRequired[edit]]' onchange="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?> ,<?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>');">
+			<select name='result[]' id='<?php echo $input_id; ?>' class='uniform_width validate[groupRequired[edit]]' onchange="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?> ,<?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>', '<?php echo $test->testId;?>');">
 			<option></option>
 			<?php
 			foreach($range_values as $option)
@@ -207,10 +207,7 @@ function get_result_form($test_type, $test, $num_tests, $patient)
 			</label>
 		
 			<span id='<?php echo $curr_form_id; ?>_comments_span'>
-			<textarea name='comments' id='<?php echo $curr_form_id; ?>_comments'  class='uniform_width abbreviation' 
-				onfocus="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, 
-				<?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, 
-				'<?php echo $patient->sex;?>', '<?php echo $test->testId?>');" ><?php echo trim($test->getComments()) ?>
+			<textarea name='comments' id='<?php echo $curr_form_id; ?>_comments'  class='uniform_width abbreviation'><?php echo trim($test->getComments()) ?>
 			</textarea>
 			</span>
 		</td>

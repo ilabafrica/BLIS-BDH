@@ -657,9 +657,9 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 
             <!-- Show Drug Checkboxes -->
             <tr valign='top' class='drugsClass' <?php if(!$test_type->showCultureWorkSheet){ ?>style="display:none;"<?php };?>>
-                <td><?php echo LangUtil::$generalTerms['COMPATIBLE_DRUGS']; ?><?php $page_elems->getAsterisk(); ?>  [<a href='#drugs_help' rel='facebox'>?</a>] </td>
+                <td><?php echo LangUtil::$generalTerms['APPLICABLE_ORGANISMS']; ?><?php $page_elems->getAsterisk(); ?>  [<a href='#organisms_help' rel='facebox'>?</a>] </td>
                 <td>
-                    <?php $page_elems->getDrugsCheckboxes($lab_config_id, false,$test_type->testTypeId); ?>
+                    <?php $page_elems->getOrganismsCheckboxes($lab_config_id, false,$test_type->testTypeId); ?>
                     <br>
                 </td>
             </tr>

@@ -9307,7 +9307,7 @@ function add_test_type($test_name, $test_descr, $clinical_data, $cat_code, $is_p
 	return get_max_test_type_id();
 }
 
-function update_test_type($updated_entry, $new_specimen_list, $new_drugs_list,$lab_config_id)
+function update_test_type($updated_entry, $new_specimen_list, $new_organisms_list,$lab_config_id)
 {
 	global $con;
 	$lab_config_id = mysql_real_escape_string($lab_config_id, $con);
@@ -9383,29 +9383,29 @@ function update_test_type($updated_entry, $new_specimen_list, $new_drugs_list,$l
 			query_blind($query_ins);
 		}
 	}
-	# Delete entries for removed compatible drugs
-	$existing_drugs = get_compatible_drugs($updated_entry->testTypeId);
-	foreach($existing_drugs as $drugs_type_id)
+	# Delete entries for removed applicable organisms
+	$existing_organisms = get_compatible_organisms($updated_entry->testTypeId);
+	foreach($existing_organisms as $organisms_id)
 	{
-		if(in_array($drugs_type_id, $new_drugs_list))
+		if(in_array($organisms_id, $new_organisms_list))
 		{
-			# Compatible drugs not removed
+			# Compatible organisms not removed
 			# Do nothing
 		}
 		else
 		{
 			# Remove entry from mapping table
 			$query_del = 
-				"DELETE from drug_test ".
+				"DELETE from organism_test ".
 				"WHERE test_type_id=$updated_entry->testTypeId ".
-				"AND drug_id=$drugs_type_id";
+				"AND organism_id=$organisms_id";
 			query_blind($query_del);
 		}
 	}
-	# Add entries for new compatible drugs
-	foreach($new_drugs_list as $drugs_type_id)
+	# Add entries for new compatible organisms
+	foreach($new_organisms_list as $organisms_id)
 	{
-		if(in_array($drugs_type_id, $existing_drugs))
+		if(in_array($organisms_id, $existing_organisms))
 		{
 			# Entry already exists
 			# Do nothing
@@ -9414,8 +9414,8 @@ function update_test_type($updated_entry, $new_specimen_list, $new_drugs_list,$l
 		{
 			# Add entry in mapping table
 			$query_ins = 
-				"INSERT INTO drug_test (drug_id, test_type_id) ".
-				"VALUES ($drugs_type_id, $updated_entry->testTypeId)";
+				"INSERT INTO organism_test (organism_id, test_type_id) ".
+				"VALUES ($organisms_id, $updated_entry->testTypeId)";
 			query_blind($query_ins);
 		}
 	}
@@ -11280,6 +11280,26 @@ function get_compatible_drugs($organism_id)
 	foreach($resultset as $record)
 	{
 		$retval[] = $record['drug_id'];
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
+
+function get_compatible_organisms($test_type_id)
+{
+	# Returns a list of compatible drugs for a given test type in catalog
+	global $con;
+	$test_type_id = mysql_real_escape_string($test_type_id, $con);
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = 
+		"SELECT organism_id FROM organism_test WHERE test_type_id=$test_type_id";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset == null)
+		return $retval;
+	foreach($resultset as $record)
+	{
+		$retval[] = $record['organism_id'];
 	}
 	DbUtil::switchRestore($saved_db);
 	return $retval;

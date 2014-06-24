@@ -172,6 +172,7 @@ $LANG_ARRAY = array (
 		"COMPATIBLE_SPECIMENS" => "Compatible Specimens", 
 		"COMPATIBLE_TESTS" => "Compatible Tests",
 		"COMPATIBLE_DRUGS" => "Compatible Drugs",  
+		"APPLICABLE_ORGANISMS" => "Applicable Organisms",
 		"TIPS_ACC_CONFIRMDELETE" => "Are you sure you want to delete this account?", 
 		"LAB_TECH" => "Lab Technologist", 
 		"LAB_RECEPTIONIST" => "Lab Receptionist", 

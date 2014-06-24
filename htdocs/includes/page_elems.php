@@ -5652,6 +5652,76 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 		</table>
 		<?php
 	}
+
+	/*Begin function to get organisms checkboxes*/
+	public function getOrganismsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $test_type_id=null)
+	{
+		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
+		# else only returns checkboxes with available Drug names
+		$lab_config = get_lab_config_by_id($lab_config_id);
+		if($lab_config == null && $lab_config_id != "")
+		{
+			?>
+			<div class='sidetip_nopos'>
+			ERROR: Lab configuration not found
+			</div>
+			<?php
+			return;
+		}
+		# Fetch all drug types
+		$organisms_list = get_organisms_catalog($_SESSION['lab_config_id']);
+		$current_org_list = array();
+		/*if($lab_config_id != "")
+			$current_specimen_list = get_lab_config_drug_types($lab_config_id);*/
+		# For each specimen type, create a check box. Check it if specimen already in lab configuration
+		?>
+		<table class='hor-minimalist-b table table-bordered' style='width:100%;'>
+			<tbody>
+			<tr style='background:#E9E9E9;'>
+			<?php
+			$count = 0;
+			$compatible_organisms = get_compatible_organisms($test_type_id);
+			foreach($organisms_list as $key=>$value)
+			{
+				$organism_id = $key;
+				$organism_name = $value;
+				$count++;
+				$checked = false;
+				foreach($compatible_organisms as $compatible_organism_id){
+		
+				 if ($compatible_organism_id==$organism_id)
+				 	$checked =true;
+				}
+				?>
+				
+				<td><input type='checkbox' class='dtype_entry' name='d_type_<?php echo $key; ?>' id='d_type_<?php echo $key; ?>' value='<?php echo $key; ?>'
+				<?php
+				if ($checked) echo "checked";
+				
+				if($allCompatibleCheckingOn==true) {
+					if(in_array($organism_id, $current_org_list))
+					{
+						echo " checked ><span class='clean-ok'>$organism_name</span>";
+
+					}
+					else
+						echo ">$organism_name";
+				}
+				else
+					echo ">$organism_name";
+				?>
+				</input></td>
+				
+				<?php
+				if($count % 4 == 0)
+					echo "</tr><tr".($count%8==0?" style='background:#E9E9E9;'":"").">";
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+	}
+	/*End function to get organisms checkboxes*/
 	
 	public function getTestTypeCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true)
 	{

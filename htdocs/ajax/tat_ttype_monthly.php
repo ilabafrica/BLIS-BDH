@@ -193,7 +193,7 @@
 			{
 				foreach($graph_records[4] as $datum)
 				{
-					$spec_id = substr($datum['category'], 0, 3)."-".$datum['specimen_id'];
+					$spec_id = get_sequential_specimen_id($datum['specimen_id']);
 					$time_r = $datum['ts'];
 					$time_c = $datum['ts_collected'];
 					$time_f = $datum['ts_completed'];

@@ -434,7 +434,6 @@ function add_specimens(labNo)
 			{labno:labNo }, 
 			function(result) 
 			{
-				
 				var test_details = result.split('%');
 
 				$('#span'+labNo).addClass('label-inverse');
@@ -448,6 +447,7 @@ function add_specimens(labNo)
 				$('#actionB'+labNo).attr('id','actionB'+test_details[1]+'');
 				$('#span'+labNo).attr('id','span'+test_details[1]+'');
 				$('#result_form_pane_'+labNo).attr('id','result_form_pane_'+test_details[1]+'');
+                $('#specId'+labNo).html(test_details[2]);
 			}
 		);
 }

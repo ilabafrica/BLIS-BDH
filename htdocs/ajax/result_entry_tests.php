@@ -537,11 +537,18 @@ else{
 			if($_SESSION['sid'] != 0)
 			{
 			?>
-				<td style='width:75px;'><?php echo $test->getLabSectionByTest(); ?></td>
+				<td <?php 
+                        if (!empty($test->specimenId)) {    
+                            echo 'id="specId'.$test->specimenId.'"';  
+                         }else{
+                            echo 'id="specId'.$record["external_lab_no"].'"';     
+                         }
+
+                 ?> style='width:75px;'><?php echo $test->getLabSectionByTest(); ?></td>
 			<?php
 			}
 			?>
-				<td style='width:75px;'><?php echo $specimen->ts_collected; ?></td>
+				<td <?php echo 'id="orderDate'.$test->specimenId.'"'; ?> style='width:75px;'><?php echo $specimen->ts_collected; ?></td>
 			<?php
 			if($_SESSION['pid'] != 0)
 			{

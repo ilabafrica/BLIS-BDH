@@ -735,15 +735,17 @@ function accept_specimen(specimen_id,test_id)
 		{
 			$('#span'+test_id).addClass('label-important');
 			$('#span'+test_id).html('Pending');
-			actions = result.split('%');
 			$('#actionA'+test_id).html(''+
 					'<a href="javascript:start_test('+test_id+');"'+ 
 					'title="Click to begin testing this Specimen" class="btn red mini">'+
-					'<i class="icon-ok"></i> Start Test</a>');
+					'<i class="icon-ok"></i> Start Test</a>'+
+					'<a href="javascript:load_specimen_rejection('+specimen_id+');"'+
+					'class="btn mini yellow"><i class="icon-thumbs-down"></i> Reject</a>');
 			$('#actionB'+test_id).html(''+
 					'<a href="javascript:specimen_info('+specimen_id+');"'+ 
 					'title="View specimen details" class="btn mini">'+
 					'<i class="icon-search"></i> View Details</a>');
+			$('#orderDate'+specimen_id).html(result);
 			App.unblockUI(el);
 		}
 	);

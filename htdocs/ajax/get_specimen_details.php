@@ -7,6 +7,7 @@ $labNo = $_REQUEST['labno'];
 
 
 $test = Test::getByExternalLabno($labNo);
- echo $test->specimenId."%".$test->testId;
+$specimen = Specimen::getById($test->specimenId);
+ echo $test->specimenId."%".$test->testId."%".$specimen->getLabSection();
 
 ?>

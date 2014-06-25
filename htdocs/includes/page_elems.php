@@ -1566,6 +1566,7 @@ class PageElems
 		<thead>
 		<tr>
 		<th>Specimen Rejection Reason</th>
+		<th>Specimen Rejection Code</th>
         <th>Specimen Rejection Phase</th>
 		<th></th>
 		</tr>
@@ -1576,11 +1577,15 @@ class PageElems
 		foreach($reasons_list as $key => $value)
 		{
 			$phase_name = get_rejection_phase_name_by_reason_id($key);
+			$code = get_rejection_code_by_reason_id($key);
 			?>
 			<tr>
 			
 			<td>
 				<?php echo $value; ?>
+			</td>
+			<td>
+				<?php echo $code; ?>
 			</td>
             <td>
 				<?php echo $phase_name; ?>

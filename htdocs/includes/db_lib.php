@@ -9334,16 +9334,17 @@ function add_rejection_phase($phase_name, $phase_descr)
 	return get_max_phase_id();
 }
 
-function add_rejection_reason($reason_name, $phase)
+function add_rejection_reason($reason_name, $phase, $code)
 {
 	global $con;
 	$reason_name = mysql_real_escape_string($reason_name, $con);
 	$phase = mysql_real_escape_string($phase, $con);
+	$code = mysql_real_escape_string($code, $con);
 	# Adds a new test category to catalog
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"INSERT INTO rejection_reasons(rejection_phase, description) ".
-		"VALUES ('$phase', '$reason_name')";
+		"INSERT INTO rejection_reasons(rejection_phase, rejection_code, description) ".
+		"VALUES ('$phase','$code', '$reason_name')";
 	query_insert_one($query_string);
 	# Return primary key of the record just inserted
 	DbUtil::switchRestore($saved_db);
@@ -10216,6 +10217,25 @@ function get_rejection_phase_name_by_reason_id($rejection_reason_id)
 			return LangUtil::$generalTerms['NOTKNOWN'];
 		else
 			return $record['name'];
+}
+
+function get_rejection_code_by_reason_id($rejection_reason_id)
+{
+	# Returns specimen rejection code string
+	global $con;
+	$rejection_reason_id = mysql_real_escape_string($rejection_reason_id, $con);
+	global $CATALOG_TRANSLATION;
+	
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		$query_string = 
+			"SELECT rejection_code FROM rejection_reasons ".
+			"WHERE rejection_reason_id=$rejection_reason_id;";
+		$record = query_associative_one($query_string);
+		DbUtil::switchRestore($saved_db);
+		if($record == null)
+			return LangUtil::$generalTerms['NOTKNOWN'];
+		else
+			return $record['rejection_code'];
 }
 
 function get_test_name_by_id($test_type_id, $lab_config_id=null)

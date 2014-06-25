@@ -111,6 +111,49 @@ if(is_super_admin($user) || is_country_dir($user))
 	</div>
 	</div>
 	<!--End Drugs Div-->
+	<!--Specimen Rejection Div-->
+	<div id='specimen_rejection_div' class='content_div'>
+      <div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i><?php echo LangUtil::$generalTerms['SPECIMEN_REJECTION']; ?></h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body" >
+            <!--BEGIN TABS-->
+           <div class="tabbable tabbable-custom">
+               <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tab_1_1" data-toggle="tab">Specimen Rejection Phases</a></li>
+                                    <li><a href="#tab_1_2" data-toggle="tab">Specimen Rejection Reasons</a></li>
+                                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab_1_1">
+                    	<p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
+						<a href='javascript:add_phase();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
+						<br><br>
+						<div id='sdel_msg' class='clean-orange' style='display:none;'>
+							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+						</div>
+						<?php $page_elems->getRejectionPhaseTable($_SESSION['lab_config_id']); ?>                    
+                    </div>
+                    <div class="tab-pane" id="tab_1_2">
+                        <p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
+						<a href='javascript:add_reason();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
+						<br><br>
+						<div id='sdel_msg' class='clean-orange' style='display:none;'>
+							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+						</div>
+						<?php $page_elems->getRejectionReasonTable($_SESSION['lab_config_id']); ?>              
+                    </div>
+           		</div>
+ 			</div>                                
+           <!--END TABS-->
+        </div>
+	</div>
+	</div>
+	<!--End Specimen Rejection Div-->
     
     <div id='test_categories_div' class='content_div'>
     <div class="portlet box green">

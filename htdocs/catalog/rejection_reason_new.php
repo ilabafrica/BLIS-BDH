@@ -36,6 +36,10 @@ function check_input()
 <form name='rejection_reason_form' id='rejection_reason_form' action='rejection_reason_add.php' method='post'>
 <table class='smaller_font'>
 <tr>
+<td style='width:150px;'><?php echo "Code"; ?><?php $page_elems->getAsterisk(); ?></td>
+<td><input type='text' name='reason_code' id='reason_code' class='span4 m-wrap' /></td>
+</tr>
+<tr>
 <td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?><?php $page_elems->getAsterisk(); ?></td>
 <td><input type='text' name='reason_name' id='reason_name' class='span4 m-wrap' /></td>
 </tr>

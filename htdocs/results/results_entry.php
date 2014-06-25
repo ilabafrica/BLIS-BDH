@@ -735,7 +735,6 @@ function accept_specimen(specimen_id,test_id)
 		{
 			$('#span'+test_id).addClass('label-important');
 			$('#span'+test_id).html('Pending');
-			actions = result.split('%');
 			$('#actionA'+test_id).html(''+
 					'<a href="javascript:start_test('+test_id+');"'+ 
 					'title="Click to begin testing this Specimen" class="btn red mini">'+
@@ -746,14 +745,10 @@ function accept_specimen(specimen_id,test_id)
 					'<a href="javascript:specimen_info('+specimen_id+');"'+ 
 					'title="View specimen details" class="btn mini">'+
 					'<i class="icon-search"></i> View Details</a>');
+			$('#orderDate'+specimen_id).html(result);
 			App.unblockUI(el);
 		}
 	);
-  		$.post('ajax/get_specimen_detailByID.php',{sid:specimen_id },function(result) 
-			{
-                $('#specimenId'+specimen_id).html(result);
-			}
-		);
 		
 }
 function start_test(test_id)

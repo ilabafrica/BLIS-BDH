@@ -105,9 +105,15 @@ foreach($measure_list as $measure)
 		 echo "<input type='text' name='range_u_".$measure->measureId."[]' value='".$remark[1]."' class='uniform_width_less numeric_range input-mini'></input></td>";
 		 echo "<td><input type='text' name='age_l_".$measure->measureId."[]' value='".$remark[2]."' class='uniform_width_less numeric_range input-mini'></input>-";
 		 echo "<input type='text' name='age_u_".$measure->measureId."[]' value='".$remark[3]."' class='uniform_width_less numeric_range input-mini'></input></td>";
-		 echo "<td><input type='text' name='gender_".$measure->measureId."[]' value='".$remark[4]."' size='1px' ></input></td>";
-		 echo "<td>";
-		 echo "<input type='text' name='remarks_".$measure->measureId."[]' value='".$remark[5]."' class='uniform_width input-mini'></input>";
+		 echo "<td><select name='gender_".$measure->measureId."[]'><option value=''>Choose -- </option><option value='M'"; 
+			 	if($remark[4] == "M") echo 'selected="selected"';
+		echo  	">Male</option><option value='F'"; 
+				if($remark[4] == "F") echo 'selected="selected"';
+		echo	">Female</option><option value='B'"; 
+				if($remark[4] == "B") echo 'selected="selected"';
+		echo	">Both</option></select>";
+		 echo "</td>";
+		 echo "<td><input type='text' name='remarks_".$measure->measureId."[]' value='".$remark[5]."' class='uniform_width input-mini'></input>";
 		 echo "</td>";
 		echo "</tr>";
 		}
@@ -120,7 +126,12 @@ foreach($measure_list as $measure)
 		 echo "<input type='text' name='range_u_".$measure->measureId."[]' value='' class='uniform_width_less numeric_range input-mini'></input></td>";
 		 echo "<td><input type='text' name='age_l_".$measure->measureId."[]' value='' class='uniform_width_less numeric_range input-mini' ></input>-";
 		 echo "<input type='text' name='age_u_".$measure->measureId."[]' value='' class='uniform_width_less numeric_range input-mini' ></input></td>";
-		 echo "<td><input type='text' name='gender_".$measure->measureId."[]' value='' size='1px' class='input-mini'></input></td>";
+		 echo "<td><select name='gender_".$measure->measureId."[]'>".
+			    "<option value=''>Choose -- </option>".
+			    "<option value='M'>Male</option>".
+			    "<option value='F'>Female</option>".
+			    "<option value='B'>Both</option>".
+				"</select>";
 		 echo "<td>";
 		 echo "<input type='text' name='remarks_".$measure->measureId."[]' value='' class='uniform_width input-mini'></input>";
 		 echo "</td>";

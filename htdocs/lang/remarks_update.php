@@ -64,7 +64,7 @@ foreach($measure_list as $measure)
 		$age_u_list=get_request_variable('age_u_'.$measure->measureId, null);
 		$age_l_list=get_request_variable('age_l_'.$measure->measureId, null);
 		$gender_list=get_request_variable('gender_'.$measure->measureId, null);
-		if($remarks_list[0] != null || $range_l_list[0] != null || $range_u_list[0] != null || $age_u_list[0] != null || $age_l_list[0] != null || $gender_list[0] != null) {
+		if($remarks_list[0] != null && $range_l_list[0] != null && $range_u_list[0] != null && $age_u_list[0] != null && $age_l_list[0] != null && $gender_list[0] != null) {
 			$measure->setNumericInterpretation($remarks_list,$id_list, $range_l_list, $range_u_list, $age_u_list, $age_l_list, $gender_list);	
 		}
 		// $count = 0;

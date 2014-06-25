@@ -2220,7 +2220,6 @@ class Measure
 			//insert query
 			$query_string="INSERT INTO numeric_interpretation (range_u, range_l, age_u, age_l, gender, description, measure_id) ".
 			"VALUES('$range_u_list[$count]', '$range_l_list[$count]' , '$age_u_list[$count]', '$age_l_list[$count]', '$gender_list[$count]', '$remarks_list[$count]', $this->measureId)";
-			echo $query_string;
 			query_insert_one($query_string);
 			$count++;
 				}

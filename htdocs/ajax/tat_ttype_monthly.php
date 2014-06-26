@@ -176,9 +176,44 @@
 		});
 		new Highcharts.Chart(options);
 
+		function specimen_info(specimen_id)
+		{
+			var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+			App.blockUI(el);
+			var url = 'search/specimen_info.php';
+			var target_div = "specimen_info";
+			$("#"+target_div).load(url, 
+				{sid: specimen_id, modal:1}, 
+				function() 
+				{
+					$('#'+target_div).modal('show');
+					if(status==<?php echo Specimen::$STATUS_VERIFIED;?>){
+						$('#verifybtn'+test_id).remove();
+						$('#verifydby'+test_id).removeClass('label-warning');
+						$('#verifydby'+test_id).addClass('label-success');
+					}
+					App.unblockUI(el);
+				}
+			);
+		}
+
+		function close_modal(this_element){
+
+		    var el = $('#' + this_element).closest('.modal');
+		   	el.empty();
+		    el.modal('hide');
+		}
+
 	</script>
 
 	<div id="trendsDiv"></div>
+	<div id="specimen_info" class="modal hide fade" data-backdrop="static" data-keyboard="true" style="width:900px;">
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn" onclick='javascript:cancel_hide()'>No</button>
+		</div>
+	</div>
+
 	<?php
 
 	if($test_type_id != 0) {
@@ -252,7 +287,8 @@
 									var gdate = (new Date(time_c*1000)).toISOString().replace("T", " ").substr(0,19); //The date
 
 									graph_data += "<tr><td>"+counter+"</td>";
-									graph_data += "<td>"+spec_id+"</td>";
+									graph_data += "<td><a href='javascript:void(0);' onclick='specimen_info("+datum.specimen_id;
+									graph_data += ");' title='More Details'>"+spec_id+"</a></td>";
 									graph_data += "<td>"+datum['specimen_type']+"</td>";
 									graph_data += "<td>"+datum['test_name']+"</td>";
 									graph_data += "<td>"+gdate+"</td>";
@@ -288,7 +324,7 @@
 		<?php
 	}
 
-	function graph_data_table($stats_array, $page = 1, $number_per_page = 50){
+	function graph_data_table($stats_array, $page = 1, $number_per_page = 25){
 		# Displays the graph source data in tabular form
 	
 		$counter = 0;
@@ -325,10 +361,12 @@
 
 				if ($counter <= $page*$number_per_page && $counter > ($page-1)*$number_per_page) {
 
-					$spec_id = get_sequential_specimen_id($datum['specimen_id']);
+					$sid = $datum['specimen_id'];
+					$spec_id = get_sequential_specimen_id($sid);
 
 					$graph_data .= "<tr><td>$counter</td>";
-					$graph_data .= "<td>$spec_id</td>";
+					$graph_data .= "<td><a href='javascript:void(0);' onclick='specimen_info($sid);' ";
+					$graph_data .= "title='More Details'>$spec_id</a></td>";
 					$graph_data .= "<td>".$datum['specimen_type']."</td>";
 					$graph_data .= "<td>".$datum['test_name']."</td>";
 					$graph_data .= "<td>".date("Y-m-d H:i:s", $time_c)."</td>";

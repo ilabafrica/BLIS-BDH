@@ -537,7 +537,8 @@ else{
 			if($_SESSION['sid'] != 0)
 			{
 			?>
-				<td style='width:75px;'><?php echo $test->getLabSectionByTest(); ?></td>
+				<td style='width:75px;'>
+                    <?php echo (isset($test->specimenId)?get_sequential_specimen_id($test->specimenId):""); ?></td>
 			<?php
 			}
 			?>

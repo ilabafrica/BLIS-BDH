@@ -17385,6 +17385,10 @@ function time_elapsed_pretty($datetime = null, $full = false) {
 
 function get_sequential_specimen_id($specimen_id){
 	#Returns sequential specimen_ids (eg. MIC-2310) given a numeric specimen_id (id field of the specimen table)
+	global $SPEC_ID_FORMAT;
+
+	if(strcmp($SPEC_ID_FORMAT, "AUTO") == 0) return $specimen_id;
+
     $saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
 
 	// 1. Get the test_category_id and the 3 letter category abbreviation
@@ -17394,6 +17398,11 @@ function get_sequential_specimen_id($specimen_id){
 	$record = query_associative_one($query);
 	$tcid = $record['test_category_id'];
 	$tcname = $record['tcn'];
+
+	if(strcmp($SPEC_ID_FORMAT, "CATAUTO") == 0){
+		DbUtil::switchRestore($saved_db);
+		return $tcname."-".$specimen_id;
+	}
 
 	// 2. Get the position of this specimen in its category
 	$query = "SELECT COUNT(DISTINCT s.specimen_id) AS hits FROM specimen s INNER JOIN test t ON ".

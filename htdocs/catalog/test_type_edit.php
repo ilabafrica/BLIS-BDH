@@ -313,14 +313,19 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 										?>
 										<span id='numeric_<?php echo $i; ?>'>
 											
-											<input type='text' class='range_field span2 m-wrap' name='range_l_<?php echo $i; ?>[]' value='<?php echo $lower_range; ?>' /> :
-											<input type='text' class='range_field span2 m-wrap' name='range_u_<?php echo $i; ?>[]' value='<?php echo $upper_range; ?>' />
-											<input type='text' class='range_field span3 m-wrap' name='gender_<?php echo $i; ?>[]' value='B'/>
-											<input type='text' class='range_field span2 m-wrap' name='age_l_<?php echo $i; ?>[]' value='0'/>
-											<input type='text' class='range_field span2 m-wrap' name='age_u_<?php echo $i; ?>[]' value='100'/>
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='range_l_<?php echo $i; ?>[]' value='<?php echo $lower_range; ?>' /> :
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='range_u_<?php echo $i; ?>[]' value='<?php echo $upper_range; ?>' />
+                                            <select style="width:85px;height:33px" name='gender_<?php echo $i; ?>[]'> 
+                                            <option value="B" selected="selected">Both</option>
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                            </select>
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='age_l_<?php echo $i; ?>[]' value='0'/>
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='age_u_<?php echo $i; ?>[]' value='100'/>
+                                            <input type="text" class='range_field span4 m-wrap' name='description_<?php echo $i; ?>[]'></input>
 											<br>
 											
-										</span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age_Range
+										</span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age range&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Interpretation
 							<br>
 									<?php
 									}
@@ -333,18 +338,23 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 										{
 											
 										?>
-											<input type='text' class='range_field span2 m-wrap' name='range_l_<?php echo $i; ?>[]' value='<?php echo $ref_range->rangeLower; ?>' /> :
-											<input type='text' class='range_field span2 m-wrap' name='range_u_<?php echo $i; ?>[]' value='<?php echo $ref_range->rangeUpper; ?>' />
-											<input type='text' class='range_field span3 m-wrap' name='gender_<?php echo $i; ?>[]' value='<?php echo $ref_range->sex; ?>'/>
-											<input type='text' class='range_field span2 m-wrap agerange_l_<?php echo $i; ?>' name='agerange_l_<?php echo $i; ?>[]' id='agerange_l_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMin; ?>' /> :
-											<input type='text' class='range_field span2 m-wrap agerange_u_<?php echo $i; ?>' name='agerange_u_<?php echo $i; ?>[]' id='agerange_u_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMax; ?>' />
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='range_l_<?php echo $i; ?>[]' value='<?php echo $ref_range->rangeLower; ?>' /> :
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='range_u_<?php echo $i; ?>[]' value='<?php echo $ref_range->rangeUpper; ?>' />
+                                            <select style="width:85px;height:33px" name='gender_<?php echo $i; ?>[]'> 
+                                            <option value="B" <?php if($ref_range->sex == B ) echo 'selected="selected"';?> >Both</option>
+                                            <option value="M" <?php if($ref_range->sex == M ) echo 'selected="selected"';?> >Male</option>
+                                            <option value="F" <?php if($ref_range->sex == F ) echo 'selected="selected"';?> >Female</option>
+                                            </select>
+											<input style="width:45px" type='text' class='range_field span2 m-wrap agerange_l_<?php echo $i; ?>' name='agerange_l_<?php echo $i; ?>[]' id='agerange_l_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMin; ?>' /> :
+											<input style="width:45px" type='text' class='range_field span2 m-wrap agerange_u_<?php echo $i; ?>' name='agerange_u_<?php echo $i; ?>[]' id='agerange_u_<?php echo $i; ?>_<?php echo $ref_count; ?>' value='<?php echo $ref_range->ageMax; ?>' />
+                                            <input type="text" class='range_field span4 m-wrap' name='description_<?php echo $i; ?>[]' value='<?php echo $ref_range->description; ?>'></input>
 											<br><br>
 											<?php
 											$ref_count++;
 												
 										}
 										?>
-										</span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age_Range
+										</span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age range&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Interpretation
 							<br>
 										<?php
 									}
@@ -407,7 +417,7 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 								<?php
 								echo "</td>";
 								echo "<td id='unit_$i'>";
-								echo "<input type='text' name='unit[]' class='span10 m-wrap' value='$curr_measure->unit' />";
+								echo "<input type='text' name='unit[]' class='span8 m-wrap' value='$curr_measure->unit' />";
 								echo "</td>";
 								echo "</tr>";
 								
@@ -452,14 +462,18 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 								<span id='new_val_new_<?php echo $i; ?>' class='new_values_section_new_<?php echo $i; ?>'>
 									<div id='numeric_range_<?php echo $i; ?>' name='numeric_range_<?php echo $i; ?>'>
 									<span id='new_num eric_<?php echo $i; ?>'>
-											<input type='text' class='range_field span2 m-wrap' name='new_range_l_<?php echo $i; ?>[]' value='' /> :
-											<input type='text' class='range_field span2 m-wrap' name='new_range_u_<?php echo $i; ?>[]' value='' />
-											<input type='text' class='range_field span2 m-wrap' name='new_gender_<?php echo $i; ?>[]' value='B'/>
-											<input type='text' class='range_field span2 m-wrap agerange_l_<?php echo $i; ?>' name='new_agerange_l_<?php echo $i; ?>[]' id='new_agerange_l_<?php echo $i; ?>[]' value='0' /> :
-											<input type='text' class='range_field span2 m-wrap agerange_u_<?php echo $i; ?>' name='new_agerange_u_<?php echo $i; ?>[]' id='new_agerange_u_<?php echo $i; ?>[]' value='100' />
-																
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='new_range_l_<?php echo $i; ?>[]' value='' /> :
+											<input style="width:45px" type='text' class='range_field span2 m-wrap' name='new_range_u_<?php echo $i; ?>[]' value='' />
+                                            <select style="width:85px;height:33px" name='new_gender_<?php echo $i; ?>[]'> 
+                                            <option value="B" selected="selected">Both</option>
+                                            <option value="M">Male</option>
+                                            <option value="F">Female</option>
+                                            </select>
+											<input style="width:45px" type='text' class='range_field span2 m-wrap agerange_l_<?php echo $i; ?>' name='new_agerange_l_<?php echo $i; ?>[]' id='new_agerange_l_<?php echo $i; ?>[]' value='0' /> :
+											<input style="width:45px" type='text' class='range_field span2 m-wrap agerange_u_<?php echo $i; ?>' name='new_agerange_u_<?php echo $i; ?>[]' id='new_agerange_u_<?php echo $i; ?>[]' value='100' />
+                                            <input type="text" class='range_field span4 m-wrap' name='new_description_<?php echo $i; ?>[]'></input>																
 											<br>
-								</span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;Age_Range
+								</span>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Age range&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Interpretation
 								<br>
 											<small><a href="javascript:add_new_range_field('<?php echo $i; ?>', 0);"><?php echo LangUtil::$generalTerms['ADDANOTHER']; ?> &raquo;</a></small>
 									<br><br>
@@ -496,101 +510,7 @@ $page_elems->getTestTypeInfo($test_type->name, true);
 								echo "<td id='unit_$i'>";
 								echo "<input type='text' class='span10 m-wrap' name='new_unit[]' value='' />";
 								echo "</td>";
-								echo "</tr>";
-                                                                
-                                                                
-                                        # submeasures
-                                        
-                                        $max_num_submeasures = 5;
-                                        $us = '_';
-                                    for($y = 1; $y <= $max_num_submeasures; $y += 1)
-                                    {
-                                            echo "<tr valign='top' id='smrow_$i$us$y' style='display:none;'";
-                                            
-                                            echo ">";
-                                            
-                                            echo "<td align='center'>";
-                            //    echo "<input type=checkbox name='delete_".$curr_measure->name."'  />";
-                                echo "</td>";
-                                            
-                                            echo "<td>";
-                                            ?>
-                                            Sub: <input type='text' class='span12 m-wrap' name='submeasure[<?php echo $i; ?>][]' value='' />
-                                            <?php
-                                            echo "</td>";
-                                            echo "<td>";
-                                            ?>
-                                            <select class='range_select span10 m-wrap' id='<?php echo $i.$us.$y; ?>' name='smtype[<?php echo $i; ?>][]'>
-                                                    <option value='<?php echo Measure::$RANGE_NUMERIC; ?>'><?php echo LangUtil::$generalTerms['RANGE_NUMERIC']; ?></option>
-                                                    <option value='<?php echo Measure::$RANGE_OPTIONS; ?>'><?php echo LangUtil::$generalTerms['RANGE_ALPHANUM']; ?></option>
-                                                    <option value='<?php echo Measure::$RANGE_AUTOCOMPLETE; ?>'><?php echo LangUtil::$generalTerms['RANGE_AUTOCOMPLETE']; ?></option>
-                                                    <option value='<?php echo Measure::$RANGE_FREETEXT; ?>'><?php echo "Free Text" ?></option>
-                                                    <option value='<?php echo Measure::$RANGE_TEXTAREA; ?>'><?php echo "Text Area" ?></option>
-
-                                            </select>
-                                            <?php
-                                            echo "</td>";
-                                            echo "<td>";
-                                            ?>
-                                            <span id='val_<?php echo $i.$us.$y; ?>' class='values_section_<?php echo $i.$us.$y; ?>'>
-                                                    <span id='numeric_<?php echo $i.$us.$y; ?>'>
-
-                                                            <input type='text' class='range_field span2 m-wrap' name='range_l_<?php echo $i.$us.$y; ?>[]' value='' /> :
-                                                            <input type='text' class='range_field span2 m-wrap' name='range_u_<?php echo $i.$us.$y; ?>[]' value=''/>
-                                                            <input type='text' class='range_field span2 m-wrap' name='gender_<?php echo $i.$us.$y; ?>[]' value='B'/>
-                                                            <input type='text' class='range_field span2 m-wrap'  name='agerange_l_<?php echo $i.$us.$y; ?>[]' id='agerange_l_<?php echo $i.$us.$y; ?>[]' value='0' /> :
-                                                            <input type='text' class='range_field span2 m-wrap' name='agerange_u_<?php echo $i.$us.$y; ?>[]' id='agerange_u_<?php echo $i.$us.$y; ?>[]' value='100' />
-                                                            <br>
-                                                    </span>
-                                                    &nbsp;&nbsp;&nbsp;&nbsp;<?php echo LangUtil::$generalTerms['RANGE']; ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Gender &nbsp;&nbsp;Age_Range
-                                                            <br>
-                                                    <small><a href="javascript:add_new_range_field('<?php echo $i.$us.$y; ?>', '0');"><?php echo LangUtil::$generalTerms['ADDANOTHER']; ?> &raquo;</a></small>
-                                                    <br><br>
-                                            </span>
-                                            <span id='alpha_<?php echo $i.$us.$y; ?>' style='display:none' class='values_section_<?php echo $i.$us.$y; ?>'>
-                                                    <span id='alpha_list_<?php echo $i.$us.$y; ?>'>
-                                                            <input type='text' class='range_field span2 m-wrap' name='alpharange_<?php echo $i.$us.$y; ?>[]' value='' /> /
-                                                            <input type='text' class='range_field span2 m-wrap' name='alpharange_<?php echo $i.$us.$y; ?>[]' value='' />
-                                                    </span>
-                                                    <br>
-                                                    <small><a href="javascript:add_new_option_field('<?php echo $i.$us.$y; ?>');"><?php echo LangUtil::$generalTerms['ADDANOTHER']; ?> &raquo;</a></small>
-                                            </span>
-                                            <span id='autocomplete_<?php echo $i.$us.$y; ?>' style='display:none' class='values_section_<?php echo $i.$us.$y; ?>'>
-                                                    <span id='autocomplete_list_<?php echo $i.$us.$y; ?>'>
-                                                            <input type='text' class='uniform_width span6 m-wrap' name='autocomplete_<?php echo $i.$us.$y; ?>[]' value='' /><br>
-                                                            <input type='text' class='uniform_width span6 m-wrap' name='autocomplete_<?php echo $i.$us.$y; ?>[]' value='' /><br>
-                                                    </span>
-                                                    <small><a href="javascript:add_new_autocomplete_field('<?php echo $i.$us.$y; ?>');"><?php echo LangUtil::$generalTerms['ADDANOTHER']; ?> &raquo;</a></small>
-                                            </span>
-                                            <span id='freetext_<?php echo $i.$us.$y; ?>' style='display:none' class='values_section_<?php echo $i.$us.$y; ?>'>
-                                                    <span id='freeetext_list_<?php echo $i.$us.$y; ?>'>
-                                                            <?php echo "<small>Will appear as a text box for result entry</small>"?>
-                                                    </span>
-                                            </span>
-                                            <span id='textarea_<?php echo $i.$us.$y; ?>' style='display:none' class='values_section_<?php echo $i.$us.$y; ?>'>
-                                                    <span id='textarea_list_<?php echo $i.$us.$y; ?>'>
-                                                            <?php echo "<small>Will appear as a text area for result entry</small>"?>
-                                                    </span>
-                                            </span>
-                                            <?php
-                                            echo "</td>";
-                                            echo "<td id='unit_$i$us$y'>";
-                                            ?>
-                                            <input type='text' class='span10 m-wrap' name='sunit[<?php echo $i; ?>][]' value='' />
-                                            <?php
-                                            echo "</td>";
-                                            echo "</tr>";
-                                            ?>
-                                            <div id='new_subentries' style='display:none;'>
-                                            </div>
-                                            
-
-                                            
-                                        <?php
-                                        }// end of submeasures for each measure
-                                        ?>
-                                        
-                                      <?php  
+								echo "</tr>"; 
                             }// end of new measures
                         ?>
                         </table>
@@ -1212,7 +1132,7 @@ if(num_ranges[mrow_num] == 0)
     var num_row = num_ranges[mrow_num];
     
         var map=map_offset-1;                                   
-    var html_code = "<input type='text' class='range_field span2 m-wrap' name='range_l_"+mrow_num+"[]' value='' /> : <input type='text' class='range_field span2 m-wrap' name='range_u_"+mrow_num+"[]' value='' /> <input type='text' class='range_field span3 m-wrap' name='gender_"+mrow_num+"[]' value='B'/> <input type='text' class='range_field span2 m-wrap agerange_l_"+mrow_num+"' name='agerange_l_"+mrow_num+"[]' id='agerange_l_"+mrow_num+"_"+map+"' value='0' /> : <input type='text' class='range_field span2 m-wrap agerange_u_"+mrow_num+"' name='agerange_u_"+mrow_num+"[]' id='agerange_u_"+mrow_num+"_"+map+"' value='100' /><br>";
+    var html_code = "<input style='width:45px' type='text' class='range_field span2 m-wrap' name='range_l_"+mrow_num+"[]' value='' /> : <input style='width:45px' type='text' class='range_field span2 m-wrap' name='range_u_"+mrow_num+"[]' value='' /> <select style='width:85px;height:33px' name='gender_"+mrow_num+"[]'> <option value='B' selected='selected'>Both</option><option value='M'>Male</option><option value='F'>Female</option></select> <input style='width:45px' type='text' class='range_field span2 m-wrap agerange_l_"+mrow_num+"' name='agerange_l_"+mrow_num+"[]' id='agerange_l_"+mrow_num+"_"+map+"' value='0' /> : <input style='width:45px' type='text' class='range_field span2 m-wrap agerange_u_"+mrow_num+"' name='agerange_u_"+mrow_num+"[]' id='agerange_u_"+mrow_num+"_"+map+"' value='100' /> <input type='text' class='range_field span4 m-wrap' name='description_"+mrow_num+"[]'></input><br>";
     $('#numeric_'+mrow_num).append(html_code);
 }   
     function add_new_range_field(mrow_num, map_offset)
@@ -1228,7 +1148,7 @@ if(num_ranges[mrow_num] == 0)
     var num_row = num_ranges[mrow_num];
     
                                             
-    var html_code = "<input type='text' class='range_field span2 m-wrap' name='new_range_l_"+mrow_num+"[]' value='' /> : <input type='text' class='range_field span2 m-wrap' name='new_range_u_"+mrow_num+"[]' value='' /> <input type='text' class='range_field span3 m-wrap' name='new_gender_"+mrow_num+"[]' value='B' /> <input type='text' class='range_field span2 m-wrap agerange_l_"+mrow_num+"[]' name='new_agerange_l_"+mrow_num+"[]' id='new_agerange_l_"+mrow_num+"[]' value='0' /> : <input type='text' class='range_field span2 m-wrap agerange_u_"+mrow_num+"[]' name='new_agerange_u_"+mrow_num+"[]' id='new_agerange_u_"+mrow_num+"[]' value='100' /><br>";
+    var html_code = "<input style='width:45px' type='text' class='range_field span2 m-wrap' name='new_range_l_"+mrow_num+"[]' value='' /> : <input style='width:45px' type='text' class='range_field span2 m-wrap' name='new_range_u_"+mrow_num+"[]' value=''/><select style='width:85px;height:33px' name='new_gender_"+mrow_num+"[]'> <option value='B' selected='selected'>Both</option><option value='M'>Male</option><option value='F'>Female</option></select> <input style='width:45px' type='text' class='range_field span2 m-wrap agerange_l_"+mrow_num+"[]' name='new_agerange_l_"+mrow_num+"[]' id='new_agerange_l_"+mrow_num+"[]' value='0' /> : <input style='width:45px' type='text' class='range_field span2 m-wrap agerange_u_"+mrow_num+"[]' name='new_agerange_u_"+mrow_num+"[]' id='new_agerange_u_"+mrow_num+"[]' value='100' /><input type='text' class='range_field span4 m-wrap' name='new_description_"+mrow_num+"[]'></input><br>";
     $('#new_numeric_'+mrow_num).append(html_code);
 }
 

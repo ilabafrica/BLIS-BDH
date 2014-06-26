@@ -2260,18 +2260,18 @@ class Measure
 	public function getNumericInterpretation()
 	{
 	$saved_db = DbUtil::switchToLabConfigRevamp();
-		$query_string = "SELECT * FROM numeric_interpretation WHERE measure_id=$this->measureId";
+		$query_string = "SELECT * FROM reference_range WHERE measure_id=$this->measureId";
 		$resultset = query_associative_all($query_string, $row_count);
 		$retval = array();
 		if($resultset!=NULL)
 			{
 			foreach($resultset as $record)
 			{
-				$range_u=$record['range_u'];
-				$range_l=$record['range_l'];
-				$age_u=$record['age_u'];
-				$age_l=$record['age_l'];
-				$gender=$record['gender'];
+				$range_u=$record['range_upper'];
+				$range_l=$record['range_lower'];
+				$age_u=$record['age_max'];
+				$age_l=$record['age_min'];
+				$gender=$record['sex'];
 				$id=$record['id'];
 				$description=$record['description'];
 				$measure_id=$record['measure_id'];
@@ -5196,6 +5196,7 @@ class ReferenceRange
 	public $sex;
 	public $rangeLower;
 	public $rangeUpper;
+	public $description;
 	
 	public static function getObject($record)
 	{
@@ -5232,6 +5233,10 @@ class ReferenceRange
 			//$reference_range->rangeUpper = intval($record['range_upper']);
 		else
 			$reference_range->rangeUpper = null;
+		if(isset($record['description']))
+			$reference_range->description = $record['description'];
+		else
+			$reference_range->description = null;
 		return $reference_range;
 	}
 	
@@ -5240,8 +5245,8 @@ class ReferenceRange
 		# Adds this entry to database
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 		$query_string = 
-			"INSERT INTO reference_range (measure_id, age_min, age_max, sex, range_lower, range_upper) ".
-			"VALUES ($this->measureId, '$this->ageMin', '$this->ageMax', '$this->sex', '$this->rangeLower', '$this->rangeUpper')";
+			"INSERT INTO reference_range (measure_id, age_min, age_max, sex, range_lower, range_upper, description) ".
+			"VALUES ($this->measureId, '$this->ageMin', '$this->ageMax', '$this->sex', '$this->rangeLower', '$this->rangeUpper', '$this->description')";
 		query_insert_one($query_string);
 		DbUtil::switchRestore($saved_db);
 	}

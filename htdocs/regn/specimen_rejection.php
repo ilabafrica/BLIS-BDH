@@ -105,7 +105,7 @@ $patient = get_patient_by_id($specimen->patientId);
     <td class="highlight">Reasons for Rejection</td>
     <input name="specimen" id="specimen" type="hidden" value="<?php echo $sid; ?>" />
     	<td>
-            <textarea class="large m-wrap" rows="3" id="reasons" name="reasons"></textarea>
+            <select name="reasons" id="reasons" class='span12 m-wrap'><?php $page_elems->getRejectionReasonsSelect(); ?></select>
         </td>
     </tr>
     <tr>

@@ -9412,7 +9412,7 @@ function update_test_category($updated_entry)
 ////////////function to update rejection phase//////////////////
 function update_rejection_phase($updated_entry)
 {
-	# Updates specimen type info in DB catalog
+	# Updates rejection phase info in DB catalog
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$existing_entry = get_rejection_phase_by_id($updated_entry->phaseId);
 	if($existing_entry == null)
@@ -9424,8 +9424,23 @@ function update_rejection_phase($updated_entry)
 	$query_string =
 		"UPDATE rejection_phases ".
 		"SET name='$updated_entry->name', ".
-		"description='$updated_entry->description', ".
+		"description='$updated_entry->description' ".
 		"WHERE rejection_phase_id=$updated_entry->phaseId";
+	query_blind($query_string);
+	DbUtil::switchRestore($saved_db);
+}
+///////////////////////////////////////////////////////////////////////////
+////////////function to update rejection reason//////////////////
+function update_rejection_reason($updated_entry)
+{
+	# Updates rejection reason info in DB catalog
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string =
+		"UPDATE rejection_reasons ".
+		"SET rejection_phase='$updated_entry->phase', ".
+		"rejection_code='$updated_entry->code', ".
+		"description='$updated_entry->description' ".
+		"WHERE rejection_reason_id=$updated_entry->reasonId";
 	query_blind($query_string);
 	DbUtil::switchRestore($saved_db);
 }
@@ -17087,6 +17102,7 @@ class SpecimenRejectionReasons
 	public $reasonId;
 	public $description;
 	public $phase;
+	public $code;
 	
 	public static function getObject($record)
 	{
@@ -17109,6 +17125,11 @@ class SpecimenRejectionReasons
 			$rejection_reason->phase = $record['rejection_phase'];
 		else
 			$rejection_reason->phase = null;
+
+		if(isset($record['rejection_code']))
+			$rejection_reason->code = $record['rejection_code'];
+		else
+			$rejection_reason->code = null;
 			
 		return $rejection_reason;
 	}

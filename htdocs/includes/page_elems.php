@@ -1087,28 +1087,27 @@ class PageElems
 		<?php
 	}
 	
-	public function getRejectionReasonInfo($rejection_reason_name, $show_db_name=false)
+	public function getRejectionReasonInfo($rejection_reason_id, $show_db_name=false)
 	{
 		# Returns HTML for displaying rejection reason information
 		# Fetch rejection reason record
-		$rejection_reason = get_rejection_reason_by_name($rejection_reason_name);
+		$rejection_reason = get_rejection_reason_by_id($rejection_reason_id);
 		?>
 		<table class='hor-minimalist-b'>
 			<tbody>
 				<tr valign='top'>
+					<td style='width:150px;'><?php echo "Rejection Code"; ?></td>
+					<td>
+						<?php
+							echo $rejection_reason->code;
+						?>
+					</td>
+				</tr>
+				<tr valign='top'>
 					<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?></td>
 					<td>
 						<?php
-						if($show_db_name === true)
-						{
-							# Show original name stored in DB
 							echo $rejection_reason->description;
-						}
-						else
-						{
-							# Show name store din locale string
-							echo $rejection_reason->getName();
-						}
 						?>
 					</td>
 				</tr>

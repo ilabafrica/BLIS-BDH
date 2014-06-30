@@ -10,10 +10,19 @@ LangUtil::setPageId("catalog");
 
 $rejection_phase = get_rejection_phase_by_id($_REQUEST['rp']);
 ?>
-
 <br>
-<b><?php echo "Edit Specimen Rejection Phase"; ?></b>
-| <a href="catalog.php?show_rp=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+
+<div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i><?php echo "Edit Specimen Rejection Phase"; ?></h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body">
+		<br>
+<a href="catalog.php?show_rp=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 <br><br>
 <?php
 if($rejection_phase == null)

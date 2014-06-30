@@ -3695,6 +3695,7 @@ class PageElems
 	{
 		# Displays list of all tests registered for a specimen w/ status/results
 		$specimen = get_specimen_by_id($sid);
+		$rejection_reason = get_rejection_reason_by_id($specimen->comments);
 		?>
 		<script type='text/javascript'>
 		$(document).ready(function(){
@@ -3713,7 +3714,7 @@ class PageElems
 				</tr>
 			</thead>
 			<tbody>
-				<td><?php echo $specimen->comments; ?></td>
+				<td><?php echo $rejection_reason->description; ?></td>
 				<td><?php echo get_username_by_id($specimen->auxId); ?></td>
 				<td><?php echo $specimen->referredToName; ?></td>
 				<td><?php echo $specimen->ts_collected; ?></td>

@@ -281,6 +281,12 @@ $(document).ready(function(){
 		load_right_pane('specimen_rejection_div');
 		<?php
 	}
+	else if(isset($_REQUEST['show_rr']))
+	{
+		?>
+		load_right_pane('specimen_rejection_div');
+		<?php
+	}
 	else if(isset($_REQUEST['tdel']))
 	{
 		?>

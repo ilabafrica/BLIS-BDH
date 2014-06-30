@@ -30,7 +30,7 @@ function check_input()
 </script>
 <br>
 <b style="margin-left:50px;"><?php echo "Specimen Rejection Reason"; ?></b>
-| <a href='catalog.php?show_tc=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+| <a href='catalog.php?show_rr=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 <br><br>
 <div class='pretty_box' style='margin-left:50px;' >
 <form name='rejection_reason_form' id='rejection_reason_form' action='rejection_reason_add.php' method='post'>
@@ -50,7 +50,7 @@ function check_input()
 <br><br>
 <div class="form-actions">
                               <button type="submit" onclick='check_input();' class="btn blue"><?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?></button>
-                              <a href='catalog.php?show_sr=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+                              <a href='catalog.php?show_rr=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
                               </div>
 </form>
 </div>

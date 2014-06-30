@@ -29,7 +29,7 @@ function check_input()
 </script>
 <br>
 <b style="margin-left:50px;"><?php echo "Specimen Rejection Phase"; ?></b>
-| <a href='catalog.php?show_tc=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+| <a href='catalog.php?show_sr=1'><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 <br><br>
 <div class='pretty_box' style='margin-left:50px;' >
 <form name='rejection_phase_form' id='rejection_phase_form' action='rejection_phase_add.php' method='post'>

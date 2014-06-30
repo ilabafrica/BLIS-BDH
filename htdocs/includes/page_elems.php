@@ -785,7 +785,7 @@ class PageElems
 	{
 		# Returns a set of drop down options for test categories in catalog
 		$cat_list = get_test_categories($lab_config_id);
-		if($cat_list) {
+		if(asort($cat_list)) {
 			foreach($cat_list as $key => $value)
 				echo "<option value='$key'>$value</option>";
 			return 1;
@@ -2522,7 +2522,7 @@ class PageElems
 				?>
 				<tr>
 					<td><u><?php echo LangUtil::$generalTerms['SPECIMEN_ID']; ?></u></td>
-					<td><?php $specimen->getAuxId(); ?></td>
+					<td><?php echo $specimen->getAuxId(); ?></td>
 				</tr>
 				<?php
 				}
@@ -2531,7 +2531,7 @@ class PageElems
 				?>
 				<tr>
 					<td><u><?php echo LangUtil::$generalTerms['PATIENT_DAILYNUM']; ?></u></td>
-					<td><div style=" font-weight:bold;"><?php echo $specimen->getLabSection(); ?></div></td>
+					<td><div style=" font-weight:bold;"><?php echo get_sequential_specimen_id($sid); ?></div></td>
 				</tr>
 				<?php
 				}
@@ -3072,21 +3072,21 @@ class PageElems
 			</td>
 			<td>
 				<?php if($admin == 1)
-                                     {
-                                        if(in_array($specimen->specimenId, $rem_specs))
-                                        {
-                                            echo "Removed";
-                                        }
-                                        else
-                                        {
-                                            echo $specimen->getStatus();
-                                        }
-                                     }
-                                     else
-                                     {
-                                         echo $specimen->getStatus();
-                                     }
-                                ?>
+                     {
+                        if(in_array($specimen->specimenId, $rem_specs))
+                        {
+                            echo "Removed";
+                        }
+                        else
+                        {
+                            echo $specimen->getStatus();
+                        }
+                     }
+                     else
+                     {
+                         echo $specimen->getStatus();
+                     }
+                ?>
 			</td>
 			<td>
 			 <?php if ($is_result_form){?>
@@ -3438,7 +3438,8 @@ class PageElems
 				?>
 				<tr>
 					<td><u><?php echo LangUtil::$generalTerms['PATIENT_DAILYNUM']; ?></u></td>
-					<td><div style="padding:5px; font-size:20px; font-weight:bold; color:#900;"><?php echo $specimen->getLabSection(); ?></div></td>
+					<td><div style="padding:5px; font-size:20px; font-weight:bold; color:#900;">
+						<?php echo get_sequential_specimen_id($sid) ?></div></td>
 				</tr>
 				<?php
 				}

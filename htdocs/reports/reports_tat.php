@@ -92,12 +92,12 @@ putUILog('reports_tat', $uiinfo, basename($_SERVER['REQUEST_URI'], ".php"), 'X',
                                 ?>
                             </select>
                             <span class="tat-label"><?php echo LangUtil::$generalTerms['TEST_TYPE']; ?></span>
-                            <select name='ttype' id='ttype' style='font-family:Tahoma;'>
+                            <select name='ttype' id='ttype'>
                                 <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
                                 <?php $page_elems->getTestTypesSelect($lab_config->id); ?>
                             </select>
                             <span class="tat-label">Interval</span>
-                            <select name='tattype' id='tattype' style='font-family:Tahoma;'>
+                            <select name='tattype' id='tattype'>
                                 <option value='m'><?php echo LangUtil::$pageTerms['PROGRESSION_M']; ?></option>
                                 <option value='w' selected><?php echo LangUtil::$pageTerms['PROGRESSION_W']; ?></option>
                                 <option value='d'><?php echo LangUtil::$pageTerms['PROGRESSION_D']; ?></option>

@@ -32,6 +32,12 @@ $DEFAULT_TARGET_TAT = 1;
 # Can be modified by lab admin on config/lab_config_home.php
 $DEFAULT_PENDING_TAT = 2;
 
+# SPECIMEN_ID Format [CATSEQUENTIAL|CATAUTO|AUTO]
+# CATSEQUENTIAL - Each category maintains its own sequence of numbers PAR-1...PAR-n (Default)
+# CATAUTO - The ID is composed of the category prefix and the specimen_id field of the specimen table
+# AUTO - The specimen_id field of the specimen table
+$SPEC_ID_FORMAT = 'CATSEQUENTIAL';
+
 # Auto logout after user inactivity
 # Session times out and redirects to login page
 # Refer to js/auto_logout.js

@@ -17383,6 +17383,66 @@ function time_elapsed_pretty($datetime = null, $full = false) {
     return $string ? implode(', ', $string) . ' ago' : 'just now';
 }
 
+function get_sequential_specimen_id($specimen_id){
+	#Returns sequential specimen_ids (eg. MIC-2310) given a numeric specimen_id (id field of the specimen table)
+	global $SPEC_ID_FORMAT;
+
+	if(strcmp($SPEC_ID_FORMAT, "AUTO") == 0) return $specimen_id;
+
+    $saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
+
+	// 1. Get the test_category_id and the 3 letter category abbreviation
+	$query = "SELECT tt.test_category_id, SUBSTRING(tc.name,1,3) AS tcn FROM test t INNER JOIN test_type tt ".
+			"ON t.test_type_id = tt.test_type_id INNER JOIN test_category tc ".
+			"ON tt.test_category_id = tc.test_category_id WHERE t.specimen_id = '$specimen_id'";
+	$record = query_associative_one($query);
+	$tcid = $record['test_category_id'];
+	$tcname = $record['tcn'];
+
+	if(strcmp($SPEC_ID_FORMAT, "CATAUTO") == 0){
+		DbUtil::switchRestore($saved_db);
+		return $tcname."-".$specimen_id;
+	}
+
+	// 2. Get the position of this specimen in its category
+	$query = "SELECT COUNT(DISTINCT s.specimen_id) AS hits FROM specimen s INNER JOIN test t ON ".
+		"s.specimen_id = t.specimen_id INNER JOIN test_type tt ON t.test_type_id = tt.test_type_id ".
+		"WHERE tt.test_category_id = '$tcid' AND s.specimen_id <= '$specimen_id'";
+
+    $record = query_associative_one($query);
+    $sequential_id = $record['hits'];
+
+    DbUtil::switchRestore($saved_db);
+
+    return $tcname."-".$sequential_id;
+}
+
+function get_real_specimen_id($sequential_specimen_id){
+	#Returns the numeric specimen_id (id field of the specimen table) given a sequential specimen_ids (eg. MIC-2310)
+    $saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
+
+    $cat_id = explode('-', $sequential_specimen_id);
+	// 1. Get the test_category_id using the 3 letter category abbreviation
+	$query = "SELECT test_category_id FROM test_category tc ".
+			"WHERE SUBSTRING(name,1,3) = '".$cat_id[0]."'";
+	$record = query_associative_one($query);
+	$tcid = $record['test_category_id'];
+
+	// 2. Get the specimen_id using its position in its category
+	$query = "SELECT s.specimen_id FROM specimen s INNER JOIN test t ON s.specimen_id = t.specimen_id ".
+		"INNER JOIN test_type tt ON t.test_type_id = tt.test_type_id ".
+		"WHERE tt.test_category_id = '$tcid' ORDER BY s.specimen_id LIMIT ".(intval($cat_id[1]) - 1).", 1";
+
+    $record = query_associative_one($query);
+    $specimen_id = $record['specimen_id'];
+
+    DbUtil::switchRestore($saved_db);
+
+    return $specimen_id;
+}
+
+// -- End of Supplementary functions --
+
 class Culture
 {
 

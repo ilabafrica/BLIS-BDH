@@ -3,6 +3,7 @@
 # Main page for updating test type info
 # Called via Ajax from test_type_edit.php
 #
+
 include("../includes/db_lib.php");
 include("../lang/lang_xml2php.php");
 
@@ -37,6 +38,7 @@ $updated_entry->prevalenceThreshold=get_request_variable('prevalenceThreshold');
 $updated_entry->targetTat=get_request_variable('targetTat');
 $updated_entry->testCategoryId = $cat_code;
 $updated_entry->showCultureWorkSheet = get_request_variable('cultWork', null);
+print_r($updated_entry);
 $cost_cents_initial = get_request_variable('cost_to_patient_cents');
 $cost_cents = get_cents_from_whole_number($cost_cents_initial);
 
@@ -382,7 +384,6 @@ else
                         $gender_options = $_REQUEST['gender_'.($i+1)];
                         $lower_ages = $_REQUEST['agerange_l_'.($i+1)];
                         $upper_ages = $_REQUEST['agerange_u_'.($i+1)];
-                        $description = $_REQUEST['description_'.($i+1)];
 			for($j = 0; $j < count($ranges_lower); $j++)
 			{
 				$lower_range = $ranges_lower[$j];
@@ -390,14 +391,13 @@ else
                                 $gender_option = $gender_options[$j];
                                 $lower_age = $lower_ages[$j];
                                 $upper_age = $upper_ages[$j];
-                                $description_option = $description[$j];
                                 if($lower_age > $upper_age){ # Swap them
                                     $tmp_age = $lower_age;
                                     $lower_age = $upper_age;
                                     $upper_age = $tmp_age;
                                 }
 				if($lower_range!=$upper_range)
-				        $reference_ranges_list[$i][] = array($lower_range, $upper_range, $lower_age, $upper_age, $gender_option, $description_option);
+				        $reference_ranges_list[$i][] = array($lower_range, $upper_range, $lower_age, $upper_age, $gender_option);
 			}
 			//	$range_string = trim($ranges_lower[$i]).":".trim($ranges_upper[$i]);
 			$range_string = ":";
@@ -522,7 +522,6 @@ else
                     $age_upper = $_REQUEST['new_agerange_u_'.($i+1)];
                     $age_lower = $_REQUEST['new_agerange_l_'.($i+1)];
                     $gender = $_REQUEST['new_gender_'.($i+1)];
-                    $description = $_REQUEST['new_description_'.($i+1)];
                     foreach($ranges_lower as $lower)
                     {
                         $upper=$ranges_upper[$index];
@@ -531,8 +530,7 @@ else
                             $lower_age = $age_lower[$index];
                             $upper_age = $age_upper[$index];
                             $gender_option=$gender[$index];
-                            $description_option = $description[$index];
-                            $reference_ranges_list[$count_ref][] = array($lower, $upper , $lower_age , $upper_age, $gender_option, $description_option);
+                            $reference_ranges_list[$count_ref][] = array($lower, $upper , $lower_age , $upper_age, $gender_option);
                         }
                         $index++;
                     }
@@ -627,7 +625,6 @@ else
                     $age_upper = $_REQUEST['agerange_u_'.($i+1).$us.($k+1)];
                     $age_lower = $_REQUEST['agerange_l_'.($i+1).$us.($k+1)];
                     $gender = $_REQUEST['gender_'.($i+1).$us.($k+1)];
-                    $description =  $_REQUEST['description_'.($i+1).$us.($k+1)];
                             foreach($ranges_lower as $lower)
 
                             {
@@ -637,8 +634,7 @@ else
                             $lower_age = $age_lower[$index];
                             $upper_age = $age_upper[$index];
                             $gender_option=$gender[$index];
-                            $description_option = $description[$index];
-                            $sub_reference_ranges_list[$r][] = array($lower, $upper , $lower_age , $upper_age, $gender_option, $description_option);
+                            $sub_reference_ranges_list[$r][] = array($lower, $upper , $lower_age , $upper_age, $gender_option);
                             $r++;
                             }
                             $index++;
@@ -795,13 +791,11 @@ foreach($reference_ranges_list as $range_list)
 		$age_min = $range_entry[2];
 		$age_max = $range_entry[3];
 		$gender_option = $range_entry[4];
-        $description_option = $range_entry[5];
 		$ref_range = new ReferenceRange();
 		$ref_range->measureId = $measure_id;
 		$ref_range->ageMin = $age_min;
 		$ref_range->ageMax = $age_max;
 		$ref_range->sex = $gender_option;
-        $ref_range->description = $description_option;
 		$ref_range->rangeLower = $range_lower;
 		$ref_range->rangeUpper = $range_upper;
 		$ref_range->addToDb($_SESSION['lab_config_id']);
@@ -826,13 +820,11 @@ foreach($sub_reference_ranges_list as $range_list)
 		$age_min = $range_entry[2];
 		$age_max = $range_entry[3];
 		$gender_option = $range_entry[4];
-        $description_option = $range_entry[5];
 		$ref_range = new ReferenceRange();
 		$ref_range->measureId = $measure_id;
 		$ref_range->ageMin = $age_min;
 		$ref_range->ageMax = $age_max;
 		$ref_range->sex = $gender_option;
-        $ref_range->description = $description_option;
 		$ref_range->rangeLower = $range_lower;
 		$ref_range->rangeUpper = $range_upper;
 		$ref_range->addToDb($_SESSION['lab_config_id']);

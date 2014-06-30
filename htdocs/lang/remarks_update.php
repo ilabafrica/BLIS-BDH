@@ -57,14 +57,16 @@ foreach($measure_list as $measure)
 	}
 	else if($range_type == Measure::$RANGE_NUMERIC)
 	{
-		$remarks_list = $_REQUEST['remarks_'.$measure->measureId];
-		$id_list=$_REQUEST['id_'.$measure->measureId];
-		$range_l_list=$_REQUEST['range_l_'.$measure->measureId];
-		$range_u_list=$_REQUEST['range_u_'.$measure->measureId];
-		$age_u_list=$_REQUEST['age_u_'.$measure->measureId];
-		$age_l_list=$_REQUEST['age_l_'.$measure->measureId];
-		$gender_list=$_REQUEST['gender_'.$measure->measureId];
-		$measure->setNumericInterpretation($remarks_list,$id_list, $range_l_list, $range_u_list, $age_u_list, $age_l_list, $gender_list);
+		$remarks_list = get_request_variable('remarks_'.$measure->measureId, null);
+		$id_list=get_request_variable('id_'.$measure->measureId, null);
+		$range_l_list=get_request_variable('range_l_'.$measure->measureId, null);
+		$range_u_list=get_request_variable('range_u_'.$measure->measureId, null);
+		$age_u_list=get_request_variable('age_u_'.$measure->measureId, null);
+		$age_l_list=get_request_variable('age_l_'.$measure->measureId, null);
+		$gender_list=get_request_variable('gender_'.$measure->measureId, null);
+		if($remarks_list[0] != null && $range_l_list[0] != null && $range_u_list[0] != null && $age_u_list[0] != null && $age_l_list[0] != null && $gender_list[0] != null) {
+			$measure->setNumericInterpretation($remarks_list,$id_list, $range_l_list, $range_u_list, $age_u_list, $age_l_list, $gender_list);	
+		}
 		// $count = 0;
 		// if(count($id_list)==1)
 // {	

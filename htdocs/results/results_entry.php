@@ -1179,13 +1179,13 @@ function restrictCharacters(e) {
 		return true;
 }
 
-function update_remarks(test_type_id, count, patient_age, patient_sex)
+function update_remarks(test_type_id, count, patient_age, patient_sex, test_id)
 {
 	 <?php # See ajax/specimen_form_fetch.php for field names ?>
 	 var values_csv = "";
-	 var remarks_input_id = "test_"+test_type_id+"_comments";
+	 var remarks_input_id = "test_"+test_id+"_comments";
 
-	$('input[name="result[]"]').each(function(index, element) {
+	$('input[name="result[]"],select[name="result[]"]').each(function(index, element) {
 		//Getting the Ids for all results input elements
 		 elementids = $(element).attr('id');  
 		 values_csv += $('#'+elementids).val()+"_";

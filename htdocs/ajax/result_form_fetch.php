@@ -81,7 +81,7 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 		
 		if($range_type == Measure::$RANGE_OPTIONS)
 		{
-		?><select name='result[]' id='<?php echo $input_id; ?>' class='uniform_width validate[groupRequired[results]]' onchange="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?> ,<?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>');" data-required='1'><option></option>
+		?><select name='result[]' id='<?php echo $input_id; ?>' class='uniform_width validate[groupRequired[results]]' onchange="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?> ,<?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>', '<?php echo $test_id;?>');" data-required='1'><option></option>
 			<?php
 			foreach($range_values as $option)
 			{
@@ -199,8 +199,7 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 			</label>
 		
 			<span id='<?php echo $curr_form_id; ?>_comments_span'>
-			<textarea name='comments' id='<?php echo $curr_form_id; ?>_comments'  class='uniform_width abbreviation'  onfocus="javascript:update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>');"
-		       data-required='1'></textarea>
+			<textarea name='comments' id='<?php echo $curr_form_id; ?>_comments'  class='uniform_width abbreviation' data-required='1'></textarea>
 			</span>
 		</td>
 	</tr>
@@ -473,7 +472,7 @@ $modal_link_id = "test_result_link_$test_id";
 			alert("Value expected for result is numeric.");
 			return;
 		}
-		update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>');
+		update_remarks(<?php echo $test_type->testTypeId; ?>, <?php echo count($measure_list); ?>, <?php echo $patient->getAgeNumber(); ?>, '<?php echo $patient->sex;?>', '<?php echo $test_id;?>');
 	}
 
 	/*Begin save drug susceptibility*/	

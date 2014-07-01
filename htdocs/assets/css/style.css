@@ -3443,3 +3443,8 @@ Styler Panel
       padding-left: 10px;
       display: inline-block;
     }
+#add_anyway_div {
+  max-height: 300px;
+  overflow: auto;
+  overflow-x:hidden;
+}

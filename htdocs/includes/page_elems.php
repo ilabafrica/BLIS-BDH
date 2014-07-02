@@ -5722,6 +5722,37 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 		<?php
 	}
 	/*End function to get organisms checkboxes*/
+
+	/*Begin function to get organisms checkboxes for culture worksheet*/
+	public function getOrganismsCheckboxesForWorksheet($test_type_id)
+	{
+		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
+		# else only returns checkboxes with available Drug names
+		?>
+		<table class="table table-bordered table-advanced table-condensed">
+			<tbody>
+			<tr>
+			<?php
+			$count = 0;
+			$compatible_organisms = get_compatible_organisms($test_type_id);
+			foreach($compatible_organisms as $pathogen)
+			{
+				$organism = get_organism_by_id($pathogen);
+				$count++;
+				?>
+				
+				<td><input type='checkbox' onchange='javascript:showSusceptibility(<?php echo $pathogen; ?>);' class='dtype_entry' name='d_type_<?php echo $pathogen; ?>' id='d_type_<?php echo $pathogen; ?>' value='<?php echo $pathogen; ?>'><?php echo $organism->name; ?>
+				</input></td>
+				<?php
+				if($count % 4 == 0)
+					echo "</tr><tr>";
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+	}
+	/*End function to get organisms checkboxes for culture worksheet*/
 	
 	public function getTestTypeCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true)
 	{

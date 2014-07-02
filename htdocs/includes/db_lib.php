@@ -1927,26 +1927,26 @@ class DrugSusceptibility
 		return $drugSusceptibility;
 	}	
 
-	public static function addSusceptibility($userId, $testId, $drugId, $zone, $interpretation){
+	public static function addSusceptibility($userId, $testId, $organismId, $drugId, $zone, $interpretation){
 		global $con;
-		$query_string = "INSERT INTO drug_susceptibility (userId, testId, drugId, zone, interpretation, ts) values($userId, $testId, $drugId, $zone, '$interpretation', NOW()) ";
+		$query_string = "INSERT INTO drug_susceptibility (userId, testId, organismId, drugId, zone, interpretation, ts) values($userId, $testId, $organismId, $drugId, $zone, '$interpretation', NOW()) ";
 		echo $query_string;
 		$result = query_insert_one($query_string);
 		//return get_last_insert_id();
 	}
 
-	public static function updateSusceptibility($userId, $testId, $drugId, $zone, $interpretation){
+	public static function updateSusceptibility($userId, $testId, $organismId, $drugId, $zone, $interpretation){
 		global $con;
-		$query_string = "UPDATE drug_susceptibility SET userId = $userId, zone = $zone, interpretation = '$interpretation', ts = NOW() WHERE testId = $testId AND drugId = $drugId;";
+		$query_string = "UPDATE drug_susceptibility SET userId = $userId, zone = $zone, interpretation = '$interpretation', ts = NOW() WHERE testId = $testId AND organismId =$organismId AND drugId = $drugId;";
 		echo $query_string;
 		$result = query_blind($query_string);
 		//return get_last_insert_id();
 	}
 
-	public static function getDrugSuceptibilityResults($testId){
+	public static function getDrugSuceptibilityResults($testId, $organismId){
 
 		global $con;
-		$query_string = "SELECT * FROM drug_susceptibility where testId = $testId order by ts ASC";
+		$query_string = "SELECT * FROM drug_susceptibility where testId = $testId AND organismId = $organismId order by ts ASC";
 		$record = query_associative_all($query_string, $count);
 		$retval = array();
 		foreach($record as $obj)
@@ -1988,10 +1988,10 @@ class DrugSusceptibility
 		return DrugSusceptibility::getObject($record);
 
 	}
-	public static function getDrugSusceptibility($testId, $drugId){
+	public static function getDrugSusceptibility($testId, $organismId, $drugId){
 
 		global $con;
-		$query_string = "SELECT zone, interpretation FROM drug_susceptibility where testId = $testId AND drugId = $drugId;";
+		$query_string = "SELECT zone, interpretation FROM drug_susceptibility where testId = $testId AND organismId = $organismId AND drugId = $drugId;";
 		$record = query_associative_all($query_string, $count);
 		$retval = array();
 		foreach($record as $obj)
@@ -11267,7 +11267,7 @@ function get_compatible_specimens($test_type_id)
 
 function get_compatible_drugs($organism_id)
 {
-	# Returns a list of compatible drugs for a given test type in catalog
+	# Returns a list of compatible drugs for a given organism in catalog
 	global $con;
 	$organism_id = mysql_real_escape_string($organism_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
@@ -11287,9 +11287,9 @@ function get_compatible_drugs($organism_id)
 
 function get_compatible_organisms($test_type_id)
 {
-	# Returns a list of compatible drugs for a given test type in catalog
+	# Returns a list of compatible organisms for a given test type in catalog
 	global $con;
-	$test_type_id = mysql_real_escape_string($test_type_id, $con);
+	$organism_id = mysql_real_escape_string($test_type_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
 		"SELECT organism_id FROM organism_test WHERE test_type_id=$test_type_id";
@@ -11304,7 +11304,6 @@ function get_compatible_organisms($test_type_id)
 	DbUtil::switchRestore($saved_db);
 	return $retval;
 }
-
 
 function get_compatible_test_types($lab_config_id, $specimen_type_id)
 {

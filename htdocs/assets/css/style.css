@@ -3448,3 +3448,13 @@ Styler Panel
   overflow: auto;
   overflow-x:hidden;
 }
+#test_req_confirm div table {
+   width: 100%;
+}
+#test_req_confirm div table tr td:first-child {
+  padding: 10px;
+}
+#test_req_confirm div table tr td:last-child {
+  text-align: right;
+  padding: 10px;
+}

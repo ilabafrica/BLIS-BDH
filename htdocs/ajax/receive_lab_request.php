@@ -450,6 +450,16 @@ function add_specimens(labNo)
                 $('#specId'+labNo).html(test_details[2]);
 			}
 		);
+
+        if (labNo === undefined) {
+            var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+            App.blockUI(el);
+            $('.reg_subdiv').hide();
+            var url = 'ajax/receive_lab_request.php';
+            $( "#test_req_confirm" ).append( "<div><table><tr><td><p><b>Test request for <?php echo $patient->name; ?> has been successfully received</b></p></td><td id='right'><button class='btn blue icn-only' onclick='javascript:remove_appended_modal(&quot;test_req_confirm&quot;);'><i>Ok</i></button></td></tr></table></div>" );
+            $('#test_req_confirm').modal('show');
+            App.unblockUI(el);
+        }
 }
 function add_specimenbox()
 {

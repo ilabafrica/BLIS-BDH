@@ -58,6 +58,8 @@ $test_categories = TestCategory::geAllTestCategories($lab_config->id);
 				<div id='specimen_reg_body' class='modal container hide fade' role="dialog" aria-hidden="true" data-backdrop="static"> </div>
 
 				<div id='patient_reg_body' class='modal container hide fade' role="dialog" aria-hidden="true" data-backdrop="static"> </div>
+				
+				<div id='test_req_confirm' class='modal container hide fade' role="dialog" aria-hidden="true" data-backdrop="static"> </div>
 
 				<div id='specimen_rejection_body' class='modal container hide fade' role="dialog" aria-hidden="true" data-backdrop="static"> </div>
 
@@ -866,6 +868,12 @@ function remove_modal(id){
 	var target_div = id;
 	$('#'+target_div).modal('hide'); 
 	
+}
+
+function remove_appended_modal(id){
+	var target_div = id;
+	$('#'+target_div).modal('hide');
+	$('#'+target_div).empty();
 }
 
 function fetch_specimen2(specimen_id)

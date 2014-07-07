@@ -3443,6 +3443,13 @@ Styler Panel
       padding-left: 10px;
       display: inline-block;
     }
+    
+#add_anyway_div {
+  max-height: 300px;
+  overflow: auto;
+  overflow-x:hidden;
+}
+
 .pagination {
   border-left: 1px solid #DDD;
 }
@@ -3468,3 +3475,22 @@ Styler Panel
     background-color: #FFF;
     cursor: not-allowed;
   }
+
+/*Confirmation pop up after search/register new patient */
+#test_req_confirm {
+  width: auto;
+}
+  .info-popup {
+    padding: 10px;
+    max-width: 450px;
+  }
+    .info-popup h4 {
+      font-weight: bold;
+    }
+    .info-popup div {
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+      .info-popup div button {
+        float: right;
+      }

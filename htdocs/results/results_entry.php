@@ -87,7 +87,7 @@ $test_categories = TestCategory::geAllTestCategories($lab_config->id);
     <div class="portlet-body form" style="height:400px">
         	<p style="text-align: right;"><a rel='facebox'>Page Help</a></p>
         	<a onclick="right_load('tests')" href='javascript:void(0)'>Back</a> <br>
-				<input type='text' name='pq' class="uniform width" id='pq' style='font-family:Tahoma;width:18em' placeholder='Enter Search Value e.g. Wasike or 220412' onkeypress="return restrictCharacters(event)"/>				
+				<input type='text' name='pq' class="uniform width" id='pq' style='width:18em' placeholder='Enter Search Value e.g. Wasike or 220412' onkeypress="return restrictCharacters(event)"/>				
 				<button class="btn" type="button" id='psearch_button' onclick="javascript:fetch_patients();"><?php echo LangUtil::$generalTerms['CMD_SEARCH']; ?> </button>
 				<span id='fetch_progress_bar' style='display:none;'>
 				<?php $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_SEARCHING']); ?>
@@ -1181,13 +1181,13 @@ function restrictCharacters(e) {
 		return true;
 }
 
-function update_remarks(test_type_id, count, patient_age, patient_sex)
+function update_remarks(test_type_id, count, patient_age, patient_sex, test_id)
 {
 	 <?php # See ajax/specimen_form_fetch.php for field names ?>
 	 var values_csv = "";
-	 var remarks_input_id = "test_"+test_type_id+"_comments";
+	 var remarks_input_id = "test_"+test_id+"_comments";
 
-	$('input[name="result[]"]').each(function(index, element) {
+	$('input[name="result[]"],select[name="result[]"]').each(function(index, element) {
 		//Getting the Ids for all results input elements
 		 elementids = $(element).attr('id');  
 		 values_csv += $('#'+elementids).val()+"_";

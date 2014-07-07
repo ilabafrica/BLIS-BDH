@@ -53,7 +53,7 @@
 			}
 		}
 		else {
-				$testIds[$lab_config_id] = $test_type_id;
+			$testIds[$lab_config_id] = $test_type_id;
 		}
 		
 		/* Single Test for Single Lab */
@@ -176,37 +176,197 @@
 		});
 		new Highcharts.Chart(options);
 
+		function specimen_info(specimen_id)
+		{
+			var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+			App.blockUI(el);
+			var url = 'search/specimen_info.php';
+			var target_div = "specimen_info";
+			$("#"+target_div).load(url, 
+				{sid: specimen_id, modal:1}, 
+				function() 
+				{
+					$('#'+target_div).modal('show');
+					if(status==<?php echo Specimen::$STATUS_VERIFIED;?>){
+						$('#verifybtn'+test_id).remove();
+						$('#verifydby'+test_id).removeClass('label-warning');
+						$('#verifydby'+test_id).addClass('label-success');
+					}
+					App.unblockUI(el);
+				}
+			);
+		}
+
+		function close_modal(this_element){
+
+		    var el = $('#' + this_element).closest('.modal');
+		   	el.empty();
+		    el.modal('hide');
+		}
+
 	</script>
-<!-- <pre><?php print_r($stat_lists); ?></pre> -->
+
 	<div id="trendsDiv"></div>
+	<div id="specimen_info" class="modal hide fade" data-backdrop="static" data-keyboard="true" style="width:900px;">
+		<div class="modal-body"></div>
+		<div class="modal-footer">
+			<button type="button" data-dismiss="modal" class="btn" onclick='javascript:cancel_hide()'>No</button>
+		</div>
+	</div>
+
 	<?php
 
 	if($test_type_id != 0) {
 		# Show table of graph data
+		$my_graph = graph_data_table($stat_list);
 
-			$table_id = 'graph-data-table-'.$test_type_id;
-			$count['TOTAL'] = 0;
-			$count['GT_TAT'] = 0;
-			$count['TARGET_TAT'] = 0;
-			$graph_data = "";
-			foreach($stat_list as $key=>$graph_records)
-			{
-				foreach($graph_records[4] as $datum)
+	?>
+		<div class="graph-data container-fluid">
+			<div class='sidetip_nopos graph-summary row'>
+				<div class="span8">
+					<div>
+						<span>Target TAT:</span>
+						<span style='float:right;'><?php echo $my_graph['COUNT']['TARGET_TAT']; ?> Hours</span>
+					</div>
+					<div>
+						<span>Total Number of Specimen in Interval:</span>
+						<span style='float:right;'><?php echo $my_graph['COUNT']['TOTAL']; ?></span>
+					</div>
+					<div>
+						<span>Specimen Exceeding Target TAT:</span>
+						<span style='float:right;'><?php echo $my_graph['COUNT']['GT_TAT']; ?></span>
+					</div>
+				</div>
+				<div class="span4">
+					<a class="btn btn-default view-hide-details" href="javascript:void(0);">
+						View/Hide Details &raquo;</a>
+				</div>
+			</div>
+			<div id="graph-data-display" style="display:none;">
+				<?php echo $my_graph['DATA']; ?>
+				<?php echo $my_graph['PAGINATION']; ?>
+			</div>
+		</div>
+		<script type='text/javascript'>
+			$(function () {
+				$('.view-hide-details').click(function(){
+					$('#graph-data-display').toggle();
+				});
+				$('#graph-data-table-id').tablesorter();
+			});
+
+			function graph_data_table(page, itemsPerPage){
+			 // Displays the graph source data in tabular form
+
+				var stats_js = <?php echo json_encode($stat_list); ?>;
+				var counter = 0;
+				var graph_data = "";
+				for(var x in stats_js)
 				{
-					$spec_id = substr($datum['category'], 0, 3)."-".$datum['specimen_id'];
-					$time_r = $datum['ts'];
-					$time_c = $datum['ts_collected'];
-					$time_f = $datum['ts_completed'];
-					$count['TOTAL']++;
-					$count['EXCEED_STYLE'] = "";
-					if((($time_f-$time_c)/60/60)>$datum['target_tat']){ //Exceeded Target TAT
-						$count['GT_TAT']++;
-						$count['EXCEED_STYLE'] = " class='label label-important' title='Exceeded target TAT'";
-					}
-					$count['TARGET_TAT'] = $datum['target_tat'];
+					if (stats_js.hasOwnProperty(x)) {
+						var item = stats_js[x][4];
+						for(var y in item)
+						{
+							if (item.hasOwnProperty(y)){
+								var datum = item[y];
+								counter++;
 
-					$graph_data .= "<tr><td>".$count['TOTAL']."</td>";
-					$graph_data .= "<td>$spec_id</td>";
+								var time_r = datum.ts;
+								var time_c = datum.ts_collected;
+								var time_f = datum.ts_completed;
+
+								var exceeded = ""; //Exceeded Style
+								if(((time_f-time_c)/60/60)>datum['target_tat']){ //Exceeded Target TAT
+									exceeded = " class='label label-important' title='Exceeded target TAT'";
+								}
+
+								if(counter <= page*itemsPerPage && counter > (page-1)*itemsPerPage) {
+
+									var url = "ajax/get_sequential_specimen_id.php";
+									var spec_id = $.ajax({url: url, data: { s: datum.specimen_id }, async: false}).responseText;
+									var gdate = (new Date(time_c*1000)).toISOString().replace("T", " ").substr(0,19); //The date
+
+									graph_data += "<tr><td>"+counter+"</td>";
+									graph_data += "<td><a href='javascript:void(0);' onclick='specimen_info("+datum.specimen_id;
+									graph_data += ");' title='More Details'>"+spec_id+"</a></td>";
+									graph_data += "<td>"+datum['specimen_type']+"</td>";
+									graph_data += "<td>"+datum['test_name']+"</td>";
+									graph_data += "<td>"+gdate+"</td>";
+									graph_data += "<td>"+((time_c-time_r)/60).toFixed(2)+"</td>";
+									graph_data += "<td><span "+ exceeded +">"+((time_f-time_c)/60).toFixed(2)+"</span></td></tr>";
+								}
+							}
+						}
+					}
+				}
+
+				// Pagination variables
+				var page_count = Math.ceil(counter/itemsPerPage);
+				var links_shown = 2;
+				var pagination = "<a "+(page==1?"class='disabled'":"")+" href='javascript:void(0);' ";
+				pagination += "onclick='graph_data_table( 1, " + itemsPerPage + ");'>&laquo;</a>";
+
+				for(var i=page-links_shown;i<=page+links_shown;i++){
+					if(i>0 && i<= page_count){
+						pagination += "<a " + (page==i?"class='active' ":"") + "href='javascript:void(0);' ";
+						pagination += "onclick='graph_data_table( "+ i + ", " + itemsPerPage + ");'>" + i + "</a>";
+					}
+				}
+				pagination += "<a "+ (page==page_count?"class='disabled'":"") + " href='javascript:void(0);' ";
+				pagination += "onclick='graph_data_table( " + page_count + ", " + itemsPerPage + ");'>&raquo;</a>";
+
+				$('#graph-data-display table tbody').html(graph_data);
+				$('#graph-data-display .pagination').html(pagination);
+				$("#graph-data-table-id").trigger("update", [true]);
+			}
+		</script>
+
+		<?php
+	}
+
+	function graph_data_table($stats_array, $page = 1, $number_per_page = 25){
+		# Displays the graph source data in tabular form
+	
+		$counter = 0;
+
+		$count['TOTAL'] = 0;
+		$count['GT_TAT'] = 0;
+		$count['TARGET_TAT'] = 0;
+
+		$graph_data = "<table class='tablesorter graph-data-table' id='graph-data-table-id'>";
+		$graph_data .= "<thead><tr><th>#</th>";
+		$graph_data .= "<th>".LangUtil::$generalTerms['SPECIMEN_ID']."</th>";
+		$graph_data .= "<th>".LangUtil::$generalTerms['TYPE']."</th>";
+		$graph_data .= "<th>".LangUtil::$generalTerms['TESTS']."</th>";
+		$graph_data .= "<th>".LangUtil::$generalTerms['C_DATE']."</th>";
+		$graph_data .= "<th>Waiting Time (Mins)</th>";
+		$graph_data .= "<th>TAT (Mins)</th>";
+		$graph_data .= "</tr></thead><tbody>";
+
+		foreach($stats_array as $key=>$graph_records)
+		{
+			foreach($graph_records[4] as $datum)
+			{
+				$counter ++;
+
+				$time_r = $datum['ts'];
+				$time_c = $datum['ts_collected'];
+				$time_f = $datum['ts_completed'];
+				$count['EXCEED_STYLE'] = "";
+				if((($time_f-$time_c)/60/60)>$datum['target_tat']){ //Exceeded Target TAT
+					$count['GT_TAT']++;
+					$count['EXCEED_STYLE'] = " class='label label-important' title='Exceeded target TAT'";
+				}
+				$count['TARGET_TAT'] = $datum['target_tat'];
+
+				if ($counter <= $page*$number_per_page && $counter > ($page-1)*$number_per_page) {
+
+					$sid = $datum['specimen_id'];
+					$spec_id = get_sequential_specimen_id($sid);
+
+					$graph_data .= "<tr><td>$counter</td>";
+					$graph_data .= "<td><a href='javascript:void(0);' onclick='specimen_info($sid);' ";
+					$graph_data .= "title='More Details'>$spec_id</a></td>";
 					$graph_data .= "<td>".$datum['specimen_type']."</td>";
 					$graph_data .= "<td>".$datum['test_name']."</td>";
 					$graph_data .= "<td>".date("Y-m-d H:i:s", $time_c)."</td>";
@@ -214,50 +374,31 @@
 					$graph_data .= "<td><span".$count['EXCEED_STYLE'].">".round(($time_f-$time_c)/60, 2)."</span></td></tr>";
 				}
 			}
-			?>
-			<div class="graph-data container-fluid">
-				<div class='sidetip_nopos graph-summary row'>
-					<div class="span8">
-						<div>
-							<span>Target TAT:</span>
-							<span style='float:right;'><?php echo $count['TARGET_TAT']; ?> Hours</span>
-						</div>
-						<div>
-							<span>Total Number of Specimen in Interval:</span>
-							<span style='float:right;'><?php echo $count['TOTAL']; ?></span>
-						</div>
-						<div>
-							<span>Specimen Exceeding Target TAT:</span>
-							<span style='float:right;'><?php echo $count['GT_TAT']; ?></span>
-						</div>
-					</div>
-					<div class="span4">
-						<a class="btn btn-default" href="javascript:toggle('<?php echo $table_id; ?>');">
-							View/Hide Details &raquo;</a>
-					</div>
-				</div>
-				<table class='tablesorter graph-data-table' id='<?php echo $table_id; ?>' style='display:none;'>
-					<thead>
-						<tr>
-							<th style="padding:5px;">#</th>
-							<th><?php echo LangUtil::$generalTerms['SPECIMEN_ID']; ?></th>
-							<th><?php echo LangUtil::$generalTerms['TYPE']; ?></th>
-							<th><?php echo LangUtil::$generalTerms['TESTS']; ?></th>
-							<th><?php echo LangUtil::$generalTerms['C_DATE']; ?></th>
-							<th>Waiting Time (Mins)</th>
-							<th>TAT (Mins)</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?php echo $graph_data; ?>
-					</tbody>
-				</table>
-			</div>
-			<script type='text/javascript'>
-				$(function () {
-					$('#<?php echo $table_id; ?>').tablesorter();
-				});
-			</script>
-		<?php
+		}
+		$graph_data .= "</tbody></table>";
+
+		$count['TOTAL'] = $counter;
+
+		// Pagination variables
+		$page_count = ceil($counter/$number_per_page);
+		$links_shown = 2;
+		$pagination = "<div class='pagination'>";
+		$pagination .= "<a ".($page==1?"class='disabled'":"")." href='javascript:void(0);' ".
+						"onclick='graph_data_table(1, $number_per_page);'>&laquo;</a>";
+		for($i=$page-$links_shown;$i<=$page+$links_shown;$i++){
+			if($i>0 && $i<= $page_count){
+				$pagination .= "<a ".($page==$i?"class='active' ":"")."href='javascript:void(0);' ".
+								"onclick='graph_data_table($i, $number_per_page);'>$i</a>";
+			}
+		}
+		$pagination .= "<a ".($page==$page_count?"class='disabled'":"")." href='javascript:void(0);' ".
+						"onclick='graph_data_table($page_count, $number_per_page);'>&raquo;</a><div>";
+
+		$graph_detail['COUNT'] = $count;
+		$graph_detail['DATA'] = $graph_data;
+		$graph_detail['PAGES'] = $page_count;
+		$graph_detail['PAGINATION'] = $pagination;
+
+		return $graph_detail;
 	}
 ?>

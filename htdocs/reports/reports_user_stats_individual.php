@@ -156,10 +156,10 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                     ?></th>
 			<th>Patient Name</th>
 			<th>Patient ID</th>
-                        <th>Patient Number</th>
-                        <th>Patient Gender</th>
-                        <th>Patient Age</th>
-                        <th>Date of Registration</th>
+            <th>Patient Number</th>
+            <th>Patient Gender</th>
+            <th>Patient Age</th>
+            <th>Date of Registration</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -221,7 +221,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                     <td>
                         <?php 
                            if($entry->regDate != '')
-                               echo $entry->regDate;
+                               echo substr($entry->regDate, 0, 10);
                             else
                                 echo '-';
                         ?>
@@ -239,15 +239,15 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
 <table style='border-collapse: collapse;' id='testsdone_table'>
 	<thead>
 		<tr>
-                    <th><?php 
-                        $count = 0;
-                        echo "S.No.";
-                    ?></th>
+            <th><?php 
+                $count = 0;
+                echo "S.No.";
+            ?></th>
 			<th>Specimen Name</th>
 			<th>Specimen ID</th>
-                        <th>Patient Name</th>
-                        <th>Patient ID</th>
-                        <th>Date of Registration</th>
+            <th>Patient Name</th>
+            <th>Patient ID</th>
+            <th>Date of Registration</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -277,7 +277,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                         <?php 
                             if($entry->specimenId != '')
                             {
-                               echo $entry->bench.'-'.$entry->specimenId; 
+                               echo get_sequential_specimen_id($entry->specimenId);
                             }
                             else
                                 echo '-';
@@ -308,7 +308,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                         <?php 
                             $entr = $entry->dateCollected;
                             if($entr != '')
-                                echo $entr; 
+                                echo substr($entr, 0, 10); 
                             else
                                 echo '-';
                         ?>
@@ -394,7 +394,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                         <?php 
                             $entr = $entry->specimenId;
                             if($entr != '')
-                                echo $entr; 
+                                echo get_sequential_specimen_id($entr); 
                             else
                                 echo '-';
                         ?>
@@ -404,7 +404,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                         <?php 
                             $entr = $entry->getTestRegDate();
                             if($entr != '')
-                                echo $entr; 
+                                echo substr($entr, 0, 10); 
                             else
                                 echo '-';
                         ?>
@@ -490,7 +490,7 @@ $table_css = "style='padding: .3em; border: 1px black solid; font-size:14px;'";
                         <?php 
                             $entr = $entry->specimenId;
                             if($entr != '')
-                                echo $entr; 
+                                echo get_sequential_specimen_id($entr); 
                             else
                                 echo '-';
                         ?>

@@ -3450,6 +3450,32 @@ Styler Panel
   overflow-x:hidden;
 }
 
+.pagination {
+  border-left: 1px solid #DDD;
+}
+  .pagination a {
+    padding: 5px 10px;
+    display: inline-block;
+    text-align: center;
+    min-width: 20px;
+    border: 1px solid #DDD;
+    border-left: 0px;
+    color: #2A6496;
+  }
+  .pagination a:hover {
+    background-color: #EEE;
+    text-decoration: none;
+  }
+  .pagination a.active {
+    background-color: #428BCA;
+    color: #FFFFFF;
+  }
+  .pagination a.disabled {
+    color: #999;
+    background-color: #FFF;
+    cursor: not-allowed;
+  }
+
 /*Confirmation pop up after search/register new patient */
 #test_req_confirm {
   width: auto;

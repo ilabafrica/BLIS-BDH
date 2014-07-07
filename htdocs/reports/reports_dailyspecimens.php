@@ -494,7 +494,7 @@ if($no_match === true)
 			}
 			if($report_config->useSpecimenAddlId == 1)
 			{
-				echo "<td>".$test->getLabSectionByTest()."</td>";
+				echo "<td>". get_sequential_specimen_id($specimen->specimenId)."</td>";
 				// echo "<td>".$specimen->specimenId."</td>";
 				// $specimen->getAuxId();
 			}

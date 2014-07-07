@@ -2993,7 +2993,10 @@ function add_remarks_row(measure_id, range_type)
         html_code += "-<input type='text' name='range_u_"+measure_id+"[]' value='' class='uniform_width_less input-mini'></input></td>";
         html_code += "<td><input type='text' name='age_l_"+measure_id+"[]' value='' class='uniform_width_less input-mini'></input>";
         html_code += "-<input type='text' name='age_u_"+measure_id+"[]' value='' class='uniform_width_less input-mini'></input></td>";
-        html_code += "<td><input type='text' name='gender_"+measure_id+"[]' value='' size='1px' class='input-mini'></input></td>";
+        html_code += "<td><select name='gender_"+measure_id+"[]'> "+
+                     "<option value=''>Choose -- </option>"+
+                     "<option value='M'>Male</option> <option value='F'>Female</option>"+
+                     "<option value='B'>Both</option> </select></td>";
         html_code += "<td><input type='text' name='remarks_"+measure_id+"[]' value='' class='uniform_width input-mini'></input></td></tr>";
     }
     var target_table_id = "remarks_table_"+measure_id;

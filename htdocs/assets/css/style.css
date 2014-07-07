@@ -3443,18 +3443,28 @@ Styler Panel
       padding-left: 10px;
       display: inline-block;
     }
+    
 #add_anyway_div {
   max-height: 300px;
   overflow: auto;
   overflow-x:hidden;
 }
-#test_req_confirm div table {
-   width: 100%;
+
+/*Confirmation pop up after search/register new patient */
+#test_req_confirm {
+  width: auto;
 }
-#test_req_confirm div table tr td:first-child {
-  padding: 10px;
-}
-#test_req_confirm div table tr td:last-child {
-  text-align: right;
-  padding: 10px;
-}
+  .info-popup {
+    padding: 10px;
+    max-width: 450px;
+  }
+    .info-popup h4 {
+      font-weight: bold;
+    }
+    .info-popup div {
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+      .info-popup div button {
+        float: right;
+      }

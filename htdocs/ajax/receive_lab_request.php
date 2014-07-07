@@ -456,7 +456,11 @@ function add_specimens(labNo)
             App.blockUI(el);
             $('.reg_subdiv').hide();
             var url = 'ajax/receive_lab_request.php';
-            $( "#test_req_confirm" ).append( "<div><table><tr><td><p><b>Test request for <?php echo $patient->name; ?> has been successfully received</b></p></td><td id='right'><button class='btn blue icn-only' onclick='javascript:remove_appended_modal(&quot;test_req_confirm&quot;);'><i>Ok</i></button></td></tr></table></div>" );
+            var infoPopup = "<div class='info-popup'><h4>Test Reception</h4><div>A test request for ";
+            infoPopup += "<b><?php echo $patient->name; ?></b> has been successfully received.</div>";
+            infoPopup += "<div><button class='btn blue icn-only' onclick=";
+            infoPopup += "'javascript:remove_appended_modal(&quot;test_req_confirm&quot;);'><i>Ok</i></button></div></div>";
+            $( "#test_req_confirm" ).append(infoPopup);
             $('#test_req_confirm').modal('show');
             App.unblockUI(el);
         }

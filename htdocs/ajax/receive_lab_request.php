@@ -459,7 +459,7 @@ function add_specimens(labNo)
             var infoPopup = "<div class='info-popup'><h4>Test Reception</h4><div>A test request for ";
             infoPopup += "<b><?php echo $patient->name; ?></b> has been successfully received.</div>";
             infoPopup += "<div><button class='btn blue icn-only' onclick=";
-            infoPopup += "'javascript:remove_appended_modal(&quot;test_req_confirm&quot;);'><i>Ok</i></button></div></div>";
+            infoPopup += "'javascript:close_modal(\"test_req_confirm\");'><i>Ok</i></button></div></div>";
             $( "#test_req_confirm" ).append(infoPopup);
             $('#test_req_confirm').modal('show');
             App.unblockUI(el);

@@ -870,12 +870,6 @@ function remove_modal(id){
 	
 }
 
-function remove_appended_modal(id){
-	var target_div = id;
-	$('#'+target_div).modal('hide');
-	$('#'+target_div).empty();
-}
-
 function fetch_specimen2(specimen_id)
 {
 var pg=2;

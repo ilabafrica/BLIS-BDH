@@ -273,12 +273,9 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 	<!-- End possible organisms checkboxes -->
 	<!-- Begin Drug Susceptibility Tests table -->
 	<br />
-	<div class="portlet box yellow ">
+	<div class="portlet box grey ">
 						<div class="portlet-title">
-							<div class="caption">
-								<i class="fa fa-reorder"></i> <h5>Susceptibility Test Results</h5>
-							</div>
-							
+							<i class="fa fa-reorder"></i> <h5>Susceptibility Test Results</h5>
 						</div>
 						<div class="portlet-body form">
 						<?php foreach ($pathogens as $id) {

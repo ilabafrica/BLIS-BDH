@@ -7726,6 +7726,18 @@ function get_tests_by_specimen_id($specimen_id)
 	return $retval;
 }
 
+function get_test_by_specimen_id($specimen_id)
+{
+	global $con;
+	$specimen_id = mysql_real_escape_string($specimen_id, $con);
+	# Returns list of tests scheduled for this given specimen
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = "SELECT * FROM test WHERE specimen_id=$specimen_id";
+	$record = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return Test::getObject($record);
+}
+
 function get_completed_tests_by_type($test_type_id, $date_from="", $date_to="", $test_category_id = 0)
 {
 	global $con;
@@ -11289,7 +11301,7 @@ function get_compatible_organisms($test_type_id)
 {
 	# Returns a list of compatible organisms for a given test type in catalog
 	global $con;
-	$organism_id = mysql_real_escape_string($test_type_id, $con);
+	$test_type_id = mysql_real_escape_string($test_type_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
 		"SELECT organism_id FROM organism_test WHERE test_type_id=$test_type_id";
@@ -11300,6 +11312,26 @@ function get_compatible_organisms($test_type_id)
 	foreach($resultset as $record)
 	{
 		$retval[] = $record['organism_id'];
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
+
+function get_isolated_organisms($test_id)
+{
+	# Returns a list of compatible organisms for a given test type in catalog
+	global $con;
+	$test_id = mysql_real_escape_string($test_id, $con);
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = 
+		"SELECT distinct(organismId) as pathogen FROM drug_susceptibility WHERE testId=$test_id";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset == null)
+		return $retval;
+	foreach($resultset as $record)
+	{
+		$retval[] = $record['pathogen'];
 	}
 	DbUtil::switchRestore($saved_db);
 	return $retval;

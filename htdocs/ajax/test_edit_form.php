@@ -267,12 +267,12 @@ function get_result_form($test_type, $test, $num_tests, $patient)
 	<h5>POSSIBLE ISOLATED ORGANISMS (Select Applicable)</h5>
 	<?php 
 		$pathogens = get_compatible_organisms($test->testTypeId);
-		$page_elems->getOrganismsCheckboxesForWorksheet($test->testTypeId); 
+		$page_elems->getOrganismsCheckboxesForCultureReport($test->testTypeId, $test->testId); 
 	?>
 	<!-- End possible organisms checkboxes -->
 	<!-- Begin Drug Susceptibility Tests table -->
 	<br />
-	<div class="portlet box yellow ">
+	<div class="portlet box grey ">
 						<div class="portlet-title">
 							<div class="caption">
 								<i class="fa fa-reorder"></i> <h5>Susceptibility Test Results</h5>
@@ -284,7 +284,7 @@ function get_result_form($test_type, $test, $num_tests, $patient)
 							$pathogen = $id;
 							$organism = get_organism_by_id($pathogen);
 						?>
-						<form role="form" id="drugs_susceptibility_<?php echo $pathogen; ?>" style="display:none;">
+						<form role="form" id="drugs_susceptibility_<?php echo $pathogen; ?>" style="display:block;">
 								<div class="form-body">
 									<table class="table table-bordered table-advanced table-condensed">
 										<thead>

@@ -326,7 +326,7 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 								</table>
 								</div>
 								<div class="form-actions right" id="submit_drug_susceptibility_<?php echo $pathogen; ?>">
-									<button type="submit" class="btn green" onclick="saveDrugSusceptibility(<?php echo $test_id.','.$pathogen; ?>)">Submit Results</button>
+									<a class="btn mini green" href="javascript:void(0)" onclick="saveDrugSusceptibility(<?php echo $test_id.','.$pathogen; ?>)">Save Results</a>
 								</div>
 							</form>
 							<?php } ?>
@@ -496,7 +496,6 @@ $modal_link_id = "test_result_link_$test_id";
 
 	/*Begin save drug susceptibility*/	
 	function saveDrugSusceptibility(tid, oid){
-		event.preventDefault();
 		/*Get the form variables*/
 		/*var testId = tid;
 		var drugs = $("input#drug[]").val();

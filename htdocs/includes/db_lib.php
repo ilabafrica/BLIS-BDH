@@ -1714,8 +1714,9 @@ class DrugType
 		global $con;
 		$drug_id = mysql_real_escape_string($drug_id, $con);
 		$saved_db = DbUtil::switchToLabConfigRevamp();
+		#1. Disable drug
 		$query_string =
-			"UPDATE durgs SET disabled=1 WHERE drug_id=$drug_id";
+			"UPDATE drugs SET disabled=1 WHERE drug_id=$drug_id";
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}
@@ -1839,6 +1840,15 @@ class Organism
 		global $con;
 		$organism_id = mysql_real_escape_string($organism_id, $con);
 		$saved_db = DbUtil::switchToLabConfigRevamp();
+		#1. Disable organism_drug
+		$query_string =
+			"UPDATE organism_drug SET disabled=1 WHERE organism_id=$organism_id";
+		query_blind($query_string);
+		#2. Disable organism_test
+		$query_string =
+			"UPDATE organism_test SET disabled=1 WHERE organism_id=$organism_id";
+		query_blind($query_string);
+		#1. Disable organism
 		$query_string =
 			"UPDATE organisms SET disabled=1 WHERE organism_id=$organism_id";
 		query_blind($query_string);
@@ -11284,7 +11294,7 @@ function get_compatible_drugs($organism_id)
 	$organism_id = mysql_real_escape_string($organism_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"SELECT drug_id FROM organism_drug WHERE organism_id=$organism_id";
+		"SELECT drug_id FROM organism_drug WHERE organism_id=$organism_id AND disabled=0;";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	if($resultset == null)
@@ -11304,7 +11314,7 @@ function get_compatible_organisms($test_type_id)
 	$test_type_id = mysql_real_escape_string($test_type_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"SELECT organism_id FROM organism_test WHERE test_type_id=$test_type_id";
+		"SELECT organism_id FROM organism_test WHERE test_type_id=$test_type_id AND disabled=0;";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	if($resultset == null)

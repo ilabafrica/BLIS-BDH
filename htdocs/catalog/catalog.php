@@ -103,8 +103,8 @@ if(is_super_admin($user) || is_country_dir($user))
 		<p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
 		<a href='javascript:add_drug();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
 		<br><br>
-		<div id='sdel_msg' class='clean-orange' style='display:none;'>
-			<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+		<div id='dtdel_msg' class='clean-orange' style='display:none;'>
+			<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('dtdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
 		</div>
 		<?php $page_elems->getDrugTypesTable($_SESSION['lab_config_id']); ?>
 		</div>
@@ -126,8 +126,8 @@ if(is_super_admin($user) || is_country_dir($user))
 		<p style="text-align: right;"><a rel='facebox' href='#Organism_tc'>Page Help</a></p>
 		<a href='javascript:add_organism();' class="btn blue-stripe" title='Click to Add a New Organism'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
 		<br><br>
-		<div id='sdel_msg' class='clean-orange' style='display:none;'>
-			<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+		<div id='odel_msg' class='clean-orange' style='display:none;'>
+			<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('odel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
 		</div>
 		<?php $page_elems->getOrganismsTable($_SESSION['lab_config_id']); ?>
 		</div>
@@ -277,14 +277,14 @@ $(document).ready(function(){
 	else if(isset($_REQUEST['dtdel']))
 	{
 		?>
-		$('#tdel_msg').show();
+		$('#dtdel_msg').show();
 		load_right_pane('drug_types_div');
 		<?php
 	}
 	else if(isset($_REQUEST['odel']))
 	{
 		?>
-		$('#tdel_msg').show();
+		$('#odel_msg').show();
 		load_right_pane('organism_types_div');
 		<?php
 	}

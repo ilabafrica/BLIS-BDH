@@ -8,7 +8,7 @@
 include("../includes/db_lib.php");
 
 
-$drug_type_id = $_REQUEST['id'];
+$drug_type_id = $_REQUEST['did'];
 DrugType::deleteById($drug_type_id);
 
 DbUtil::switchRestore($saved_db);

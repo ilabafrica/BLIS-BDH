@@ -9318,33 +9318,35 @@ function add_drug_type($drug_name, $drug_descr="")
 	return get_max_drug_type_id();
 }
 
-function add_rejection_phase($phase_name, $phase_descr)
+function add_rejection_phase($phase_name, $phase_descr,$disabled)
 {
 	global $con;
 	$phase_name = mysql_real_escape_string($phase_name, $con);
 	$phase_descr = mysql_real_escape_string($phase_descr, $con);
+	$disabled = mysql_real_escape_string($disabled, $con);
 	# Adds a new test category to catalog
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"INSERT INTO rejection_phases(name, description) ".
-		"VALUES ('$phase_name', '$phase_descr')";
+		"INSERT INTO rejection_phases(name, description, disabled) ".
+		"VALUES ('$phase_name', '$phase_descr', $disabled)";
 	query_insert_one($query_string);
 	# Return primary key of the record just inserted
 	DbUtil::switchRestore($saved_db);
 	return get_max_phase_id();
 }
 
-function add_rejection_reason($reason_name, $phase, $code)
+function add_rejection_reason($reason_name, $phase, $code, $disabled)
 {
 	global $con;
 	$reason_name = mysql_real_escape_string($reason_name, $con);
 	$phase = mysql_real_escape_string($phase, $con);
 	$code = mysql_real_escape_string($code, $con);
+	$disabled = mysql_real_escape_string($disabled, $con);
 	# Adds a new test category to catalog
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"INSERT INTO rejection_reasons(rejection_phase, rejection_code, description) ".
-		"VALUES ('$phase','$code', '$reason_name')";
+		"INSERT INTO rejection_reasons(rejection_phase, rejection_code, description, disabled) ".
+		"VALUES ('$phase','$code', '$reason_name', $disabled)";
 	query_insert_one($query_string);
 	# Return primary key of the record just inserted
 	DbUtil::switchRestore($saved_db);
@@ -9642,7 +9644,7 @@ function get_rejection_phases_catalog($lab_config_id=null, $reff=null)
 	else
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query_stypes =
-		"SELECT rejection_phase_id, name FROM rejection_phases ORDER BY name";
+		"SELECT rejection_phase_id, name FROM rejection_phases WHERE disabled=0 ORDER BY name";
 	$resultset = query_associative_all($query_stypes, $row_count);
 	$retval = array();
 	if($resultset) {
@@ -9678,7 +9680,7 @@ function get_rejection_reasons_catalog($lab_config_id=null, $reff=null)
 	else
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query =
-		"SELECT rejection_reason_id, rejection_phase, description FROM rejection_reasons ORDER BY description";
+		"SELECT rejection_reason_id, rejection_phase, description FROM rejection_reasons WHERE disabled=0 ORDER BY description";
 	$resultset = query_associative_all($query, $row_count);
 	$retval = array();
 	if($resultset) {
@@ -9703,7 +9705,7 @@ function get_rejection_phases($lab_config_id=null) {
 	# Returns a list of all specimen rejection phases available in catalog
 	global $CATALOG_TRANSLATION;
 	$saved_db = DbUtil::switchToLabConfigRevamp($lab_config_id);
-	$query_string = "SELECT rejection_phase_id, name FROM rejection_phases ORDER BY name";
+	$query_string = "SELECT rejection_phase_id, name FROM rejection_phases WHERE disabled=0 ORDER BY name";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	foreach($resultset as $record)
@@ -9725,7 +9727,7 @@ function get_rejection_reasons($lab_config_id=null) {
 	# Returns a list of all specimen rejection reasons available in catalog
 	global $CATALOG_TRANSLATION;
 	$saved_db = DbUtil::switchToLabConfigRevamp($lab_config_id);
-	$query_string = "SELECT rejection_reason_id, description FROM rejection_reasons ORDER BY description";
+	$query_string = "SELECT rejection_reason_id, description FROM rejection_reasons WHERE disabled=0 ORDER BY description";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	foreach($resultset as $record)
@@ -17174,23 +17176,14 @@ class SpecimenRejectionReasons
 		return $retVal['name'];
 	}
 	
-	public static function deleteById($test_category_id)
+	public static function deleteById($rejection_reason_id)
 	{
-		# Deletes test category from database
-		# 1. Delete entries in lab_config_test_category
+		# Deletes rejection reason from database
 		global $con;
-		$test_category_id = mysql_real_escape_string($test_category_id, $con);
-		$saved_db = DbUtil::switchToLabConfigRevamp();
-		$query_string = 
-			"DELETE FROM lab_config_test_category WHERE test_category_id=$test_category_id";
-		query_blind($query_string);
-		# 2. Delete entries from specimen_test
+		$rejection_reason_id = mysql_real_escape_string($rejection_reason_id, $con);
+		# Set disabled flag in rejection_reason entry
 		$query_string =
-			"DELETE FROM specimen_test WHERE test_category_id=$test_category_id";
-		query_blind($query_string);
-		# 3. Set disabled flag in test_category entry
-		$query_string =
-			"UPDATE test_category SET disabled=1 WHERE test_category_id=$test_category_id";
+			"UPDATE rejection_reasons SET disabled=1 WHERE rejection_reason_id=$rejection_reason_id;";
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}
@@ -17306,6 +17299,21 @@ class SpecimenRejectionPhases
 		DbUtil::switchRestore($saved_db);
 		
 		return $retVal['description'];
+	}
+	public static function deleteById($rejection_phase_id)
+	{
+		# Deletes rejection phase from database
+		global $con;
+		$rejection_phase_id = mysql_real_escape_string($rejection_phase_id, $con);
+		# 1. Set disabled flag in rejection_reason entry
+		$query_string =
+			"UPDATE rejection_phases SET disabled=1 WHERE rejection_phase_id=$rejection_phase_id;";
+		query_blind($query_string);
+		# 2. Delete entries from specimen_test
+		$query_string =
+			"DELETE FROM specimen_test WHERE test_type_id=$test_type_id";
+		query_blind($query_string);
+		DbUtil::switchRestore($saved_db);
 	}
 }
 #####################################End Class SpecimenRejectionPhases###############################################

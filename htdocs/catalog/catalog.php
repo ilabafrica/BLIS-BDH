@@ -133,8 +133,8 @@ if(is_super_admin($user) || is_country_dir($user))
                     	<p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
 						<a href='javascript:add_phase();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
 						<br><br>
-						<div id='sdel_msg' class='clean-orange' style='display:none;'>
-							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+						<div id='pdel_msg' class='clean-orange' style='display:none;'>
+							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('pdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
 						</div>
 						<?php $page_elems->getRejectionPhaseTable($_SESSION['lab_config_id']); ?>                    
                     </div>
@@ -142,8 +142,8 @@ if(is_super_admin($user) || is_country_dir($user))
                         <p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
 						<a href='javascript:add_reason();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
 						<br><br>
-						<div id='sdel_msg' class='clean-orange' style='display:none;'>
-							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('tcdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+						<div id='rdel_msg' class='clean-orange' style='display:none;'>
+							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('rdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
 						</div>
 						<?php $page_elems->getRejectionReasonTable($_SESSION['lab_config_id']); ?>              
                     </div>
@@ -306,6 +306,20 @@ $(document).ready(function(){
 		?>
 		$('#sdel_msg').show();
 		load_right_pane('test_categories_div');
+		<?php
+	}
+	else if(isset($_REQUEST['pdel']))
+	{
+		?>
+		$('#pdel_msg').show();
+		load_right_pane('specimen_rejection_div');
+		<?php
+	}
+	else if(isset($_REQUEST['rdel']))
+	{
+		?>
+		$('#rdel_msg').show();
+		load_right_pane('specimen_rejection_div');
 		<?php
 	}
 	else if (isset($_REQUEST['rm']))

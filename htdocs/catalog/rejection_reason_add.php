@@ -16,7 +16,7 @@ $rejection_phase = $_REQUEST['phase'];
 	# Add new test category to catalog
 	$new_reason_name = $_REQUEST['reason_name'];
 	$new_reason_code = $_REQUEST['reason_code'];
-	$new_reason_id = add_rejection_reason($new_reason_name, $rejection_phase, $new_reason_code);
+	$new_reason_id = add_rejection_reason($new_reason_name, $rejection_phase, $new_reason_code, 0);
 
 # Update locale XML and generate PHP list again.
 if($CATALOG_TRANSLATION === true)

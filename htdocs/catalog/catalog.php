@@ -275,7 +275,7 @@ $(document).ready(function(){
 		load_right_pane('test_categories_div');
 		<?php
 	}
-	else if(isset($_REQUEST['show_sr']))
+	else if(isset($_REQUEST['show_rp']))
 	{
 		?>
 		load_right_pane('specimen_rejection_div');

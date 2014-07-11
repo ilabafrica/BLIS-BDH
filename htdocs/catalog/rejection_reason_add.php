@@ -27,5 +27,5 @@ echo "<br>";
 print_r($submeasure_names);
 */
 
-header("location: rejection_reason_added.php?rr=$new_reason_name");
+header("location: rejection_reason_added.php?rr=$new_reason_id");
 ?>

@@ -9644,7 +9644,7 @@ function get_rejection_phases_catalog($lab_config_id=null, $reff=null)
 	else
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query_stypes =
-		"SELECT rejection_phase_id, name FROM rejection_phases WHERE disabled=0 ORDER BY name";
+		"SELECT rejection_phase_id, name FROM rejection_phases ORDER BY name";
 	$resultset = query_associative_all($query_stypes, $row_count);
 	$retval = array();
 	if($resultset) {
@@ -9680,7 +9680,7 @@ function get_rejection_reasons_catalog($lab_config_id=null, $reff=null)
 	else
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query =
-		"SELECT rejection_reason_id, rejection_phase, description FROM rejection_reasons WHERE disabled=0 ORDER BY description";
+		"SELECT rejection_reason_id, rejection_phase, description FROM rejection_reasons ORDER BY description";
 	$resultset = query_associative_all($query, $row_count);
 	$retval = array();
 	if($resultset) {
@@ -17105,6 +17105,7 @@ class SpecimenRejectionReasons
 	public $description;
 	public $phase;
 	public $code;
+	public $disabled;
 	
 	public static function getObject($record)
 	{
@@ -17132,6 +17133,11 @@ class SpecimenRejectionReasons
 			$rejection_reason->code = $record['rejection_code'];
 		else
 			$rejection_reason->code = null;
+
+		if(isset($record['disabled']))
+			$rejection_reason->disabled = $record['disabled'];
+		else
+			$rejection_reason->disabled = null;
 			
 		return $rejection_reason;
 	}
@@ -17187,6 +17193,18 @@ class SpecimenRejectionReasons
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}
+
+	public static function restoreById($rejection_reason_id)
+	{
+		# Restores rejection reason from database
+		global $con;
+		$rejection_reason_id = mysql_real_escape_string($rejection_reason_id, $con);
+		# Set disabled flag in rejection_reason entry
+		$query_string =
+			"UPDATE rejection_reasons SET disabled=0 WHERE rejection_reason_id=$rejection_reason_id;";
+		query_blind($query_string);
+		DbUtil::switchRestore($saved_db);
+	}
 	
 }
 #####################################End Class SpecimenRejectionReasons################################################
@@ -17197,6 +17215,7 @@ class SpecimenRejectionPhases
 	public $name;
 	public $description;
 	public $phase_name;
+	public $status;
 	
 	public static function getObject($record)
 	{
@@ -17219,11 +17238,11 @@ class SpecimenRejectionPhases
 			$rejection_phase->description = $record['description'];
 		else
 			$rejection_phase->description = null;
-		
-		if(isset($record['specimen_name']))
-			$rejection_phase->phase_name = $record['name'];
+
+		if(isset($record['disabled']))
+			$rejection_phase->disabled = $record['disabled'];
 		else
-			$rejection_phase->phase_name = null;
+			$rejection_phase->disabled = null;
 			
 		return $rejection_phase;
 	}
@@ -17309,9 +17328,24 @@ class SpecimenRejectionPhases
 		$query_string =
 			"UPDATE rejection_phases SET disabled=1 WHERE rejection_phase_id=$rejection_phase_id;";
 		query_blind($query_string);
-		# 2. Delete entries from specimen_test
+		# 2. Disables entries from rejection_reasons
 		$query_string =
-			"DELETE FROM specimen_test WHERE test_type_id=$test_type_id";
+			"UPDATE rejection_reasons SET disabled=1 WHERE rejection_phase=$rejection_phase_id";
+		query_blind($query_string);
+		DbUtil::switchRestore($saved_db);
+	}
+	public static function restoreById($rejection_phase_id)
+	{
+		# Restores rejection phase from database
+		global $con;
+		$rejection_phase_id = mysql_real_escape_string($rejection_phase_id, $con);
+		# 1. Set enabled flag in rejection_reason entry
+		$query_string =
+			"UPDATE rejection_phases SET disabled=0 WHERE rejection_phase_id=$rejection_phase_id;";
+		query_blind($query_string);
+		# 2. Resote entries from specimen_test
+		$query_string =
+			"UPDATE rejection_reasons SET disabled=0 WHERE rejection_phase=$rejection_phase_id";
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}

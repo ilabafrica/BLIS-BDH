@@ -445,5 +445,121 @@ function delete_test_category(tc_id){
 	}
 }
 
+function disable_rejection_phase(phase_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'rejection_phase_delete.php';
+  		$.post(url, 
+		{rp: phase_id}, 
+		function(result) 
+		{
+			$('#state_'+phase_id).removeClass('btn red mini');
+			$('#action_'+phase_id).removeClass('btn mini green-stripe');
+			$('#status_'+phase_id).removeClass('label label-sm label-success');
+			$('#status_'+phase_id).addClass('label label-sm label');
+			$('#status_'+phase_id).html('Disabled');
+			$('#state_'+phase_id).html(''+
+					'<a href="javascript:enable_rejection_phase('+phase_id+');"'+ 
+					'title="Click to enable this Specimen rejection phase" class="btn green mini">'+
+					'<i class="icon-ok"></i> Enable</a>');
+			$('#action_'+phase_id).html(''+
+					'<a href="#"'+ 
+					'title="Click to Edit Rejection Phase Info" class="btn mini green-stripe" disabled>'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function enable_rejection_phase(phase_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'ajax/rejection_phase_enable.php';
+  		$.post(url, 
+		{rp: phase_id}, 
+		function(result) 
+		{
+			$('#state_'+phase_id).removeClass('btn green mini');
+			$('#action_'+phase_id).removeClass('btn mini green-stripe');
+			$('#status_'+phase_id).removeClass('label label-sm label');
+			$('#status_'+phase_id).addClass('label label-sm label-success');
+			$('#status_'+phase_id).html('Enabled');
+			$('#state_'+phase_id).html(''+
+					'<a href="javascript:disable_rejection_phase('+phase_id+');"'+ 
+					'title="Click to disable this Specimen rejection phase" class="btn red mini">'+
+					'<i class="icon-remove"></i> Disable</a>');
+			$('#action_'+phase_id).html(''+
+					'<a href="rejection_phase_edit.php?rp='+phase_id+'"'+ 
+					'title="Click to Edit Rejection Phase Info" class="btn mini green-stripe">'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function disable_rejection_reason(reason_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'rejection_reason_delete.php';
+  		$.post(url, 
+		{rr: reason_id}, 
+		function(result) 
+		{
+			$('#state_'+reason_id).removeClass('btn red mini');
+			$('#action_'+reason_id).removeClass('btn mini green-stripe');
+			$('#status_'+reason_id).removeClass('label label-sm label-success');
+			$('#status_'+reason_id).addClass('label label-sm label');
+			$('#status_'+reason_id).html('Disabled');
+			$('#state_'+reason_id).html(''+
+					'<a href="javascript:enable_rejection_reason('+reason_id+');"'+ 
+					'title="Click to enable this Specimen rejection Reason" class="btn green mini">'+
+					'<i class="icon-ok"></i> Enable</a>');
+			$('#action_'+reason_id).html(''+
+					'<a href="#"'+ 
+					'title="Click to Edit Rejection Reason Info" class="btn mini green-stripe" disabled>'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function enable_rejection_reason(reason_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'ajax/rejection_reason_enable.php';
+  		$.post(url, 
+		{rr: reason_id}, 
+		function(result) 
+		{
+			$('#state_'+reason_id).removeClass('btn green mini');
+			$('#action_'+reason_id).removeClass('btn mini green-stripe');
+			$('#status_'+reason_id).removeClass('label label-sm label');
+			$('#status_'+reason_id).addClass('label label-sm label-success');
+			$('#status_'+reason_id).html('Enabled');
+			$('#state_'+reason_id).html(''+
+					'<a href="javascript:disable_rejection_reason('+reason_id+');"'+ 
+					'title="Click to disable this Specimen rejection Reason" class="btn red mini">'+
+					'<i class="icon-remove"></i> Disable</a>');
+			$('#action_'+reason_id).html(''+
+					'<a href="rejection_reason_edit.php?rp='+reason_id+'"'+ 
+					'title="Click to Edit Rejection Reason Info" class="btn mini green-stripe">'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
 </script>
 <?php include("includes/footer.php"); ?>

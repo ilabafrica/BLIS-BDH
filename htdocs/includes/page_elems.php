@@ -1507,7 +1507,8 @@ class PageElems
 		<tr>
 		<th>Phase Name</th>
         <th>Phase Description</th>
-		<th></th>
+        <th>Status</th>
+		<th>Action(s)</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -1515,6 +1516,7 @@ class PageElems
 		$count = 1;
 		foreach($phases_list as $key => $value)
 		{
+			$stage = get_rejection_phase_by_id($key);
 			$phase_name = SpecimenRejectionPhases::getDescriptionById($key);
 			?>
 			<tr>
@@ -1526,7 +1528,10 @@ class PageElems
 				<?php echo $phase_name; ?>
 			</td>
 			<td>
-				<a href='rejection_phase_edit.php?rp=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Rejection Phase Info'><i class='icon-pencil'></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
+				<?php if($stage->disabled==0){ ?> <span id='status_<?php echo $key; ?>' class="label label-sm label-success"><?php echo "Enabled"; ?></span> <?php }else{ ?><span id='stat_<?php echo $key; ?>' class="label label-sm label"><?php echo "Disabled"; ?></span><?php } ?>
+			</td>
+			<td>
+				<a id='action_<?php echo $key; ?>' <?php if($stage->disabled==1){ ?> href ="#" disabled <?php }else ?>href='rejection_phase_edit.php?rp=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Rejection Phase Info'><i class='icon-pencil'></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
 			</td>
 			<?php
 			$user = get_user_by_id($_SESSION['user_id']);
@@ -1534,7 +1539,11 @@ class PageElems
 			{
 			?>
 			<td>
-				<a href='rejection_phase_delete.php?rp=<?php echo $key; ?>' class="btn mini red-stripe"><i class='icon-remove'></i> <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a>
+			<?php if($stage->disabled==0){ ?> 
+				<a id='state_<?php echo $key; ?>' href='javascript:disable_rejection_phase(<?php echo $key; ?>)' class="btn red mini"><i id='icon_<?php echo $key; ?>' class='icon-remove'></i> <?php echo "Disable"; ?></a>
+			<?php }else{ ?>
+				<a id='states_<?php echo $key; ?>' href='javascript:enable_rejection_phase(<?php echo $key; ?>)' class="btn mini green"><i id='icon_<?php echo $key; ?>' class="icon-ok"></i> <?php echo "Enable"; ?></a>
+			<?php } ?>
 			</td>
 			<?php
 			}
@@ -1567,7 +1576,8 @@ class PageElems
 		<th>Specimen Rejection Reason</th>
 		<th>Specimen Rejection Code</th>
         <th>Specimen Rejection Phase</th>
-		<th></th>
+		<th>Status</th>
+		<th>Action(s)</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -1577,6 +1587,7 @@ class PageElems
 		{
 			$phase_name = get_rejection_phase_name_by_reason_id($key);
 			$code = get_rejection_code_by_reason_id($key);
+			$cause = get_rejection_reason_by_id($key);
 			?>
 			<tr>
 			
@@ -1590,7 +1601,10 @@ class PageElems
 				<?php echo $phase_name; ?>
 			</td>
 			<td>
-				<a href='rejection_reason_edit.php?rr=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Rejection Reason Info'><i class='icon-pencil'></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
+				<?php if($cause->disabled==0){ ?> <span id='status_<?php echo $key; ?>' class="label label-sm label-success"><?php echo "Enabled"; ?></span> <?php }else{ ?><span id='stat_<?php echo $key; ?>' class="label label-sm label"><?php echo "Disabled"; ?></span><?php } ?>
+			</td>
+			<td>
+				<a id='action_<?php echo $key; ?>' <?php if($cause->disabled==1){ ?> href ="#" disabled <?php }else ?>href='rejection_reason_edit.php?rr=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Rejection Reason Info'><i class='icon-pencil'></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
 			</td>
 			<?php
 			$user = get_user_by_id($_SESSION['user_id']);
@@ -1598,7 +1612,7 @@ class PageElems
 			{
 			?>
 			<td>
-				<a href='rejection_reason_delete.php?rr=<?php echo $key; ?>' class="btn mini red-stripe"><i class='icon-remove'></i> <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a>
+				<a id='state_<?php echo $key; ?>' <?php if($cause->disabled==0){ ?>href='javascript:disable_rejection_reason(<?php echo $key; ?>)' class="btn mini red"><i class='icon-remove'></i> <?php echo "Disable";}else{ ?>href='javascript:enable_rejection_reason(<?php echo $key; ?>)' class="btn mini green"><i id='icon_<?php echo $key; ?>' class="icon-ok"></i> <?php echo "Enable";} ?></a>
 			</td>
 			<?php
 			}

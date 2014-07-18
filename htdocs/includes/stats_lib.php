@@ -297,32 +297,16 @@ function get_discrete_value_test_types($lab_config)
 	# Returns test type IDs for tests that have explicit P/N results
 	$saved_db = DbUtil::switchToLabConfigRevamp($lab_config->id);
 	$retval = array();
-	$query_string = 
-		"SELECT DISTINCT test_type_id FROM test_type ".
-		"WHERE test_type_id IN ( ".
-			"SELECT test_type_id FROM lab_config_test_type ".
-			"WHERE lab_config_id=$lab_config->id ".
-		" ) AND disabled=0";
+	$query_string = "SELECT tt.test_type_id, count(ttm.test_type_id) AS hits ".
+					"FROM test_type AS tt ".
+					"INNER JOIN test_type_measure AS ttm ON tt.test_type_id = ttm.test_type_id ".
+					"INNER JOIN measure m ON ttm.measure_id = m.measure_id ".
+					"WHERE tt.disabled = 0 AND m.measure_range LIKE '%Positive/Negative%' ".
+					"GROUP BY tt.test_type_id HAVING hits = 1";
 	$resultset = query_associative_all($query_string, $row_count);
 	foreach($resultset as $record)
 	{
-		$test_type_id = $record['test_type_id'];
-		$query_string2 = 
-			"SELECT DISTINCT ttm.test_type_id FROM test_type_measure ttm ".
-			"WHERE ttm.measure_id IN ( ".
-				"SELECT measure_id FROM measure ".
-				"WHERE ( ".
-					"range LIKE '%/N%' OR range LIKE '%N/%' OR ".
-					"range LIKE '%/negative%' OR range LIKE '%negative/%' OR ".
-					"range LIKE '%/negatif%' OR range LIKE '%negatif/%' OR ".
-					"range LIKE '%/n�gatif%' OR range LIKE '%n�gatif/%' ".
-				" ) ".
-			" ) ".
-			"AND ttm.test_type_id=$test_type_id";
-		$record2 = query_associative_one($query_string2);
-		if($record2 == null)
-			continue;
-		$retval[] = $record2['test_type_id'];
+		$retval[] = $record['test_type_id'];
 	}
 	DbUtil::switchRestore($saved_db);
 	return $retval;
@@ -820,30 +804,19 @@ class StatsLib
 		foreach($test_type_list as $test_type_id)
 		{
 			$query_string = 
-				"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-				"WHERE t.test_type_id=$test_type_id ".
-				"AND t.specimen_id=s.specimen_id ".
-				"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-				"AND (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
+				"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%',1,NULL)) neg FROM test t INNER JOIN test_measure tm ".
+				"ON t.test_id = tm.test_id INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+				"WHERE t.test_type_id=$test_type_id AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
 			$record = query_associative_one($query_string);
-			$count_negative = $record['count_val'];
-			$query_string = 
-				"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-				"WHERE t.test_type_id=$test_type_id ".
-				"AND t.specimen_id=s.specimen_id ".
-				"AND result!=''".
-				"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
-			$record = query_associative_one($query_string);
-			$count_all = $record['count_val'];
-			# If total tests is 0, ignore
-			if($count_all == 0)
-				continue;
+			$count_negative = $record['neg'];
+			$count_all = $record['hits'];
+			
+			if($count_all == 0)	continue; # If total tests is 0, ignore
 				
-			$query_string = 
-					"SELECT prevalence_threshold FROM test_type ".
-					"WHERE test_type_id=$test_type_id ";
+			$query_string = "SELECT IF(ISNULL(prevalence_threshold),0,prevalence_threshold) AS pt FROM test_type ".
+							"WHERE test_type_id=$test_type_id ";
 			$record = query_associative_one($query_string);
-			$threshold = $record['prevalence_threshold'];
+			$threshold = $record['pt'];
 			$retval[$test_type_id] = array($count_all, $count_negative, $threshold);
 		}
 		DbUtil::switchRestore($saved_db); 
@@ -885,25 +858,16 @@ class StatsLib
 				foreach($test_type_list as $test_type_id)
 				{
 					$query_string = 
-						"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-						"WHERE t.test_type_id=$test_type_id ".
-						"AND t.specimen_id=s.specimen_id ".
-						"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-						"AND (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
+						"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%',1,NULL)) neg FROM test t INNER JOIN test_measure tm ".
+						"ON t.test_id = tm.test_id INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+						"WHERE t.test_type_id=$test_type_id AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
 					$record = query_associative_one($query_string);
-					$count_negative = intval($record['count_val']);
-					$query_string = 
-						"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-						"WHERE t.test_type_id=$test_type_id ".
-						"AND t.specimen_id=s.specimen_id ".
-						"AND result!=''".
-						"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
-					$record = query_associative_one($query_string);
-					$count_all = intval($record['count_val']);
+					$count_all = intval($record['hits']);
+					$count_negative = intval($record['neg']);
 					$testCount++;
-					# If total tests is 0, ignore
-					if( $count_all == 0 )
-						continue;
+					
+					if( $count_all == 0 ) continue; # If total tests is 0, ignore
+
 					$testName = $testNames[$testCount];
 					
 					if( !array_key_exists($testName, $retval) ) {
@@ -961,26 +925,15 @@ class StatsLib
 				foreach($test_type_list as $test_type_id)
 				{
 					$query_string = 
-						"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-						"WHERE t.test_type_id=$test_type_id ".
-						"AND t.specimen_id=s.specimen_id ".
-						"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-						"AND (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
+						"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%',1,NULL)) neg FROM test t INNER JOIN test_measure tm ".
+						"ON t.test_id = tm.test_id INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+						"WHERE t.test_type_id=$test_type_id AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
 					$record = query_associative_one($query_string);
-					$count_negative = intval($record['count_val']);
-					$query_string = 
-						"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-						"WHERE t.test_type_id=$test_type_id ".
-						"AND t.specimen_id=s.specimen_id ".
-						"AND result!=''".
-						"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
-						//echo($query_string);
-					$record = query_associative_one($query_string);
-					$count_all = intval($record['count_val']);
+					$count_all = intval($record['hits']);
+					$count_negative = intval($record['neg']);
 					$testCount++;
-					# If total tests is 0, ignore
-					if($count_all == 0)
-						continue;
+					
+					if($count_all == 0) continue; # If total tests is 0, ignore
 					$testName = $testNames[$testCount];
 					
 					if( !array_key_exists($testName, $retval) ) {
@@ -1018,25 +971,16 @@ class StatsLib
 					
 					# For particular test type, fetch negative records
 			
-						$query_string = 
-							"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-							"WHERE t.test_type_id=$test_type_id ".
-							"AND t.specimen_id=s.specimen_id ".
-							"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-							"AND (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
-						$record = query_associative_one($query_string);
-						$count_negative = intval($record['count_val']);
-						$query_string = 
-							"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-							"WHERE t.test_type_id=$test_type_id ".
-							"AND t.specimen_id=s.specimen_id ".
-							"AND result!=''".
-							"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
-						$record = query_associative_one($query_string);
-						$count_all = intval($record['count_val']);
-						# If total tests is 0, ignore
-						if($count_all == 0)
-							continue;
+					$query_string = 
+						"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%',1,NULL)) neg FROM test t INNER JOIN test_measure tm ".
+						"ON t.test_id = tm.test_id INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+						"WHERE t.test_type_id=$test_type_id AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
+					$record = query_associative_one($query_string);
+					$count_all = intval($record['hits']);
+					$count_negative = intval($record['neg']);
+					$testCount++;
+					
+					if($count_all == 0) continue; # If total tests is 0, ignore
 						$testName = get_test_name_by_id($test_type_id);
 												
 						$labName = $lab_config->name;
@@ -1068,26 +1012,16 @@ class StatsLib
 					
 					# For particular test type, fetch negative records
 			
-						$query_string = 
-							"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-							"WHERE t.test_type_id=$test_type_id ".
-							"AND t.specimen_id=s.specimen_id ".
-							"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' ) ".
-							"AND (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
-						$record = query_associative_one($query_string);
-						$count_negative = intval($record['count_val']);
-						$query_string = 
-							"SELECT COUNT(*) AS count_val FROM test t, specimen s ".
-							"WHERE t.test_type_id=$test_type_id ".
-							"AND t.specimen_id=s.specimen_id ".
-							"AND result!=''".
-							"AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
-							//echo($query_string);
-						$record = query_associative_one($query_string);
-						$count_all = intval($record['count_val']);
-						# If total tests is 0, ignore
-						if($count_all == 0)
-							continue;
+					$query_string = 
+						"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%',1,NULL)) neg FROM test t INNER JOIN test_measure tm ".
+						"ON t.test_id = tm.test_id INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+						"WHERE t.test_type_id=$test_type_id AND ( s.date_collected BETWEEN '$date_from' AND '$date_to' )";
+					$record = query_associative_one($query_string);
+					$count_all = intval($record['hits']);
+					$count_negative = intval($record['neg']);
+					$testCount++;
+					
+					if($count_all == 0) continue; # If total tests is 0, ignore
 						$testName = get_test_name_by_id($test_type_id);
 						$labName = $lab_config->name;
 						$query_string = 
@@ -1122,37 +1056,27 @@ class StatsLib
 		
 			if($gender=='M'||$gender=='F') { 
 				$query_string = 
-						"SELECT COUNT(*) AS count_val  FROM test t, patient p, specimen s ".
-						"WHERE t.test_type_id=$test_type_id ".
-						"AND p.patient_id=s.patient_id ".
-						"AND p.sex LIKE '$gender' ".
-						"AND t.specimen_id=s.specimen_id ".
-						"AND (s.date_collected BETWEEN '$date_fromp' AND '$date_top') ".
-						"AND  (t.result LIKE 'N,%' OR t.result LIKE 'n�gatif,%' OR t.result LIKE 'negatif,%' OR t.result LIKE 'n,%' OR t.result LIKE 'negative,%')";
+					"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%' AND p.sex LIKE '$gender',1,NULL)) neg ".
+					"FROM test t INNER JOIN test_measure tm ON t.test_id = tm.test_id ".
+					"INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+					"INNER JOIN patient p ON s.patient_id=p.patient_id ".
+					"WHERE t.test_type_id=$test_type_id AND p.sex LIKE '$gender' ".
+					"AND ( s.date_collected BETWEEN '$date_fromp' AND '$date_top' )";
+					
 			}
 			else 
 			{
 				$query_string = 
-				"SELECT COUNT(*) AS count_val  FROM test t, specimen s ".
-				"WHERE t.test_type_id=$test_type_id ".
-				"AND t.specimen_id=s.specimen_id ".
-				"AND ( s.date_collected BETWEEN '$date_fromp' AND '$date_top' )".
-				"AND  (result LIKE 'N,%' OR result LIKE 'n�gatif,%' OR result LIKE 'negatif,%' OR result LIKE 'n,%' OR result LIKE 'negative,%')";
+					"SELECT COUNT(*) hits, COUNT(IF(tm.result LIKE 'Neg%',1,NULL)) neg FROM test t INNER JOIN test_measure tm ".
+					"ON t.test_id = tm.test_id INNER JOIN specimen s ON t.specimen_id = s.specimen_id ".
+					"WHERE t.test_type_id=$test_type_id AND ( s.date_collected BETWEEN '$date_fromp' AND '$date_top' )";
 
 			}
 			$record = query_associative_one($query_string);
-			$count_negative = $record['count_val'];
-			
-			$query_string = 
-				"SELECT COUNT(*) AS count_val  FROM test t, specimen s ".
-				"WHERE t.test_type_id=$test_type_id ".
-				"AND t.specimen_id=s.specimen_id ".
-				"AND result!=''".
-				"AND ( s.date_collected BETWEEN '$date_fromp' AND '$date_top' )";
-			$record = query_associative_one($query_string);
-			$count_all = $record['count_val'];
+			$count_negative = $record['neg'];
+			$count_all = $record['hits'];
 			/*if($count_all != 0)*/
-				$retval[$date_ts] = array($count_all, $count_negative);
+			$retval[$date_ts] = array($count_all, $count_negative);
 			
 		$date_ts = $second_day_ts;
 		$i=$i+7;
@@ -1433,63 +1357,7 @@ $query_string =
 	public static function getDiscreteInfectionStatsGenderF($lab_config,$test_type_id,$date_from,$date_to,$type)
 	{
 	$gender='F';
-		/*$i=1;
-		if($type=='w')
-			$i=7;
-		
-		# Fetch all test types with one measure having discrete P/N range
-		
-		$retval = array();
-		$saved_db = DbUtil::switchToLabConfig($lab_config->id);
-		$date_from_parts = explode("-", $date_from);		
-		$date_to_parts = explode("-", $date_to);
-		$date_ts = mktime(0, 0, 0, $date_from_parts[1], $date_from_parts[2], $date_from_parts[0]);
-		$date_to_ts=mktime(0, 0, 0, $date_to_parts[1], $date_to_parts[2], $date_to_parts[0]);
-		
-		while($date_ts<$date_to_ts)
-	{     
-		if($type=='m')
-		$end_date_ts= mktime(0, 0, 0, $date_from_parts[1]+$i,0,$date_from_parts[0]);
-		else
-		$end_date_ts= mktime(0, 0, 0, $date_from_parts[1],$date_from_parts[2]+$i,$date_from_parts[0]);
-		$date_fromp=date("Y-m-d", $date_ts);
-		$date_top=date("Y-m-d", $end_date_ts);
-	
-$query_string = 
-				"SELECT COUNT(*) AS count_val  FROM test t, patient p, specimen s ".
-				"WHERE t.test_type_id=$test_type_id ".
-				"AND p.patient_id=s.patient_id ".
-				"AND p.sex = '$gender' ".
-				"AND t.specimen_id=s.specimen_id ".
-				"AND (s.date_collected BETWEEN '$date_fromp' AND '$date_top') ".
-				"AND  (t.result LIKE 'N,%' OR t.result LIKE 'n�gatif,%' OR t.result LIKE 'negatif,%' OR t.result LIKE 'n,%' OR t.result LIKE 'negative,%')";
-				
-					$record = query_associative_one($query_string);
-			$count_negative = $record['count_val'];
-			
-			$query_string = 
-				"SELECT COUNT(*) AS count_val  FROM test t,patient p, specimen s ".
-				"WHERE t.test_type_id=$test_type_id ".
-				"AND p.sex = '$gender' ".
-				"AND t.specimen_id=s.specimen_id ".
-				"AND t.result!=''".
-				"AND p.patient_id=s.patient_id ".
-				"AND ( s.date_collected BETWEEN '$date_fromp' AND '$date_top' )";
-			//echo($query_string);
-			$record = query_associative_one($query_string);
-			$count_all = $record['count_val'];
-						if($count_all != 0)
-				$retval[$date_ts] = array($count_all, $count_negative);
-			
-		$date_ts = $end_date_ts;
-		if($type=='w')
-		$i=$i+7;
-		else
-		$i++;
-			
-					
 
-	}*/
 	$retval = array();
 		$saved_db = DbUtil::switchToLabConfig($lab_config->id);
 				if($type=='w')

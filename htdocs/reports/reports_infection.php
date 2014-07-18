@@ -44,8 +44,8 @@ LangUtil::setPageId("reports");
                     <?php
                     $lab_config_id = array(get_request_variable('location'));
                     $summary_type = get_request_variable('summary_type');
-                    $date_from = get_request_variable('yyyy_from')."-".get_request_variable('mm_from')."-".get_request_variable('dd_from');
-                    $date_to = get_request_variable('yyyy_to')."-".get_request_variable('mm_to')."-".get_request_variable('dd_to');
+                    $date_from = get_request_variable('from-report-date');
+                    $date_to = get_request_variable('to-report-date');
                     
                     $uiinfo = "from=".$date_from."&to=".$date_to;
                     putUILog('reports_infection', $uiinfo, basename($_SERVER['REQUEST_URI'], ".php"), 'X', 'X', 'X');
@@ -124,100 +124,8 @@ LangUtil::setPageId("reports");
                     <div id='trendsDiv_progress_spinner' style="display:none;">
                             <?php $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_FETCHING']); ?>
                     </div>
-                    
-                    
-                    <?php /*
-                    <div id='stat_table'>
-                        <?php $page_elems->getInfectionStatsTable($stat_list); ?>
-                    </div>
-                    */ ?>
-                    
+                                       
                     <div id='stat_graph_bar' >
-                    <?php /*
-                    # To avoid cluttered graph, divide stat_list into chunks
-                    $chunk_size = 999;
-                    $stat_chunks = array_chunk($stat_list, $chunk_size, true);
-                    $i = 1;
-                    foreach($stat_chunks as $stat_chunk)
-                    {
-                        $div_id = "placeholder_".$i;
-                        $legend_id = "legend_".$i;
-                        $ylabel_id = "ylabel_".$i;
-                        $width_px = count($stat_chunk)*65;
-                        ?>
-                        <table>
-                        <tbody>
-                        <tr valign='top'>
-                        <td>
-                            <span id="<?php echo $ylabel_id; ?>" class='flipv_up' style="width:30px;height:30px;"><?php echo LangUtil::$generalTerms['PREVALENCE_RATE']; ?> (%)</span>
-                        </td>
-                        <td>
-                            <div style='width:900px;height:340px;overflow:auto'>
-                                <div id="<?php echo $div_id; ?>" style="width:<?php echo $width_px; ?>px;height:300px;"></div>
-                            </div>
-                        </td>
-                        <td>
-                            <div id="<?php echo $legend_id; ?>" style="width:200px;height:300px;"></div>
-                        </td>
-                        </tr>
-                        </tbody>
-                        </table>
-                        
-                        <script id="source" language="javascript" type="text/javascript"> 
-                        $(function () {
-                            <?php
-                            $x_val = 0;
-                            $count = 1;
-                            foreach($stat_chunk as $key=>$value)
-                            {
-                                $test_type_id = $key;
-                                $count_all = $value[0];
-                                $count_negative = $value[1];
-                                $infection_rate = 0;
-                                if($count_all != 0)
-                                    $infection_rate = round((($count_all-$count_negative)/$count_all)*100, 2);
-                                echo "var d$count = [];";
-                                echo "d$count.push([$x_val, $infection_rate]);";
-                                $count++;
-                                $x_val += 2;
-                            }
-                            ?>
-                            $.plot($("#<?php echo $div_id; ?>"), [
-                                <?php
-                                $count = 1;
-                                $index_count = 0;
-                                $tick_array = "[";
-                                foreach($stat_chunk as $key=>$value)
-                                {
-                                    $test_name = get_test_name_by_id($key);
-                                    $tick_array .= "[$index_count+0.4, '$test_name']";
-                                    ?>
-                                    {
-                                        data: d<?php echo $count; ?>,
-                                        bars: { show: true, barWidth: 1 }//,
-                                        //label: "<?php #echo get_test_name_by_id($key); ?>"
-                                    }
-                                    <?php
-                                    $count++;
-                                    $index_count += 2;              
-                                    if($count < count($stat_chunk) + 1)
-                                    {
-                                        echo ",";
-                                        $tick_array .= ",";
-                                    }
-                                }
-                                $tick_array .= "]";
-                                ?>
-                            ], { xaxis: {ticks: <?php echo $tick_array; ?>}, legend: {container: "#<?php echo $legend_id; ?>"}  }
-                            );
-                            $('#<?php echo $ylabel_id; ?>').flipv_up();
-                        });
-                        </script>
-                        <?php
-                        # End of loop
-                        $i++;
-                    } */
-                    ?> 
                     </div>
                         <div id="trendsDiv" style="width: 800px; height: 400px; margin: 0 auto" ></div>
                     
@@ -248,13 +156,7 @@ LangUtil::setPageId("reports");
                                         }
                                     }
                                 }
-                                
-                                //$('#stat_graph').hide();
-                                //$('#stat_graph_bar').hide();
-                                //$('#viewGraphSpan').show();
-                                //$('#hideGraphSpan').hide();
-                                //$('#viewTrendSpan').hide();
-                                //$('#hideTrendSpan').show();
+
                                 createChart(namesArray, progressData);
                             }
                         
@@ -386,8 +288,6 @@ $script_elems->enableTableSorter();
 <script type="text/javascript" src="js/highcharts.js"></script>
 <script type='text/javascript'>
 $(window).load(function(){
-    //$('#stat_graph').hide();
-    //$('#stat_graph_bar').hide();
     viewTrends();
     $('#trendsDiv').hide();
 });
@@ -403,23 +303,6 @@ function toggle_stat_table()
         $('#trendsDiv').show();
     }
 }
-
-/*
-function toggle_stat_graph()
-{ 
-    var linktext = $('#showgraphlink').text();
-    if(linktext.indexOf("Show Graph") != -1) {
-        $('#showgraphlink').text("Hide Graph");
-        $('#trendsDiv').hide();
-        $('#stat_graph_bar').show();
-    }
-    else {
-
-        $('#showgraphlink').text("Show Graph");
-        $('#stat_graph_bar').hide();
-        }
-}
-*/
 
 function view_prevalance1()
 {
@@ -438,9 +321,9 @@ function view_prevalance1()
 function view_prevalance()
 {
 
-var tat_type = $('#tattype').attr("value");
-var date_from = $('#yf').attr("value")+"-"+$('#mf').attr("value")+"-"+$('#df').attr("value");
-var date_to = $('#yt').attr("value")+"-"+$('#mt').attr("value")+"-"+$('#dt').attr("value");
+    var tat_type = $('#tattype').attr("value");
+    var date_from = $('#yf').attr("value")+"-"+$('#mf').attr("value")+"-"+$('#df').attr("value");
+    var date_to = $('#yt').attr("value")+"-"+$('#mt').attr("value")+"-"+$('#dt').attr("value");
     
     if(checkDate($('#yf').attr("value"), $('#mf').attr("value"), $('#df').attr("value")) == false)
     {

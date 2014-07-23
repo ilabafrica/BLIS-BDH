@@ -10,10 +10,19 @@ LangUtil::setPageId("catalog");
 
 $rejection_phase = get_rejection_phase_by_id($_REQUEST['rp']);
 ?>
-
 <br>
-<b><?php echo "Edit Specimen Rejection Phase"; ?></b>
-| <a href="catalog.php?show_rp=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+
+<div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i><?php echo "Edit Specimen Rejection Phase"; ?></h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body">
+		<br>
+<a href="catalog.php?show_sr=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 <br><br>
 <?php
 if($rejection_phase == null)
@@ -51,7 +60,7 @@ $page_elems->getRejectionPhaseInfo($rejection_phase->name, true);
                 <div class="form-actions">
 
                       <input class='btn yellow' type='button' value='<?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?>' onclick='javascript:update_rejection_phase_category();'></input>
-                      <a href='catalog.php?show_tc=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+                      <a href='catalog.php?show_sr=1' class='btn'> <?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
                 </div>
                	<span id='update_rejection_phase_progress' style='display:none;'>
 						<?php $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_SUBMITTING']); ?>

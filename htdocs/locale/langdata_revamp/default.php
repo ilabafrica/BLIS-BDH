@@ -58,6 +58,7 @@ $LANG_ARRAY = array (
 		"CMD_THISTORY" => "Test History", 
 		"DOCTOR" => "Physician",
 		"DRUG_TYPES" => "Drug Types", 
+		"SPECIMEN_REJECTION" => "Specimen Rejection", 
 		"PATIENT" => "Patient", 
 		"PATIENTS" => "Patients", 
 		"PATIENT_NAME" => "Patient Name", 

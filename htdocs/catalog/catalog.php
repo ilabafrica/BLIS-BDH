@@ -111,6 +111,49 @@ if(is_super_admin($user) || is_country_dir($user))
 	</div>
 	</div>
 	<!--End Drugs Div-->
+	<!--Specimen Rejection Div-->
+	<div id='specimen_rejection_div' class='content_div'>
+      <div class="portlet box green">
+		<div class="portlet-title">
+			<h4><i class="icon-reorder"></i><?php echo LangUtil::$generalTerms['SPECIMEN_REJECTION']; ?></h4>
+			<div class="tools">
+				<a href="javascript:;" class="collapse"></a>
+				
+			</div>
+		</div>
+		<div class="portlet-body" >
+            <!--BEGIN TABS-->
+           <div class="tabbable tabbable-custom">
+               <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tab_1_1" data-toggle="tab">Specimen Rejection Phases</a></li>
+                                    <li><a href="#tab_1_2" data-toggle="tab">Specimen Rejection Reasons</a></li>
+                                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab_1_1">
+                    	<p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
+						<a href='javascript:add_phase();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
+						<br><br>
+						<div id='pdel_msg' class='clean-orange' style='display:none;'>
+							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('pdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+						</div>
+						<?php $page_elems->getRejectionPhaseTable($_SESSION['lab_config_id']); ?>                    
+                    </div>
+                    <div class="tab-pane" id="tab_1_2">
+                        <p style="text-align: right;"><a rel='facebox' href='#TestCategory_tc'>Page Help</a></p>
+						<a href='javascript:add_reason();' class="btn blue-stripe" title='Click to Add a New Drug'><i class='icon-plus'></i> <?php echo LangUtil::$generalTerms['ADDNEW']; ?></a>
+						<br><br>
+						<div id='rdel_msg' class='clean-orange' style='display:none;'>
+							<?php echo LangUtil::$generalTerms['MSG_DELETED']; ?>&nbsp;&nbsp;<a href="javascript:toggle('rdel_msg');"><?php echo LangUtil::$generalTerms['CMD_HIDE']; ?></a>
+						</div>
+						<?php $page_elems->getRejectionReasonTable($_SESSION['lab_config_id']); ?>              
+                    </div>
+           		</div>
+ 			</div>                                
+           <!--END TABS-->
+        </div>
+	</div>
+	</div>
+	<!--End Specimen Rejection Div-->
     
     <div id='test_categories_div' class='content_div'>
     <div class="portlet box green">
@@ -232,7 +275,13 @@ $(document).ready(function(){
 		load_right_pane('test_categories_div');
 		<?php
 	}
-	else if(isset($_REQUEST['show_sr']))
+	else if(isset($_REQUEST['show_rp']))
+	{
+		?>
+		load_right_pane('specimen_rejection_div');
+		<?php
+	}
+	else if(isset($_REQUEST['show_rr']))
 	{
 		?>
 		load_right_pane('specimen_rejection_div');
@@ -257,6 +306,20 @@ $(document).ready(function(){
 		?>
 		$('#sdel_msg').show();
 		load_right_pane('test_categories_div');
+		<?php
+	}
+	else if(isset($_REQUEST['pdel']))
+	{
+		?>
+		$('#pdel_msg').show();
+		load_right_pane('specimen_rejection_div');
+		<?php
+	}
+	else if(isset($_REQUEST['rdel']))
+	{
+		?>
+		$('#rdel_msg').show();
+		load_right_pane('specimen_rejection_div');
 		<?php
 	}
 	else if (isset($_REQUEST['rm']))
@@ -380,6 +443,122 @@ function delete_test_category(tc_id){
 				window.location='catalog.php?rm';
 			});
 	}
+}
+
+function disable_rejection_phase(phase_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'rejection_phase_delete.php';
+  		$.post(url, 
+		{rp: phase_id}, 
+		function(result) 
+		{
+			$('#state_'+phase_id).removeClass('btn red mini');
+			$('#action_'+phase_id).removeClass('btn mini green-stripe');
+			$('#status_'+phase_id).removeClass('label label-sm label-success');
+			$('#status_'+phase_id).addClass('label label-sm label');
+			$('#status_'+phase_id).html('Disabled');
+			$('#state_'+phase_id).html(''+
+					'<a href="javascript:enable_rejection_phase('+phase_id+');"'+ 
+					'title="Click to enable this Specimen rejection phase" class="btn green mini">'+
+					'<i class="icon-ok"></i> Enable</a>');
+			$('#action_'+phase_id).html(''+
+					'<a href="#"'+ 
+					'title="Click to Edit Rejection Phase Info" class="btn mini green-stripe" disabled>'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function enable_rejection_phase(phase_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'ajax/rejection_phase_enable.php';
+  		$.post(url, 
+		{rp: phase_id}, 
+		function(result) 
+		{
+			$('#state_'+phase_id).removeClass('btn green mini');
+			$('#action_'+phase_id).removeClass('btn mini green-stripe');
+			$('#status_'+phase_id).removeClass('label label-sm label');
+			$('#status_'+phase_id).addClass('label label-sm label-success');
+			$('#status_'+phase_id).html('Enabled');
+			$('#state_'+phase_id).html(''+
+					'<a href="javascript:disable_rejection_phase('+phase_id+');"'+ 
+					'title="Click to disable this Specimen rejection phase" class="btn red mini">'+
+					'<i class="icon-remove"></i> Disable</a>');
+			$('#action_'+phase_id).html(''+
+					'<a href="rejection_phase_edit.php?rp='+phase_id+'"'+ 
+					'title="Click to Edit Rejection Phase Info" class="btn mini green-stripe">'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function disable_rejection_reason(reason_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'rejection_reason_delete.php';
+  		$.post(url, 
+		{rr: reason_id}, 
+		function(result) 
+		{
+			$('#state_'+reason_id).removeClass('btn red mini');
+			$('#action_'+reason_id).removeClass('btn mini green-stripe');
+			$('#status_'+reason_id).removeClass('label label-sm label-success');
+			$('#status_'+reason_id).addClass('label label-sm label');
+			$('#status_'+reason_id).html('Disabled');
+			$('#state_'+reason_id).html(''+
+					'<a href="javascript:enable_rejection_reason('+reason_id+');"'+ 
+					'title="Click to enable this Specimen rejection Reason" class="btn green mini">'+
+					'<i class="icon-ok"></i> Enable</a>');
+			$('#action_'+reason_id).html(''+
+					'<a href="#"'+ 
+					'title="Click to Edit Rejection Reason Info" class="btn mini green-stripe" disabled>'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function enable_rejection_reason(reason_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'ajax/rejection_reason_enable.php';
+  		$.post(url, 
+		{rr: reason_id}, 
+		function(result) 
+		{
+			$('#state_'+reason_id).removeClass('btn green mini');
+			$('#action_'+reason_id).removeClass('btn mini green-stripe');
+			$('#status_'+reason_id).removeClass('label label-sm label');
+			$('#status_'+reason_id).addClass('label label-sm label-success');
+			$('#status_'+reason_id).html('Enabled');
+			$('#state_'+reason_id).html(''+
+					'<a href="javascript:disable_rejection_reason('+reason_id+');"'+ 
+					'title="Click to disable this Specimen rejection Reason" class="btn red mini">'+
+					'<i class="icon-remove"></i> Disable</a>');
+			$('#action_'+reason_id).html(''+
+					'<a href="rejection_reason_edit.php?rp='+reason_id+'"'+ 
+					'title="Click to Edit Rejection Reason Info" class="btn mini green-stripe">'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
 }
 
 </script>

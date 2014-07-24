@@ -2270,10 +2270,7 @@ else
                         if($report_config->useTestName == 1) {
                             echo "<th>".LangUtil::$generalTerms['TEST']."</th>";
                         }
-                        echo "<th>"."Date(Time Registered)</th>";
-                        if($report_config->useComments == 1) {
-                                echo "<th>".LangUtil::$generalTerms['COMMENTS']."</th>";
-                        }
+                        echo "<th></th>";
                         if($report_config->useReferredTo == 1) {
                                 echo "<th>".LangUtil::$generalTerms['REF_TO']."</th>";
                         }
@@ -2347,10 +2344,8 @@ else
                         $timestamp = strtotime($test->timestamp);
                         $time=date("H:i:s", $timestamp);
 				
-                        echo "<td >".DateLib::mysqlToString($test->timestamp)."(".$time.")"."</td>";
-                        if($report_config->useComments == 1)
-                            echo "<td>".$specimen->getComments()."</td>";
-
+                        echo "<td ></td>";
+                        
                         if($report_config->useReferredTo == 1)
                             echo "<td>".$specimen->getReferredToName()."</td>";
 
@@ -2457,9 +2452,7 @@ else
 
 					else {
 
-						$ts_parts = explode(" ", $test->timestamp);
-
-						echo DateLib::mysqlToString($ts_parts[0]);
+						echo $test->ts_result_entered;
 
 					}
 
@@ -2486,9 +2479,14 @@ else
 				
 
 				if($report_config->useVerifiedBy == 1) {
-
-					echo "<td>".$test->getVerifiedBy()."</td>";
-
+					$timestamp = strtotime($test->timestamp);
+                        $time=date("H:i:s", $timestamp);
+                        if($test->getVerifiedBy() != "Verification Pending") {
+                        	echo "<td>".$test->getVerifiedBy()." on ". $test->dateVerified."</td>";
+                        }
+                        else {
+                        	echo "<td>".$test->getVerifiedBy()."</td>";
+                        }
 				}
 
 				

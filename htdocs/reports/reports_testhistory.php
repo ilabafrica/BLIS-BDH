@@ -2270,7 +2270,7 @@ else
                         if($report_config->useTestName == 1) {
                             echo "<th>".LangUtil::$generalTerms['TEST']."</th>";
                         }
-                        echo "<th></th>";
+                        
                         if($report_config->useReferredTo == 1) {
                                 echo "<th>".LangUtil::$generalTerms['REF_TO']."</th>";
                         }
@@ -2343,9 +2343,7 @@ else
                         }
                         $timestamp = strtotime($test->timestamp);
                         $time=date("H:i:s", $timestamp);
-				
-                        echo "<td ></td>";
-                        
+				   
                         if($report_config->useReferredTo == 1)
                             echo "<td>".$specimen->getReferredToName()."</td>";
 

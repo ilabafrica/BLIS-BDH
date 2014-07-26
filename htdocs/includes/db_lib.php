@@ -9598,9 +9598,9 @@ function update_drug_type($updated_entry)
 		return;
 	}
 	$query_string =
-		"UPDATE drug ".
+		"UPDATE drugs ".
 		"SET name='$updated_entry->name', ".
-		"description='$updated_entry->description', ".
+		"description='$updated_entry->description'".
 		"WHERE drug_id=$updated_entry->drugTypeId";
 	query_blind($query_string);
 	DbUtil::switchRestore($saved_db);

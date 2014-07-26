@@ -271,12 +271,6 @@ if(strpos($_SERVER['PHP_SELF'], 'login.php') === false)
 						
 					break;
 					
-					case "quality":
-						echo "<i class='icon-dashboard'></i>";
-						echo $key.$selected;
-									
-					break;
-					
 					case "reports":
 						echo "<i class='icon-bar-chart'></i>";
 						echo $key.$selected;

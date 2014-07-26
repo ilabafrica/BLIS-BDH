@@ -20,7 +20,9 @@ $sid = $_REQUEST['sid'];
 $status = get_specimen_status($sid);
 $script_elems->enableDatePicker();
 $script_elems->enableTableSorter();
-
+$specimen = get_specimen_by_id($sid);
+$test_type = get_test_type_by_name($specimen->getTestNames());
+$test = get_test_by_specimen_id($specimen->specimenId);
 ?>
 <?php if(!$is_modal){?>
 <!-- BEGIN PAGE TITLE & BREADCRUMB-->       
@@ -119,6 +121,116 @@ if($is_modal){
                                 <?php 
                                     $page_elems->getSpecimenRejectionDetails($sid);
                                 }
+                                ?>
+                                <hr />
+                                <?php if ($test_type->showCultureWorkSheet) {?>
+                                <br />
+                                <h5>CULTURE OBSERVATIONS AND WORKUP</h5>
+                                <table class="table table-bordered table-advanced table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Initials</th>
+                                                <th>Observations and work-up</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbbody_<?php echo $test->testId ?>">
+                                        <?php 
+                                            $obsv = Culture::getAllObservations($test->testId);
+                                            if($obsv != null){
+                                            foreach ($obsv as  $Observation) { ?>
+                                                <tr>
+                                                <td><?php echo $Observation->time_stamp; ?></td>
+                                                <td><?php echo get_username_by_id($Observation->userId) ?></td>
+                                                <td><?php echo $Observation->observation ?></td>
+                                                <td></td>
+                                                </tr>
+                                                <?php } 
+                                            }
+                                            else { ?>
+                                                <tr>
+                                                <td colspan="3"><?php echo "No Observations have been entered yet."; ?></td>
+                                                </tr>
+                                                <?php
+                                            }
+                                            ?>          
+                                        </tbody>
+                                </table>
+                                <!-- Begin checkboxes for possible organisms to be isolated -->
+                                <br />
+                                <h5>SUSCEPTIBILITY RESULTS</h5>
+                                <?php 
+                                    $pathogens = get_compatible_organisms($test->testTypeId);
+                                    $page_elems->getOrganismsCheckboxesForCultureReport($test->testTypeId, $test->testId);
+                                    $checked = false;
+                                    $isolations = get_isolated_organisms($test->testId); 
+                                ?>
+                                <!-- End possible organisms checkboxes -->
+                                <!-- Begin Drug Susceptibility Tests table -->
+                                <br />
+                                <div class="portlet box grey ">
+                                                    <div class="portlet-title">
+                                                        <i class="fa fa-reorder"></i> <h5>SUSCEPTIBILITY TEST RESULTS</h5>
+                                                    </div>
+                                                    <div class="portlet-body form">
+                                                    <?php foreach ($pathogens as $id) {
+                                                        $pathogen = $id;
+                                                        $organism = get_organism_by_id($pathogen);
+                                                        foreach($isolations as $pathogenId){
+        
+                                                         if ($pathogen==$pathogenId)
+                                                            $checked =true;
+                                                        }
+                                                    ?>
+                                                    <form role="form" id="drugs_susceptibility_<?php echo $pathogen; ?>" <?php if($checked){ ?>style="display:block;"<?php }else{ ?>style="display:none;"<?php } ?>>
+                                                            <div class="form-body">
+                                                                <table class="table table-bordered table-advanced table-condensed">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th colspan="3"><?php echo "Organism: ".$organism->name; ?></th>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>Drug</th>
+                                                                            <th>Zone (mm)</th>
+                                                                            <th>Interpretation (S,I,R)</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="enteredResults_<?php echo $pathogen; ?>">
+                                                                    <?php 
+                                                                        $test_type_id = get_test_type_id_from_test_id($test->testId);
+                                                                        $drug = get_compatible_drugs($pathogen);
+                                                                        if($drug != null){
+                                                                            foreach ($drug as  $drugs) { $drugs_value = DrugType::getById($drugs);
+                                                                            $sensitivity = DrugSusceptibility::getDrugSusceptibility($test->testId, $pathogen, $drugs);
+                                                                            ?>
+                                                                            <tr>
+                                                                            <input type="hidden" name="test[]" id="test[]" value="<?php echo $test->testId; ?>">
+                                                                            <input type="hidden" name="drug[]" id="drug[]" value="<?php echo $drugs; ?>">
+                                                                            <input type="hidden" name="organism[]" id="organism[]" value="<?php echo $pathogen; ?>">
+                                                                            <td><?php echo $drugs_value->name; ?></td>
+                                                                            <td><?php if($sensitivity!=null){echo $sensitivity['zone'];} ?></td>
+                                                                            <td><?php echo $sensitivity['interpretation']; ?></td>
+                                                                            </tr>
+                                                                            <?php } 
+                                                                            }
+                                                                            else{
+                                                                            ?>
+                                                                            <tr>
+                                                                            <td colspan="4"><?php echo "No Drugs linked to this test. Please consult the Lab In-Charge." ?></td>
+                                                                            </tr>
+                                                                            <?php } ?>          
+                                                                    </tbody>
+                                                                    
+                                                            </table>
+                                                            </div>
+                                                        </form>
+                                                        <?php } ?>
+                                                    </div>
+                                                </div>
+                                <!-- End Drug Susceptibility Tests table -->
+
+                                <?php
+                                } //End Show worksheet conditionally
                                 ?>
                           </div>
                   </div>

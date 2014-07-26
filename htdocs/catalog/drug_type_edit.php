@@ -1,6 +1,6 @@
 <?php
 #
-# Main page for modifying an existing specimen type
+# Main page for modifying an existing drug type
 #
 include("redirect.php");
 include("includes/header.php");
@@ -22,7 +22,7 @@ $drug_type = get_drug_type_by_id($_REQUEST['did']);
 		</div>
 		<div class="portlet-body">
 		<br>
-<a href="catalog.php?show_tc=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
+<a href="catalog.php?show_d=1"><?php echo LangUtil::$generalTerms['CMD_CANCEL']; ?></a>
 <br><br>
 <?php
 if($drug_type == null)

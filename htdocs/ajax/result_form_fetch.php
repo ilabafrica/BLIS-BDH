@@ -261,42 +261,64 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 				?>			
 			</tbody>
 	</table>
-
+	<!-- Begin checkboxes for possible organisms to be isolated -->
 	<br />
-	<div class="portlet box yellow ">
+	<h5>POSSIBLE ISOLATED ORGANISMS (Select Applicable)</h5>
+	<?php 
+		$test_type_id = get_test_type_id_from_test_id($test_id);
+		$pathogens = get_compatible_organisms($test_type_id);
+		$page_elems->getOrganismsCheckboxesForCultureReport($test_type_id, $test_id);
+		$checked = false;
+		$isolations = get_isolated_organisms($test_id);  
+	?>
+	<!-- End possible organisms checkboxes -->
+	<!-- Begin Drug Susceptibility Tests table -->
+	<br />
+	<div class="portlet box grey ">
 						<div class="portlet-title">
-							<div class="caption">
-								<i class="fa fa-reorder"></i> <h5>Susceptibility Test Results</h5>
-							</div>
-							
+							<i class="fa fa-reorder"></i> <h5>Susceptibility Test Results</h5>
 						</div>
 						<div class="portlet-body form">
-							<form role="form" id="drugs_susceptibility">
+						<?php foreach ($pathogens as $id) {
+							$pathogen = $id;
+							$organism = get_organism_by_id($pathogen);
+							foreach($isolations as $pathogenId){
+        
+                             if ($pathogen==$pathogenId)
+                                $checked =true;
+                            }
+						?>
+							<form role="form" id="drugs_susceptibility_<?php echo $pathogen; ?>" <?php if($checked){ ?>style="display:block;"<?php }else{ ?>style="display:none;"<?php } ?>>
 								<div class="form-body">
 									<table class="table table-bordered table-advanced table-condensed">
 										<thead>
+											<tr>
+												<th colspan="3"><?php echo "Organism: ".$organism->name; ?></th>
+											</tr>
 											<tr>
 												<th>Drug</th>
 												<th>Zone (mm)</th>
 												<th>Interpretation (S,I,R)</th>
 											</tr>
 										</thead>
-										<tbody id="enteredResults">
+										<tbody id="enteredResults_<?php echo $pathogen; ?>">
 										<?php 
-											$test_type_id = get_test_type_id_from_test_id($test_id);
-											$drug = get_compatible_drugs($test_type_id);
+											$drug = get_compatible_drugs($pathogen);
 											if($drug != null){
-											foreach ($drug as  $drugs) { $drugs_value = DrugType::getById($drugs);?>
+											foreach ($drug as  $drugs) { $drugs_value = DrugType::getById($drugs);
+												$sensitivity = DrugSusceptibility::getDrugSusceptibility($test_id, $pathogen, $drugs);
+												?>
 												<tr>
 												<input type="hidden" name="test[]" id="test[]" value="<?php echo $test_id; ?>">
 												<input type="hidden" name="drug[]" id="drug[]" value="<?php echo $drugs; ?>">
+												<input type="hidden" name="organism[]" id="organism[]" value="<?php echo $pathogen; ?>">
 												<td><?php echo $drugs_value->name; ?></td>
-												<td><input type="text" name="zone[]" id="zone[]" class="span6 m-wrap"></td>
+												<td><input type="text" name="zone[]" id="zone[]" class="span6 m-wrap" value="<?php if($sensitivity!=null){echo $sensitivity['zone'];} ?>"></td>
 												<td><select class="span4 m-wrap" id="interpretation[]" name="interpretation[]">
-							                                    <option value="S" selected="selected">S</option>
+												                <option value="S" <?php if($sensitivity['interpretation']=='S'){ ?>selected="selected"<?php } ?>>S</option>
 							                                    
-							                                    <option value="I">I</option>
-							                                    <option value="R">R</option>
+							                                    <option value="I" <?php if($sensitivity['interpretation']=='I'){ ?>selected="selected"<?php } ?>>I</option>
+							                                    <option value="R" <?php if($sensitivity['interpretation']=='R'){ ?>selected="selected"<?php } ?>>R</option>
 															</select></td>
 												</tr>
 												<?php } 
@@ -311,10 +333,11 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 										
 								</table>
 								</div>
-								<div class="form-actions right" id="submit_drug_susceptibility">
-									<button type="submit" class="btn green" onclick="saveDrugSusceptibility(<?php echo $test_id ?>)">Submit Results</button>
+								<div class="form-actions right" id="submit_drug_susceptibility_<?php echo $pathogen; ?>">
+									<a class="btn mini green" href="javascript:void(0)" onclick="saveDrugSusceptibility(<?php echo $test_id.','.$pathogen; ?>)">Save Results</a>
 								</div>
 							</form>
+							<?php } ?>
 						</div>
 					</div>
 	
@@ -426,6 +449,10 @@ $modal_link_id = "test_result_link_$test_id";
       return false;
     })
 });
+
+	function showSusceptibility(id){
+		$('#drugs_susceptibility_'+id).toggle(this.checked)
+	}
 	
 	function insertCelltacResults(){
 	     
@@ -476,8 +503,7 @@ $modal_link_id = "test_result_link_$test_id";
 	}
 
 	/*Begin save drug susceptibility*/	
-	function saveDrugSusceptibility(tid){
-		event.preventDefault();
+	function saveDrugSusceptibility(tid, oid){
 		/*Get the form variables*/
 		/*var testId = tid;
 		var drugs = $("input#drug[]").val();
@@ -488,7 +514,7 @@ $modal_link_id = "test_result_link_$test_id";
 		/*var dataString = '&testId=' + tid + '&drugs=' + drugs + '&zones=' + zones + '&interpretations=' + interpretations;
 		$.each(dataString, function(key, object) { alert($(this).val());
 		});*/
-		var dataString = $("#drugs_susceptibility").serialize();
+		var dataString = $("#drugs_susceptibility_"+oid).serialize();
 		//alert(dataString);
 		
 		$.ajax({
@@ -496,7 +522,7 @@ $modal_link_id = "test_result_link_$test_id";
 			url:  'ajax/drug_susceptibility.php',
 			data: dataString,
 			success: function(){
-				renderDrugSusceptibility(tid);
+				renderDrugSusceptibility(tid, oid);
 			}
 		});
 	}
@@ -555,8 +581,8 @@ $modal_link_id = "test_result_link_$test_id";
 	 * @todo Move this code into a function 
 	 */
 	 /*Function to render drug susceptibility table after successfully saving the results*/
-	 function renderDrugSusceptibility(tid){
-		$.getJSON('ajax/drug_susceptibility.php', { testId: tid, action: "results"}, 
+	 function renderDrugSusceptibility(tid, oid){
+		$.getJSON('ajax/drug_susceptibility.php', { testId: tid, organismId: oid, action: "results"}, 
 			function(data){
 				var tableRow ="";
 				var tableBody ="";
@@ -568,8 +594,8 @@ $modal_link_id = "test_result_link_$test_id";
 					+"</tr>";
 				});
 				//tableBody +="<tbody>"+tableRow+"</tbody>";
-				$( "#enteredResults" ).html(tableRow);
-				$("#submit_drug_susceptibility").hide();
+				$( "#enteredResults_"+oid).html(tableRow);
+				$("#submit_drug_susceptibility_"+oid).hide();
 			}
 		);
 	}

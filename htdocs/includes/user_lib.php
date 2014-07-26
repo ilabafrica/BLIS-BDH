@@ -64,7 +64,6 @@ function get_top_menu_options($user_role)
 		# ... 
 		$page_list[LangUtil::getPageTitle("lab_config_home")] = "lab_configs.php";
 		$page_list[LangUtil::getPageTitle("catalog")] = "catalog.php";
-		$page_list["Quality Control"]="quality.php";
 		$page_list[LangUtil::getPageTitle("reports")] = "reports.php";
 		if($SERVER != $ON_ARC)
 		{

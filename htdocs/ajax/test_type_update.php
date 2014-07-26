@@ -739,20 +739,20 @@ foreach($catalog_specimen_list as $specimen_typeid=>$specimen_name)
 	}
 }
 
-# Fetch compatible drug types
-$drugs_list = array();
+# Fetch applicable organisms
+$organisms_list = array();
 $reff = 1;
-$catalog_drugs_list = get_drug_types_catalog($lab_config_id, $reff);
-foreach($catalog_drugs_list as $drugs_typeid=>$drugs_name)
+$catalog_organisms_list = get_organisms_catalog($lab_config_id, $reff);
+foreach($catalog_organisms_list as $organism_id=>$organism_name)
 {
-    if(isset($_REQUEST['d_type_'.$drugs_typeid]))
+    if(isset($_REQUEST['d_type_'.$organism_id]))
     {
-        $drugs_list[] = $drugs_typeid;
+        $organisms_list[] = $organism_id;
     }
 }
-# End fetch compatible drug types
+# End fetch applicable organisms
 
-update_test_type($updated_entry, $specimen_list,  $drugs_list,$lab_config_id);
+update_test_type($updated_entry, $specimen_list,  $organisms_list,$lab_config_id);
 if ($newCostToPatient != $oldCostToPatient) {
     insert_new_cost_of_test_type($newCostToPatient, $updated_entry->testTypeId);
 }

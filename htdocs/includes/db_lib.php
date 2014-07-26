@@ -1714,8 +1714,9 @@ class DrugType
 		global $con;
 		$drug_id = mysql_real_escape_string($drug_id, $con);
 		$saved_db = DbUtil::switchToLabConfigRevamp();
+		#1. Disable drug
 		$query_string =
-			"UPDATE durgs SET disabled=1 WHERE drug_id=$drug_id";
+			"UPDATE drugs SET disabled=1 WHERE drug_id=$drug_id";
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}
@@ -1739,6 +1740,141 @@ class DrugType
 		return $retval;
 	}
 }
+#	Begin Organisms Class
+class Organism
+{
+	public $organismId;
+	public $name;
+	public $description;
+	
+	public static function getObject($record)
+	{
+		if($record == null)
+			return null;
+			
+		$organism = new Organism();
+		
+		if(isset($record['organism_id']))
+			$organism->organismId = $record['organism_id'];
+		else
+			$organism->organismId = null;
+		
+		if(isset($record['name']))
+			$organism->name = $record['name'];
+		else
+			$organism->name = null;
+			
+		if(isset($record['description']))
+			$organism->description = $record['description'];
+		else
+			$organism->description = null;
+			
+		return $organism;
+	}
+	
+	public function getName()
+	{
+		global $CATALOG_TRANSLATION;
+		if($CATALOG_TRANSLATION === true)
+		{
+			return LangUtil::getOrganismName($this->organismId);
+		}
+		else
+		{
+			return $this->name;
+		}
+	}
+	
+	public function getOrganismName()
+	{
+		global $CATALOG_TRANSLATION;
+		if($CATALOG_TRANSLATION === true)
+		{
+			return $this->name;
+		}
+		else
+		{
+			return $this->name;
+		}
+	}
+	
+	public function getOrganismDescription()
+	{
+		if(trim($this->description) == "" || $this->description == null)
+			return "-";
+		else 
+			return trim($this->description);
+	}
+	
+	public static function getById($organism_id)
+	{
+		# Returns a organism entry fetch by ID
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		$query_string = 
+			"SELECT * FROM organisms ".
+			"WHERE organism_id=$organism_id";
+		$record = query_associative_one($query_string);
+		DbUtil::switchRestore($saved_db);
+		return Organism::getObject($record);
+	}
+
+	public static function getOrganismNameById($organism_id)
+	{
+		# Returns a organism name fetch by ID
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		$query_string = 
+			"SELECT name FROM organisms ".
+			"WHERE organism_id=$organism_id";
+		$record = query_associative_one($query_string);
+		DbUtil::switchRestore($saved_db);
+		return $record['name'];
+	}
+	
+	public static function deleteById($organism_id)
+	{
+		# Deletes organism from database
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		$saved_db = DbUtil::switchToLabConfigRevamp();
+		#1. Disable organism_drug
+		$query_string =
+			"UPDATE organism_drug SET disabled=1 WHERE organism_id=$organism_id";
+		query_blind($query_string);
+		#2. Disable organism_test
+		$query_string =
+			"UPDATE organism_test SET disabled=1 WHERE organism_id=$organism_id";
+		query_blind($query_string);
+		#1. Disable organism
+		$query_string =
+			"UPDATE organisms SET disabled=1 WHERE organism_id=$organism_id";
+		query_blind($query_string);
+		DbUtil::switchRestore($saved_db);
+	}
+	
+	public static function geAllOrganisms($lab_config_id)
+	{
+		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
+		$query_string =
+		"SELECT organism_id, name FROM organisms";
+	
+		$retval = array();
+		$organism_details =  array();
+		$resultset = query_associative_all($query_string, $row_count);
+		foreach($resultset as $record)
+		{
+			$organism_details['organism_id'] = $record['organism_id'];
+			$organism_details['name'] = $record['name'];
+			array_push($retval, $organism_details);
+		}
+		DbUtil::switchRestore($saved_db);
+		return $retval;
+	}
+}
+#	End Organisms Class
 /* Begin Class for drug susceptibility functionality */
 class DrugSusceptibility
 {
@@ -1801,26 +1937,26 @@ class DrugSusceptibility
 		return $drugSusceptibility;
 	}	
 
-	public static function addSusceptibility($userId, $testId, $drugId, $zone, $interpretation){
+	public static function addSusceptibility($userId, $testId, $organismId, $drugId, $zone, $interpretation){
 		global $con;
-		$query_string = "INSERT INTO drug_susceptibility (userId, testId, drugId, zone, interpretation, ts) values($userId, $testId, $drugId, $zone, '$interpretation', NOW()) ";
-		echo $query_string;
+		$query_string = "INSERT INTO drug_susceptibility (userId, testId, organismId, drugId, zone, interpretation, ts) values($userId, $testId, $organismId, $drugId, $zone, '$interpretation', NOW()) ";
+		//echo $query_string;
 		$result = query_insert_one($query_string);
 		//return get_last_insert_id();
 	}
 
-	public static function updateSusceptibility($userId, $testId, $drugId, $zone, $interpretation){
+	public static function updateSusceptibility($userId, $testId, $organismId, $drugId, $zone, $interpretation){
 		global $con;
-		$query_string = "UPDATE drug_susceptibility SET userId = $userId, zone = $zone, interpretation = '$interpretation', ts = NOW() WHERE testId = $testId AND drugId = $drugId;";
-		echo $query_string;
+		$query_string = "UPDATE drug_susceptibility SET userId = $userId, zone = $zone, interpretation = '$interpretation', ts = NOW() WHERE testId = $testId AND organismId =$organismId AND drugId = $drugId;";
+		//echo $query_string;
 		$result = query_blind($query_string);
 		//return get_last_insert_id();
 	}
 
-	public static function getDrugSuceptibilityResults($testId){
+	public static function getDrugSuceptibilityResults($testId, $organismId){
 
 		global $con;
-		$query_string = "SELECT * FROM drug_susceptibility where testId = $testId order by ts ASC";
+		$query_string = "SELECT * FROM drug_susceptibility where testId = $testId AND organismId = $organismId order by ts ASC";
 		$record = query_associative_all($query_string, $count);
 		$retval = array();
 		foreach($record as $obj)
@@ -1862,10 +1998,10 @@ class DrugSusceptibility
 		return DrugSusceptibility::getObject($record);
 
 	}
-	public static function getDrugSusceptibility($testId, $drugId){
+	public static function getDrugSusceptibility($testId, $organismId, $drugId){
 
 		global $con;
-		$query_string = "SELECT zone, interpretation FROM drug_susceptibility where testId = $testId AND drugId = $drugId;";
+		$query_string = "SELECT zone, interpretation FROM drug_susceptibility where testId = $testId AND organismId = $organismId AND drugId = $drugId;";
 		$record = query_associative_all($query_string, $count);
 		$retval = array();
 		foreach($record as $obj)
@@ -7634,6 +7770,18 @@ function get_test_TAT_by_test_type($lab_config, $test_type_id, $from="", $to="",
 	# specimen_type, test_name, category, target_tat, pending} are returned
 	return $resultset;
 }
+function get_test_by_specimen_id($specimen_id)
+{
+	global $con;
+	$specimen_id = mysql_real_escape_string($specimen_id, $con);
+	# Returns list of tests scheduled for this given specimen
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = "SELECT * FROM test WHERE specimen_id=$specimen_id";
+	$record = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return Test::getObject($record);
+
+}
 
 function get_completed_tests_by_type($test_type_id, $date_from="", $date_to="", $test_category_id = 0)
 {
@@ -7885,6 +8033,7 @@ function add_test_result($test_id, $result_entry, $comments="", $specimen_id="",
 		update_specimen_status($specimen_id);
 }
 
+#	End function to get total tests
 function update_specimen_status($specimen_id)
 {
 	global $con;
@@ -9210,7 +9359,7 @@ function add_test_type($test_name, $test_descr, $clinical_data, $cat_code, $is_p
 	return get_max_test_type_id();
 }
 
-function update_test_type($updated_entry, $new_specimen_list, $new_drugs_list,$lab_config_id)
+function update_test_type($updated_entry, $new_specimen_list, $new_organisms_list,$lab_config_id)
 {
 	global $con;
 	$lab_config_id = mysql_real_escape_string($lab_config_id, $con);
@@ -9286,29 +9435,29 @@ function update_test_type($updated_entry, $new_specimen_list, $new_drugs_list,$l
 			query_blind($query_ins);
 		}
 	}
-	# Delete entries for removed compatible drugs
-	$existing_drugs = get_compatible_drugs($updated_entry->testTypeId);
-	foreach($existing_drugs as $drugs_type_id)
+	# Delete entries for removed applicable organisms
+	$existing_organisms = get_compatible_organisms($updated_entry->testTypeId);
+	foreach($existing_organisms as $organisms_id)
 	{
-		if(in_array($drugs_type_id, $new_drugs_list))
+		if(in_array($organisms_id, $new_organisms_list))
 		{
-			# Compatible drugs not removed
+			# Compatible organisms not removed
 			# Do nothing
 		}
 		else
 		{
 			# Remove entry from mapping table
 			$query_del = 
-				"DELETE from drug_test ".
+				"DELETE from organism_test ".
 				"WHERE test_type_id=$updated_entry->testTypeId ".
-				"AND drug_id=$drugs_type_id";
+				"AND organism_id=$organisms_id";
 			query_blind($query_del);
 		}
 	}
-	# Add entries for new compatible drugs
-	foreach($new_drugs_list as $drugs_type_id)
+	# Add entries for new compatible organisms
+	foreach($new_organisms_list as $organisms_id)
 	{
-		if(in_array($drugs_type_id, $existing_drugs))
+		if(in_array($organisms_id, $existing_organisms))
 		{
 			# Entry already exists
 			# Do nothing
@@ -9317,8 +9466,8 @@ function update_test_type($updated_entry, $new_specimen_list, $new_drugs_list,$l
 		{
 			# Add entry in mapping table
 			$query_ins = 
-				"INSERT INTO drug_test (drug_id, test_type_id) ".
-				"VALUES ($drugs_type_id, $updated_entry->testTypeId)";
+				"INSERT INTO organism_test (organism_id, test_type_id) ".
+				"VALUES ($organisms_id, $updated_entry->testTypeId)";
 			query_blind($query_ins);
 		}
 	}
@@ -9357,7 +9506,36 @@ function add_drug_type($drug_name, $drug_descr="")
 	return get_max_drug_type_id();
 }
 
-function add_rejection_phase($phase_name, $phase_descr,$disabled)
+#	Function to save organism details
+function add_organism($organism_name, $organism_descr="", $new_drugs_list)
+{
+	global $con;
+	$organism_name = mysql_real_escape_string($organism_name, $con);
+	$organism_descr = mysql_real_escape_string($organism_descr, $con);
+	# Adds a new organism to catalog
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = 
+		"INSERT INTO organisms(name, description) ".
+		"VALUES ('$organism_name', '$organism_descr');";
+	query_insert_one($query_string);
+	# Return primary key of the record just inserted
+	$organism_id = get_max_organism_id();
+
+	# Add entries for new compatible drugs
+	foreach($new_drugs_list as $drugs_type_id)
+	{
+		# Add entry in mapping table
+		$query_ins = 
+			"INSERT INTO organism_drug (organism_id, drug_id) ".
+			"VALUES ($organism_id,$drugs_type_id)";
+		query_blind($query_ins);
+	}
+
+	DbUtil::switchRestore($saved_db);
+	return get_max_organism_id();
+}
+
+function add_rejection_phase($phase_name, $phase_descr)
 {
 	global $con;
 	$phase_name = mysql_real_escape_string($phase_name, $con);
@@ -9425,6 +9603,69 @@ function update_drug_type($updated_entry)
 		"description='$updated_entry->description', ".
 		"WHERE drug_id=$updated_entry->drugTypeId";
 	query_blind($query_string);
+	DbUtil::switchRestore($saved_db);
+}
+///////////////////////////////////////////////////////////////////////////
+
+////////////function to update drug types//////////////////
+function update_organism($updated_entry, $new_drugs_list)
+{
+	# Updates organism info in DB catalog
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$existing_entry = get_organism_by_id($updated_entry->organismId);
+	if($existing_entry == null)
+	{
+		# No record found
+		DbUtil::switchRestore($saved_db);
+		return;
+	}
+	$query_string =
+		"UPDATE organisms ".
+		"SET name='$updated_entry->name', ".
+		"description='$updated_entry->description' ".
+		"WHERE organism_id=$updated_entry->organismId;";
+		echo $query_string;
+		
+	query_blind($query_string);
+
+	# Delete entries for removed compatible drugs
+	$existing_drugs = get_compatible_drugs($updated_entry->organismId);
+	foreach($existing_drugs as $drugs_type_id)
+	{
+		if(in_array($drugs_type_id, $new_drugs_list))
+		{
+			# Compatible drugs not removed
+			# Do nothing
+		}
+		else
+		{
+			# Remove entry from mapping table
+			$query_del = 
+				"DELETE from organism_drug ".
+				"WHERE organism_id=$updated_entry->organismId ".
+				"AND drug_id=$drugs_type_id";
+			query_blind($query_del);
+		}
+	}
+	# Add entries for new compatible drugs
+	foreach($new_drugs_list as $drugs_type_id)
+	{
+		if(in_array($drugs_type_id, $existing_drugs))
+		{
+			# Entry already exists
+			# Do nothing
+		}
+		else
+		{
+			# Add entry in mapping table
+			$query_ins = 
+				"INSERT INTO organism_drug (organism_id, drug_id) ".
+				"VALUES ($updated_entry->organismId, $drugs_type_id);";
+			query_blind($query_ins);
+		}
+		
+	}
+
 	DbUtil::switchRestore($saved_db);
 }
 ///////////////////////////////////////////////////////////////////////////
@@ -9627,7 +9868,40 @@ function get_drug_types_catalog($lab_config_id=null, $reff=null)
 	return $retval;
 }
 
-
+#	Begin function to return organisms from catalog
+function get_organisms_catalog($lab_config_id=null, $reff=null)
+{
+	# Returns a list of all organisms available in catalog
+	global $CATALOG_TRANSLATION;
+        //NC3065
+               // global $LIS_ADMIN, $LIS_SUPERADMIN, $LIS_COUNTRYDIR;
+        if($reff == 1 && $reff != 2)
+        {
+            $user = get_user_by_id($_SESSION['user_id']);
+            $lab_config_id = $user->labConfigId;
+        }
+        //-NC3065
+	if($lab_config_id == null)
+		return;
+	//else
+		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
+	$query_string =
+		"SELECT organism_id, name FROM organisms WHERE disabled=0 ORDER BY name";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset) {
+		foreach($resultset as $record)
+		{
+			if($CATALOG_TRANSLATION === true)
+				$retval[$record['organism_id']] = LangUtil::getOrganismName($record['organism_id']);
+			else
+				$retval[$record['organism_id']] = $record['name'];
+		}
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
+#	End  function to return catalog organisms
 /******/
 function get_test_categories_catalog($lab_config_id=null, $reff=null)
 {
@@ -10170,6 +10444,22 @@ function get_drug_type_by_name($drug_type_name)
 	return DrugType::getObject($record);
 }
 
+#	Get organism by name
+function get_organism_by_name($organism_name)
+{
+	global $con;
+	$organism_name = mysql_real_escape_string($organism_name, $con);
+	# Returns drug type record in DB
+	$user = get_user_by_id($_SESSION['user_id']);
+	$lab_config_id = $user->labConfigId;
+	$saved_db = DbUtil::switchToLabConfigRevamp($lab_config_id);
+	$query_string = 
+		"SELECT * FROM organisms WHERE name='$organism_name' LIMIT 1";
+	$record = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return Organism::getObject($record);
+}
+
 //get rejection phase by name
 function get_rejection_phase_by_name($rejection_phase_name)
 {
@@ -10396,6 +10686,21 @@ function get_drug_type_by_id($drug_id)
 	return DrugType::getObject($record);
 }
 
+#	Begin get_organism_by_id function
+function get_organism_by_id($organism_id)
+{
+	global $con;
+	$organism_id = mysql_real_escape_string($organism_id, $con);
+	# Returns organism record in DB
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string =
+		"SELECT * FROM organisms WHERE organism_id=$organism_id LIMIT 1";
+	$record = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return Organism::getObject($record);
+}
+# 	End function
+
 function get_rejection_phase_by_id($rejection_phase_id)
 {
 	global $con;
@@ -10591,6 +10896,16 @@ function get_max_drug_type_id()
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string =
 		"SELECT MAX(drug_id) as maxval FROM drugs";
+	$resultset = query_associative_one($query_string);
+	DbUtil::switchRestore($saved_db);
+	return $resultset['maxval'];
+}
+function get_max_organism_id()
+{
+	# Returns the largest organism ID
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string =
+		"SELECT MAX(organism_id) as maxval FROM organisms";
 	$resultset = query_associative_one($query_string);
 	DbUtil::switchRestore($saved_db);
 	return $resultset['maxval'];
@@ -11039,14 +11354,14 @@ function get_compatible_specimens($test_type_id)
 	return $retval;
 }
 
-function get_compatible_drugs($test_type_id)
+function get_compatible_drugs($organism_id)
 {
-	# Returns a list of compatible drugs for a given test type in catalog
+	# Returns a list of compatible drugs for a given organism in catalog
 	global $con;
-	$test_type_id = mysql_real_escape_string($test_type_id, $con);
+	$organism_id = mysql_real_escape_string($organism_id, $con);
 	$saved_db = DbUtil::switchToLabConfigRevamp();
 	$query_string = 
-		"SELECT drug_id FROM drug_test WHERE test_type_id=$test_type_id";
+		"SELECT drug_id FROM organism_drug WHERE organism_id=$organism_id AND disabled=0;";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	if($resultset == null)
@@ -11059,6 +11374,45 @@ function get_compatible_drugs($test_type_id)
 	return $retval;
 }
 
+function get_compatible_organisms($test_type_id)
+{
+	# Returns a list of compatible organisms for a given test type in catalog
+	global $con;
+	$test_type_id = mysql_real_escape_string($test_type_id, $con);
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = 
+		"SELECT organism_id FROM organism_test WHERE test_type_id=$test_type_id AND disabled=0;";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset == null)
+		return $retval;
+	foreach($resultset as $record)
+	{
+		$retval[] = $record['organism_id'];
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
+
+function get_isolated_organisms($test_id)
+{
+	# Returns a list of compatible organisms for a given test type in catalog
+	global $con;
+	$test_id = mysql_real_escape_string($test_id, $con);
+	$saved_db = DbUtil::switchToLabConfigRevamp();
+	$query_string = 
+		"SELECT distinct(organismId) as pathogen FROM drug_susceptibility WHERE testId=$test_id";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset == null)
+		return $retval;
+	foreach($resultset as $record)
+	{
+		$retval[] = $record['pathogen'];
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
 
 function get_compatible_test_types($lab_config_id, $specimen_type_id)
 {

@@ -265,16 +265,14 @@ if(strpos($_SERVER['PHP_SELF'], 'login.php') === false)
 							<li>
 								<a href='javascript:load_right_pane(".$quote."specimen_rejection_div".$quote.");' class='menu_option' id='specimen_rejection_div_menu'>
 								<i class='icon-tag'></i> ".LangUtil::$generalTerms['SPECIMEN_REJECTION']."
+
+								<a href='javascript:load_right_pane(".$quote."organism_types_div".$quote.");' class='menu_option' id='organism_types_div_menu'>
+								<i class='icon-tag'></i> ".LangUtil::$generalTerms['ORGANISMS']."
+
 								</a>
 							</li>
 						</ul>";
 						
-					break;
-					
-					case "quality":
-						echo "<i class='icon-dashboard'></i>";
-						echo $key.$selected;
-									
 					break;
 					
 					case "reports":

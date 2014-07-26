@@ -351,7 +351,7 @@ if($attrib_type == 12||$attrib_type == 13)
 	}
 }
 else{
- 	
+
     if($search_term == '' || strlen($search_term) < 3){
         $num_records = 1000;
     } 

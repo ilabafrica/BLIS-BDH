@@ -1153,7 +1153,7 @@ class PageElems
 		</table>
 		<?php
 	}
-
+	#	Begin function to display drug type information
 	public function getDrugTypeInfo($drug_name, $show_db_name=false)
 	{
 		# Returns HTML for displaying drug type information
@@ -1187,7 +1187,49 @@ class PageElems
 		</table>
 		<?php
 	}
-	
+	#	End function to get drug type information
+	#	Begin function to retrieve organism information
+	public function getOrganismInfo($organism_name, $show_db_name=false)
+	{
+		# Returns HTML for displaying drug type information
+		# Fetch specimen type record
+		$organism = get_organism_by_name($organism_name);
+		?>
+		<div class="portlet-title" style="width: 96.5%">
+        <h4></i>Organism Information</h4>
+        </div>
+		<table class='table table-bordered table-hover' style="width: 98%;">
+			<tbody>
+				<tr>
+					<td style='width:150px;'><?php echo LangUtil::$generalTerms['NAME']; ?></td>
+					<td>
+						<?php
+						if($show_db_name === true)
+						{
+							# Show original name stored in DB
+							echo $organism->name;
+						}
+						else
+						{
+							# Show name store din locale string
+							echo $organism->getName();
+						}
+						?>
+					</td>
+				</tr>
+				<tr valign='top'>
+					<td><?php echo LangUtil::$generalTerms['DESCRIPTION']; ?></td>
+					<td><?php echo $organism->getOrganismDescription(); ?></td>
+				</tr>
+				<tr valign='top'>
+					<td><?php echo LangUtil::$generalTerms['COMPATIBLE_DRUGS']; ?></td>
+					<td><?php $this->getDrugsCheckboxes($lab_config_id, false,$organism->organismId); ?><br></td>
+				</tr>
+			</tbody>
+		</table>
+		<?php
+	}
+	#	End function to retrieve organism information
 	public function getSpecimenTypeInfo($specimen_name, $show_db_name=false)
 	{
 		# Returns HTML for displaying specimen type information
@@ -1384,6 +1426,68 @@ class PageElems
 		<?php
 	}
 	
+	#	Begin Function to return table of organisms
+	public function getOrganismsTable($lab_config_id)
+	{
+		# Returns HTML table listing all organisms in catalog
+		?>
+		<?php
+		$organisms = get_organisms_catalog($lab_config_id);
+		if(count($organisms) == 0)
+		{
+			echo "<div class='sidetip_nopos'>".LangUtil::$pageTerms['TIPS_ORGANISMSNOTFOUND']."</div>";
+			return;
+		}
+		?>
+
+		<table class='table table-striped table-condensed table-bordered table-hover' style="width: 100%;">
+			<thead>
+					<th>#</th>
+					<th><?php echo LangUtil::$generalTerms['ORGANISM']; ?></th>
+					<th><?php echo "Action(s)"; ?></th>
+					<th></th>
+			</thead>
+		<tbody>
+		<?php
+		$count = 1;
+		foreach($organisms as $key => $value)
+		{
+			$organism = get_organism_by_id($key);
+			$organism_name = Organism::getOrganismNameById($organism->organismId);
+			?>
+			<tr>
+			<td>
+				<?php echo $count; ?>.
+			</td>
+			<td>
+				<?php echo $value; ?>
+			</td>
+			<td>
+				<a href='organism_edit.php?oid=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Organism Info'><i class='icon-pencil'></i>  <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
+
+			</td>
+			<?php
+			$user = get_user_by_id($_SESSION['user_id']);
+			if(is_country_dir($user) || is_super_admin($user)|| is_admin($user))
+			{
+			?>
+			<td>
+				<a href='organism_delete.php?oid=<?php echo $key; ?>' class="btn mini red-stripe"><i class='icon-remove'></i>  <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a>
+			</td>
+			<?php
+			}
+			?>
+			</tr>
+			<?php
+			$count++;
+		}
+		?>
+		</tbody>
+		</table>
+		<?php
+	}
+	#	End Function to return table of organisms
+
 	public function getSpecimenTypeTable($lab_config_id)
 	{
 		# Returns HTML table listing all specimen types in catalog
@@ -5501,7 +5605,7 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 		<?php
 	}
 
-	public function getDrugsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $test_type_id=null)
+	public function getDrugsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $organism_id=null)
 	{
 		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
 		# else only returns checkboxes with available Drug names
@@ -5527,7 +5631,7 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 			<tr style='background:#E9E9E9;'>
 			<?php
 			$count = 0;
-			$compatible_drug_types = get_compatible_drugs($test_type_id);
+			$compatible_drug_types = get_compatible_drugs($organism_id);
 			foreach($drugs_list as $key=>$value)
 			{
 				$drug_id = $key;
@@ -5568,6 +5672,145 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 		</table>
 		<?php
 	}
+
+	/*Begin function to get organisms checkboxes*/
+	public function getOrganismsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $test_type_id=null)
+	{
+		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
+		# else only returns checkboxes with available Drug names
+		$lab_config = get_lab_config_by_id($lab_config_id);
+		if($lab_config == null && $lab_config_id != "")
+		{
+			?>
+			<div class='sidetip_nopos'>
+			ERROR: Lab configuration not found
+			</div>
+			<?php
+			return;
+		}
+		# Fetch all drug types
+		$organisms_list = get_organisms_catalog($_SESSION['lab_config_id']);
+		$current_org_list = array();
+		/*if($lab_config_id != "")
+			$current_specimen_list = get_lab_config_drug_types($lab_config_id);*/
+		# For each specimen type, create a check box. Check it if specimen already in lab configuration
+		?>
+		<table class='hor-minimalist-b table table-bordered' style='width:100%;'>
+			<tbody>
+			<tr style='background:#E9E9E9;'>
+			<?php
+			$count = 0;
+			$compatible_organisms = get_compatible_organisms($test_type_id);
+			foreach($organisms_list as $key=>$value)
+			{
+				$organism_id = $key;
+				$organism_name = $value;
+				$count++;
+				$checked = false;
+				foreach($compatible_organisms as $compatible_organism_id){
+		
+				 if ($compatible_organism_id==$organism_id)
+				 	$checked =true;
+				}
+				?>
+				
+				<td><input type='checkbox' class='dtype_entry' name='d_type_<?php echo $key; ?>' id='d_type_<?php echo $key; ?>' value='<?php echo $key; ?>'
+				<?php
+				if ($checked) echo "checked";
+				
+				if($allCompatibleCheckingOn==true) {
+					if(in_array($organism_id, $current_org_list))
+					{
+						echo " checked ><span class='clean-ok'>$organism_name</span>";
+
+					}
+					else
+						echo ">$organism_name";
+				}
+				else
+					echo ">$organism_name";
+				?>
+				</input></td>
+				
+				<?php
+				if($count % 4 == 0)
+					echo "</tr><tr".($count%8==0?" style='background:#E9E9E9;'":"").">";
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+	}
+	/*End function to get organisms checkboxes*/
+
+	/*Begin function to get organisms checkboxes for culture worksheet*/
+	public function getOrganismsCheckboxesForWorksheet($test_type_id)
+	{
+		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
+		# else only returns checkboxes with available Drug names
+		?>
+		<table class="table table-bordered table-advanced table-condensed">
+			<tbody>
+			<tr>
+			<?php
+			$count = 0;
+			$compatible_organisms = get_compatible_organisms($test_type_id);
+			foreach($compatible_organisms as $pathogen)
+			{
+				$organism = get_organism_by_id($pathogen);
+				$count++;
+				?>
+				
+				<td><input type='checkbox' onchange='javascript:showSusceptibility(<?php echo $pathogen; ?>);' class='dtype_entry' name='d_type_<?php echo $pathogen; ?>' id='d_type_<?php echo $pathogen; ?>' value='<?php echo $pathogen; ?>'><?php echo $organism->name; ?>
+				</input></td>
+				<?php
+				if($count % 4 == 0)
+					echo "</tr><tr>";
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+	}
+	/*End function to get organisms checkboxes for culture worksheet*/
+
+	/*Begin function to get organisms checkboxes for culture report*/
+	public function getOrganismsCheckboxesForCultureReport($test_type_id, $test_id, $checked=false)
+	{
+		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
+		# else only returns checkboxes with available Drug names
+		$isolations = get_isolated_organisms($test_id);
+		?>
+		<table class="table table-bordered table-advanced table-condensed">
+			<tbody>
+			<tr>
+			<?php
+			$count = 0;
+			$compatible_organisms = get_compatible_organisms($test_type_id);
+			foreach($compatible_organisms as $pathogen)
+			{
+				$organism = get_organism_by_id($pathogen);
+				$count++;
+				$checked = false;
+				foreach($isolations as $pathogenId){
+		
+				 if ($pathogen==$pathogenId)
+				 	$checked =true;
+				}
+				?>
+				
+				<td><input type='checkbox' onchange='javascript:showSusceptibility(<?php echo $pathogen; ?>);' class='dtype_entry' name='d_type_<?php echo $pathogen; ?>' id='d_type_<?php echo $pathogen; ?>' value='<?php echo $pathogen; ?>' <?php if ($checked) echo "checked"; ?>><?php echo $organism->name; ?>
+				</input></td>
+				<?php
+				if($count % 4 == 0)
+					echo "</tr><tr>";
+			}
+			?>
+			</tbody>
+		</table>
+		<?php
+	}
+	/*End function to get organisms checkboxes for culture report*/
 	
 	public function getTestTypeCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true)
 	{

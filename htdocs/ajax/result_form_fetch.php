@@ -268,7 +268,9 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 	<?php 
 		$test_type_id = get_test_type_id_from_test_id($test_id);
 		$pathogens = get_compatible_organisms($test_type_id);
-		$page_elems->getOrganismsCheckboxesForWorksheet($test_type_id); 
+		$page_elems->getOrganismsCheckboxesForCultureReport($test_type_id, $test_id);
+		$checked = false;
+		$isolations = get_isolated_organisms($test_id);  
 	?>
 	<!-- End possible organisms checkboxes -->
 	<!-- Begin Drug Susceptibility Tests table -->
@@ -281,8 +283,13 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 						<?php foreach ($pathogens as $id) {
 							$pathogen = $id;
 							$organism = get_organism_by_id($pathogen);
+							foreach($isolations as $pathogenId){
+        
+                             if ($pathogen==$pathogenId)
+                                $checked =true;
+                            }
 						?>
-							<form role="form" id="drugs_susceptibility_<?php echo $pathogen; ?>" style="display:none;">
+							<form role="form" id="drugs_susceptibility_<?php echo $pathogen; ?>" <?php if($checked){ ?>style="display:block;"<?php }else{ ?>style="display:none;"<?php } ?>>
 								<div class="form-body">
 									<table class="table table-bordered table-advanced table-condensed">
 										<thead>
@@ -299,18 +306,20 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 										<?php 
 											$drug = get_compatible_drugs($pathogen);
 											if($drug != null){
-											foreach ($drug as  $drugs) { $drugs_value = DrugType::getById($drugs);?>
+											foreach ($drug as  $drugs) { $drugs_value = DrugType::getById($drugs);
+												$sensitivity = DrugSusceptibility::getDrugSusceptibility($test_id, $pathogen, $drugs);
+												?>
 												<tr>
 												<input type="hidden" name="test[]" id="test[]" value="<?php echo $test_id; ?>">
 												<input type="hidden" name="drug[]" id="drug[]" value="<?php echo $drugs; ?>">
 												<input type="hidden" name="organism[]" id="organism[]" value="<?php echo $pathogen; ?>">
 												<td><?php echo $drugs_value->name; ?></td>
-												<td><input type="text" name="zone[]" id="zone[]" class="span6 m-wrap"></td>
+												<td><input type="text" name="zone[]" id="zone[]" class="span6 m-wrap" value="<?php if($sensitivity!=null){echo $sensitivity['zone'];} ?>"></td>
 												<td><select class="span4 m-wrap" id="interpretation[]" name="interpretation[]">
-							                                    <option value="S" selected="selected">S</option>
+												                <option value="S" <?php if($sensitivity['interpretation']=='S'){ ?>selected="selected"<?php } ?>>S</option>
 							                                    
-							                                    <option value="I">I</option>
-							                                    <option value="R">R</option>
+							                                    <option value="I" <?php if($sensitivity['interpretation']=='I'){ ?>selected="selected"<?php } ?>>I</option>
+							                                    <option value="R" <?php if($sensitivity['interpretation']=='R'){ ?>selected="selected"<?php } ?>>R</option>
 															</select></td>
 												</tr>
 												<?php } 

@@ -1940,7 +1940,7 @@ class DrugSusceptibility
 	public static function addSusceptibility($userId, $testId, $organismId, $drugId, $zone, $interpretation){
 		global $con;
 		$query_string = "INSERT INTO drug_susceptibility (userId, testId, organismId, drugId, zone, interpretation, ts) values($userId, $testId, $organismId, $drugId, $zone, '$interpretation', NOW()) ";
-		echo $query_string;
+		//echo $query_string;
 		$result = query_insert_one($query_string);
 		//return get_last_insert_id();
 	}
@@ -1948,7 +1948,7 @@ class DrugSusceptibility
 	public static function updateSusceptibility($userId, $testId, $organismId, $drugId, $zone, $interpretation){
 		global $con;
 		$query_string = "UPDATE drug_susceptibility SET userId = $userId, zone = $zone, interpretation = '$interpretation', ts = NOW() WHERE testId = $testId AND organismId =$organismId AND drugId = $drugId;";
-		echo $query_string;
+		//echo $query_string;
 		$result = query_blind($query_string);
 		//return get_last_insert_id();
 	}

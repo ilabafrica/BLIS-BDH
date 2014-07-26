@@ -1083,10 +1083,7 @@ else
                         if($report_config->useTestName == 1) {
                             echo "<th>".LangUtil::$generalTerms['TEST']."</th>";
                         }
-                        echo "<th>"."Date(Time Registered)</th>";
-                        if($report_config->useComments == 1) {
-                                echo "<th>".LangUtil::$generalTerms['COMMENTS']."</th>";
-                        }
+                        
                         if($report_config->useReferredTo == 1) {
                                 echo "<th>".LangUtil::$generalTerms['REF_TO']."</th>";
                         }
@@ -1150,11 +1147,7 @@ else
                         {
                             echo "<td >".get_test_name_by_id($test->testTypeId)."</td>";
                         }
-                        $timestamp = strtotime($test->timestamp);
-                        $time=date("H:i:s", $timestamp);
-                        echo "<td >".DateLib::mysqlToString($test->timestamp)."(".$time.")"."</td>";
-                        if($report_config->useComments == 1)
-                            echo "<td>".$specimen->getComments()."</td>";
+                        
                         if($report_config->useReferredTo == 1)
                             echo "<td>".$specimen->getReferredToName()."</td>";
                         if($report_config->useDoctor == 1 && $physician_same === false)
@@ -1242,11 +1235,13 @@ else
 					if(trim($test->result) == "")
 						echo "-";
 					else {
-						$ts_parts = explode(" ", $test->timestamp);
-						echo DateLib::mysqlToString($ts_parts[0]);
+
+						echo $test->ts_result_entered;
+
 					}
 					echo "</td>";
 				}
+
 				if($report_config->useRemarks == 1) {
 					echo "<td>".$test->getComments()."</td>";
 				}
@@ -1254,7 +1249,15 @@ else
 					echo "<td>".$test->getEnteredBy()."</td>";
 				}
 				if($report_config->useVerifiedBy == 1) {
-					echo "<td>".$test->getVerifiedBy()."</td>";
+					$timestamp = strtotime($test->timestamp);
+                        $time=date("H:i:s", $timestamp);
+                        if($test->getVerifiedBy() != "Verification Pending") {
+                        	echo "<td>".$test->getVerifiedBy()." on ". $test->dateVerified."</td>";
+                        }
+                        else {
+                        	echo "<td>".$test->getVerifiedBy()."</td>";
+                        }
+
 				}
 				if($report_config->useStatus == 1 && $all_tests_completed === false) {
 					echo "<td>".$test->getStatus()."</td>";

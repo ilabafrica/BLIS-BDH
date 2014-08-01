@@ -11727,9 +11727,11 @@ function get_custom_data_specimen($specimen_id)
 		"WHERE specimen_id=$specimen_id";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
-	foreach($resultset as $record)
-	{
-		$retval[] = SpecimenCustomData::getObject($record);
+	if($resultset){
+		foreach($resultset as $record)
+		{
+			$retval[] = SpecimenCustomData::getObject($record);
+		}
 	}
 	return $retval;
 }

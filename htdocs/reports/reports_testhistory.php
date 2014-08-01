@@ -860,7 +860,42 @@ else
 					<td><strong><?php echo "Requesting Department/Facility"; ?></strong></td>
 					<td><?php $patient_type=$patient->getPatientType(); if($patient_type!=null||$patient_type!=""){ echo $patient->getPatientFacility();}else{echo "Bungoma District Hospital";} ?></td>
 				</tr>
+
 			<?php
+			$custom_data_list = get_custom_data_specimen($specimen->specimenId);
+			if($custom_data_list != null){
+						echo "<tr valign='top'><td><strong>Referral status</strong></td>";
+						if(trim($specimen->referredTo) == 2)
+						{
+							echo "<td>Referred In</td>";
+						}
+						else if(trim($specimen->referredTo) == 3)
+						{
+							echo "<td>Referred Out</td>";
+						}					
+						else
+						{
+							echo "<td>Not Known</td>";
+						}
+				
+			#Specimen Custom fields here
+			
+					?>
+						<td><strong><?php echo get_custom_field_name_specimen($custom_data_list[0]->fieldId); ?></strong></td>
+						<td><?php echo $custom_data_list[0]->getFieldValueString($_SESSION['lab_config_id'], 1); ?></td>
+					</tr>
+					<tr>
+						<td><strong><?php echo get_custom_field_name_specimen($custom_data_list[1]->fieldId); ?></strong></td>
+						<td><?php echo $custom_data_list[1]->getFieldValueString($_SESSION['lab_config_id'], 1); ?></td>
+
+						<td><strong><?php echo get_custom_field_name_specimen($custom_data_list[2]->fieldId); ?></strong></td>
+						<td><?php echo $custom_data_list[2]->getFieldValueString($_SESSION['lab_config_id'], 1); ?></td>
+					</tr>						
+
+					<?php
+			}	
+			
+					
 			# Patient Custom fields here
 			$custom_field_list = $lab_config->getPatientCustomFields();
 			foreach($custom_field_list as $custom_field) {

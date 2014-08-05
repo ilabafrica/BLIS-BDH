@@ -340,8 +340,7 @@ if($attrib_type == 12||$attrib_type == 13)
 	$resultset = query_update($query_string);
 	switch ($attrib_type){
 	case 12:
-		echo '<a href="javascript:fetch_test_result_form('.$quote.$attrib_value.$quote.');" title="Click to Enter Results for this Specimen" class="btn yellow mini"><i class="icon-pencil"></i>Enter Results</a>%
-	          <a href="javascript:specimen_info('.$quote.$attrib_value.$quote.');" title="View specimen details" class="btn mini"><i class="icon-search"></i> View Details</a>';
+		echo '<a href="javascript:fetch_test_result_form('.$quote.$attrib_value.$quote.');" title="Click to Enter Results for this Specimen" class="btn yellow mini"><i class="icon-pencil"></i>Enter Results</a>';
 		return;
 	break;
 	case 13:

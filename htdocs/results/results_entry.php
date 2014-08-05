@@ -767,9 +767,7 @@ function start_test(test_id)
 			$('#span'+test_id).removeClass('label-important');
 			$('#span'+test_id).addClass('label-warning');
 			$('#span'+test_id).html('Started');
-			actions = result.split('%');
-			$('#actionA'+test_id).html(actions[0]);
-			$('#actionB'+test_id).html(actions[1]);
+			$('#actionA'+test_id).html(result);
 			App.unblockUI(el);
 		}
 	);

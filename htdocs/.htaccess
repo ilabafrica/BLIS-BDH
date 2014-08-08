@@ -60,6 +60,7 @@ RewriteRule ^reports_dailyrejections\.php$ reports/reports_dailyrejections.php
 RewriteRule ^reports_dailypatients\.php$ reports/reports_dailypatients.php
 RewriteRule ^reports_infection\.php$ reports/reports_infection.php
 RewriteRule ^doctor_stats\.php$ reports/doctor_stats.php
+RewriteRule ^reports_culture_sensitivity\.php$ reports/reports_culture_sensitivity.php
 RewriteRule ^reports_specimencount\.php$ reports/reports_specimencount.php
 RewriteRule ^reports_tests_done\.php$ reports/reports_tests_done.php
 RewriteRule ^reports_testcount_grouped\.php$ reports/reports_testcount_grouped.php

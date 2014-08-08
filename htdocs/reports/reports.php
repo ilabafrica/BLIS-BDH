@@ -579,6 +579,13 @@ db_get_current();
                         <div class="controls">
                         <label class="radio">
                             <span>
+                                <input type="radio" id='count_type' name='count_type' value='6'> Culture and Sensitivity
+                            </span>
+                        </label>
+                        </div>
+                        <div class="controls">
+                        <label class="radio">
+                            <span>
                                 <input type="radio" id='count_type' name='count_type' value='3'> Doctor Statistics
                             </span>
                         </label>
@@ -1337,6 +1344,66 @@ db_get_current();
 			</table>
 		</form>
 	</div>
+
+    <div id='culture_sensitivity_div' style='display:none;' class='reports_subdiv'>
+        <b>Test Count Report</b>
+        <br><br>
+        <form name="culture_sensitivity_form" id="culture_sensitivity_form" action="reports_culture_sensitivity.php" method='post' target='_blank'>
+        <table cellpadding="4px">
+        <?php
+            $site_list = get_site_list($_SESSION['user_id']);
+            if(count($site_list) == 1)
+            {
+                foreach($site_list as $key=>$value)
+                    echo "<input type='hidden' name='location' id='location444' value='$key'></input>";
+            }
+            else
+            {
+            ?>
+            <tr>
+                    <td><?php echo LangUtil::$generalTerms['FACILITY']; ?> </td>
+                    <td>
+                        <select name='location' id='location444' class='uniform_width'>
+                        <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
+                        <?php
+                            $page_elems->getSiteOptions();
+                        ?>
+                        </select>
+                    </td>
+                </tr>
+            <?php
+            }
+            ?>
+                <tr valign='top'>
+                    <td><?php echo LangUtil::$generalTerms['FROM_DATE']; ?> </td>
+                    <td>
+                    <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
+                            <input class="m-wrap m-ctrl-medium" size="16" name="from-report-date" id="from_date" type="text" value="<?php echo date("Y-m-d"); ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                     </div>
+                    </td>
+                </tr>
+                <tr valign='top'>
+                    <td><?php echo LangUtil::$generalTerms['TO_DATE']; ?> </td>
+                    <td>
+                    <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
+                            <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to_date" type="text" value="<?php echo date("Y-m-d"); ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                     </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                    <br>
+                        <input type='button' class="btn blue" id='culture_sensitivity_submit_button' value='<?php echo LangUtil::$generalTerms['CMD_SUBMIT']; ?>' onclick="javascript:get_culture_sensitivity();" ></input>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <span id='tests_done_progress_spinner' style='display:none'>
+                            <?php // $page_elems->getProgressSpinner(LangUtil::$generalTerms['CMD_FETCHING']); ?>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
             
 	
 	
@@ -3187,6 +3254,11 @@ function get_count_report()
 	
 	get_doctor_stats();
 	}
+    else if(count_type==6)
+    {
+    
+    get_culture_sensitivity();
+    }
         else if(count_type==4)
 	{
 	
@@ -3268,6 +3340,59 @@ function get_test_history_report()
 	}
 	//$('#test_history_progress_spinner').show();
 	$('#test_history_form').submit();
+}
+
+function get_culture_sensitivity()
+{
+    
+    var location = $("#location7").attr("value");
+    
+    var from_date = $("#from-date-count").attr("value");
+    var to_date = $("#to-date-count").attr("value");
+    
+    dateFromArray = from_date.split("-");
+    yyyy_from = dateFromArray[0];
+    mm_from = dateFromArray[1];
+    dd_from = dateFromArray[2];
+    
+    dateToArray = to_date.split("-");
+    yyyy_to = dateToArray[0];
+    mm_to = dateToArray[1];
+    dd_to = dateToArray[2];
+    
+    $("#location444").attr("value", location);
+    $("#from_date").attr("value", from_date);
+    $("#to_date").attr("value", to_date);
+    
+    if(location == "")
+    {
+        alert("<?php echo LangUtil::$generalTerms['TIPS_SELECTSITE']; ?>");
+        return;
+    }
+    else if(checkDate(yyyy_from, mm_from, dd_from) == false)
+    {
+        alert("<?php echo LangUtil::$generalTerms['TIPS_DATEINVALID']; ?>");
+        return;
+    }
+    else if(checkDate(yyyy_to, mm_to, dd_to) == false)
+    {
+        alert("<?php echo LangUtil::$generalTerms['TIPS_DATEINVALID']; ?>");
+        return;
+    }
+    if(
+        isNaN(yyyy_from) || 
+        isNaN(yyyy_to) ||
+        isNaN(mm_from) ||
+        isNaN(mm_to) ||
+        isNaN(dd_from) ||
+        isNaN(dd_to)
+        )
+    {
+        $("#from_date").val("");
+        $("#to_date").val("");
+    }
+    //$('#specimen_count_progress_spinner').show();
+    $('#culture_sensitivity_form').submit();
 }
 
 function search_patient_history()

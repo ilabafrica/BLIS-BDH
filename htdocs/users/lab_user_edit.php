@@ -98,7 +98,7 @@ $script_elems->enableDatePicker();
                     			</td>
                     		</tr>
                     		<tr>
-                    			<td>Can verify results?&nbsp;&nbsp;&nbsp;</td>
+                    			<td>Can verify results and add patients?&nbsp;&nbsp;</td>
                     			<td>
                     				<input type="checkbox" name="canverify" id="verify"
                     				<?php

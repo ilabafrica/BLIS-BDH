@@ -444,7 +444,7 @@ else{
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <?php
     $user = get_user_by_id($_SESSION['user_id']);
-     if (is_admin($user)) { ?>
+     if ($user->canverify == 1) { ?>
     <span>
     <button id="refresh" class="btn blue icn-only" onclick="right_load('search_div')"><i>Search / Register</i>
     </button></span>

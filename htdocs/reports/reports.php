@@ -3347,8 +3347,8 @@ function get_culture_sensitivity()
     
     var location = $("#location7").attr("value");
     
-    var from_date = $("#from-date-count").attr("value");
-    var to_date = $("#to-date-count").attr("value");
+    var from_date = $("#from-report-date").attr("value");
+    var to_date = $("#to-report-date").attr("value");
     
     dateFromArray = from_date.split("-");
     yyyy_from = dateFromArray[0];
@@ -3361,8 +3361,8 @@ function get_culture_sensitivity()
     dd_to = dateToArray[2];
     
     $("#location444").attr("value", location);
-    $("#from_date").attr("value", from_date);
-    $("#to_date").attr("value", to_date);
+    $("#from-report-date").attr("value", from_date);
+    $("#to-report-date").attr("value", to_date);
     
     if(location == "")
     {

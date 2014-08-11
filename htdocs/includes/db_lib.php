@@ -1338,6 +1338,19 @@ class TestType
 		return $retVal['id'];
 	}
 
+	public static function getSpecimenIdByTestTypeId($test_type_id)
+	{
+		$query_string = "SELECT specimen_type_id FROM `specimen_test` WHERE `test_type_id`=$test_type_id";
+		
+		$saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
+
+		$retVal = query_associative_one($query_string);
+
+		DbUtil::switchRestore($saved_db);
+		
+		return $retVal['specimen_type_id'];
+	}
+
 
 }
 
@@ -2013,7 +2026,6 @@ class DrugSusceptibility
 		return $retval;
 
 	}
-
 }
 /* End Class for drug susceptibility functionality */
 
@@ -9902,6 +9914,61 @@ function get_organisms_catalog($lab_config_id=null, $reff=null)
 	return $retval;
 }
 #	End  function to return catalog organisms
+function get_test_types_for_culture($lab_config_id=null, $reff=null)
+{
+	# Returns a list of all organisms available in catalog
+	global $CATALOG_TRANSLATION;
+        //NC3065
+               // global $LIS_ADMIN, $LIS_SUPERADMIN, $LIS_COUNTRYDIR;
+        if($reff == 1 && $reff != 2)
+        {
+            $user = get_user_by_id($_SESSION['user_id']);
+            $lab_config_id = $user->labConfigId;
+        }
+        //-NC3065
+	if($lab_config_id == null)
+		return;
+	//else
+		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
+	$query_string =
+		"SELECT DISTINCT(test_type_id) AS id FROM organism_test;";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	if($resultset) {
+		foreach($resultset as $record)
+		{
+			$retval[$record['id']] = $record['id'];
+		}
+	}
+	DbUtil::switchRestore($saved_db);
+	return $retval;
+}
+
+function get_culture_susceptibility_count_by_organism($organismId, $testTypeId, $date_from, $date_to)
+{
+	global $con;
+	$organismId = mysql_real_escape_string($organismId, $con);
+	$testTypeId = mysql_real_escape_string($testTypeId, $con);
+	$saved_db = DbUtil::switchToLabConfig();
+	$query_string = "SELECT COUNT(DISTINCT(testId)) AS total_count FROM drug_susceptibility WHERE organismId=$organismId AND testId IN (SELECT test_id FROM test WHERE test_type_id=$testTypeId)  AND DATE(ts) BETWEEN '$date_from' AND '$date_to';";
+	$record = query_associative_one($query_string);
+	$retval = $record['total_count'];
+	return $retval;
+
+}
+
+function get_culture_susceptibility_count_total($organismId, $date_from, $date_to)
+{
+	global $con;
+	$organismId = mysql_real_escape_string($organismId, $con);
+	$saved_db = DbUtil::switchToLabConfig();
+	$query_string = "SELECT COUNT(DISTINCT(testId)) AS total_count FROM drug_susceptibility WHERE organismId=$organismId AND DATE(ts) BETWEEN '$date_from' AND '$date_to';";
+	$record = query_associative_one($query_string);
+	$retval = $record['total_count'];
+	return $retval;
+
+}
+
 /******/
 function get_test_categories_catalog($lab_config_id=null, $reff=null)
 {
@@ -16530,9 +16597,9 @@ class API
                 $ret['measures'] = $measure_list_objs;
              DbUtil::switchRestore($saved_db);
         return $ret;
-    } 
-    
-    public function get_patient_results($patient_id, $date_from, $date_to, $ip)
+    }
+
+	public function get_patient_results($patient_id, $date_from, $date_to, $ip)
     {
         if($_SESSION['level'] < 2 || $_SESSION['level'] > 4)
         {

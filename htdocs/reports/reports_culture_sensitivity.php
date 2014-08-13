@@ -110,7 +110,7 @@ putUILog('reports_culture_sensitivity', $uiinfo, basename($_SERVER['REQUEST_URI'
             <?php       
             foreach($test_types_list as $test_type_id)
             {
-                $specimen_type_id = TestType::getSpecimenIdByTestTypeId($test_type_id);
+                $specimen_type_id = TestType::getSpecimenIdByTestName($test_type_id);
                 $specimen_type = get_specimen_type_by_id($specimen_type_id);
                 echo "<th>".$specimen_type->name."</th>";
             }

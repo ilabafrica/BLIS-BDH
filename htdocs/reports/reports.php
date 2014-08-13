@@ -1378,7 +1378,7 @@ db_get_current();
                     <td><?php echo LangUtil::$generalTerms['FROM_DATE']; ?> </td>
                     <td>
                     <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
-                            <input class="m-wrap m-ctrl-medium" size="16" name="from-report-date" id="from_date" type="text" value="<?php echo date("Y-m-d"); ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                            <input class="m-wrap m-ctrl-medium" size="16" name="from-report-date" id="from-date-cs" type="text" value="<?php echo date("Y-m-d"); ?>"><span class="add-on"><i class="icon-calendar"></i></span>
                      </div>
                     </td>
                 </tr>
@@ -1386,7 +1386,7 @@ db_get_current();
                     <td><?php echo LangUtil::$generalTerms['TO_DATE']; ?> </td>
                     <td>
                     <div class="input-append date date-picker" data-date="<?php echo date("Y-m-d"); ?>" data-date-format="yyyy-mm-dd"> 
-                            <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to_date" type="text" value="<?php echo date("Y-m-d"); ?>"><span class="add-on"><i class="icon-calendar"></i></span>
+                            <input class="m-wrap m-ctrl-medium" size="16" name="to-report-date" id="to-date-cs" type="text" value="<?php echo date("Y-m-d"); ?>"><span class="add-on"><i class="icon-calendar"></i></span>
                      </div>
                     </td>
                 </tr>
@@ -3347,8 +3347,8 @@ function get_culture_sensitivity()
     
     var location = $("#location7").attr("value");
     
-    var from_date = $("#from-report-date").attr("value");
-    var to_date = $("#to-report-date").attr("value");
+    var from_date = $("#from-date-count").attr("value");
+    var to_date = $("#to-date-count").attr("value");
     
     dateFromArray = from_date.split("-");
     yyyy_from = dateFromArray[0];
@@ -3361,8 +3361,8 @@ function get_culture_sensitivity()
     dd_to = dateToArray[2];
     
     $("#location444").attr("value", location);
-    $("#from-report-date").attr("value", from_date);
-    $("#to-report-date").attr("value", to_date);
+    $("#from-date-cs").attr("value", from_date);
+    $("#to-date-cs").attr("value", to_date);
     
     if(location == "")
     {
@@ -3388,10 +3388,9 @@ function get_culture_sensitivity()
         isNaN(dd_to)
         )
     {
-        $("#from_date").val("");
-        $("#to_date").val("");
+        $("#from-date-cs").val("");
+        $("#from-date-cs").val("");
     }
-    //$('#specimen_count_progress_spinner').show();
     $('#culture_sensitivity_form').submit();
 }
 

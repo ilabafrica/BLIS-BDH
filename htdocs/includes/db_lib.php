@@ -1337,21 +1337,6 @@ class TestType
 		
 		return $retVal['id'];
 	}
-
-	public static function getSpecimenIdByTestTypeId($test_type_id)
-	{
-		$query_string = "SELECT specimen_type_id FROM `specimen_test` WHERE `test_type_id`=$test_type_id";
-		
-		$saved_db = DbUtil::switchToLabConfig($_SESSION['lab_config_id']);
-
-		$retVal = query_associative_one($query_string);
-
-		DbUtil::switchRestore($saved_db);
-		
-		return $retVal['specimen_type_id'];
-	}
-
-
 }
 
 class TestMeasure{

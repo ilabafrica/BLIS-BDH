@@ -9929,12 +9929,12 @@ function get_test_types_for_culture($lab_config_id=null, $reff=null)
 	return $retval;
 }
 
-function get_culture_susceptibility_count_by_organism($organismId, $testTypeId, $date_from, $date_to)
+function get_culture_susceptibility_count_by_organism($lab_config_id, $organismId, $testTypeId, $date_from, $date_to)
 {
 	global $con;
 	$organismId = mysql_real_escape_string($organismId, $con);
 	$testTypeId = mysql_real_escape_string($testTypeId, $con);
-	$saved_db = DbUtil::switchToLabConfig();
+	$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query_string = "SELECT COUNT(DISTINCT(testId)) AS total_count FROM drug_susceptibility WHERE organismId=$organismId AND testId IN (SELECT test_id FROM test WHERE test_type_id=$testTypeId)  AND DATE(ts) BETWEEN '$date_from' AND '$date_to';";
 	$record = query_associative_one($query_string);
 	$retval = $record['total_count'];
@@ -9942,11 +9942,11 @@ function get_culture_susceptibility_count_by_organism($organismId, $testTypeId, 
 
 }
 
-function get_culture_susceptibility_count_total($organismId, $date_from, $date_to)
+function get_culture_susceptibility_count_total($lab_config_id, $organismId, $date_from, $date_to)
 {
 	global $con;
 	$organismId = mysql_real_escape_string($organismId, $con);
-	$saved_db = DbUtil::switchToLabConfig();
+	$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query_string = "SELECT COUNT(DISTINCT(testId)) AS total_count FROM drug_susceptibility WHERE organismId=$organismId AND DATE(ts) BETWEEN '$date_from' AND '$date_to';";
 	$record = query_associative_one($query_string);
 	$retval = $record['total_count'];

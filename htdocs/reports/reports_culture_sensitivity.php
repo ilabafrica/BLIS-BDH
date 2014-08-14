@@ -121,13 +121,13 @@ putUILog('reports_culture_sensitivity', $uiinfo, basename($_SERVER['REQUEST_URI'
         <?php
             foreach($orgs as $key=>$value)
             {
-                $total = get_culture_susceptibility_count_total($key, $date_from, $date_to);
+                $total = get_culture_susceptibility_count_total($lab_config_id, $key, $date_from, $date_to);
                     
                 echo "<tr valign='top' class='range-data'>";
                 echo "<td class='specimen-name'>$value</td>";
                 
                 foreach($test_types_list as $test_type_id) {
-                    $count = get_culture_susceptibility_count_by_organism($key, $test_type_id, $date_from, $date_to);
+                    $count = get_culture_susceptibility_count_by_organism($lab_config_id, $key, $test_type_id, $date_from, $date_to);
                     echo "<td>".$count."</td>";
                 }
                 echo "<td>".$total."</td";

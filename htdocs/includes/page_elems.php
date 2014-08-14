@@ -1223,7 +1223,7 @@ class PageElems
 				</tr>
 				<tr valign='top'>
 					<td><?php echo LangUtil::$generalTerms['COMPATIBLE_DRUGS']; ?></td>
-					<td><?php $this->getDrugsCheckboxes($lab_config_id, false,$organism->organismId); ?><br></td>
+					<td><?php $this->getDrugsCheckboxes($lab_config_id, false,$organism->organismId,1); ?><br></td>
 				</tr>
 			</tbody>
 		</table>
@@ -5605,7 +5605,7 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 		<?php
 	}
 
-	public function getDrugsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $organism_id=null)
+	public function getDrugsCheckboxes($lab_config_id=null, $allCompatibleCheckingOn=true, $organism_id=null, $editable=null)
 	{
 		# Returns a set of checkboxes with existing drug types checked if allCompatibleCheckingOn is set to true,
 		# else only returns checkboxes with available Drug names
@@ -5645,7 +5645,7 @@ public function getInfectionStatsTableAggregate($stat_list, $date_from, $date_to
 				}
 				?>
 				
-				<td><input type='checkbox' class='dtype_entry' name='d_type_<?php echo $key; ?>' id='d_type_<?php echo $key; ?>' value='<?php echo $key; ?>'
+				<td><input type='checkbox' class='dtype_entry'<?php if($editable==1){ echo 'disabled';} ?> name='d_type_<?php echo $key; ?>' id='d_type_<?php echo $key; ?>' value='<?php echo $key; ?>'
 				<?php
 				if ($checked) echo "checked";
 				

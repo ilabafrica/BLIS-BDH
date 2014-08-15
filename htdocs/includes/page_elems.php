@@ -1383,8 +1383,8 @@ class PageElems
 			<thead>
 					<th>#</th>
 					<th><?php echo LangUtil::$generalTerms['DRUG']; ?></th>
-					<th><?php echo "Action(s)"; ?></th>
-					<th></th>
+					<th><?php echo "Status"; ?></th>
+					<th colspan="2"><?php echo "Action(s)"; ?></th>
 			</thead>
 		<tbody>
 		<?php
@@ -1402,8 +1402,10 @@ class PageElems
 				<?php echo $value; ?>
 			</td>
 			<td>
-				<a href='drug_type_edit.php?did=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Drug Info'><i class='icon-pencil'></i>  <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
-
+				<?php if($drug_type->disabled==0){ ?> <span id='status_<?php echo $key; ?>' class="label label-sm label-success"><?php echo "Enabled"; ?></span> <?php }else{ ?><span id='stat_<?php echo $key; ?>' class="label label-sm label"><?php echo "Disabled"; ?></span><?php } ?>
+			</td>
+			<td>
+				<a id='action_<?php echo $key; ?>' <?php if($drug_type->disabled==1){ ?> href ="#" disabled <?php }else ?>href='drug_type_edit.php?did=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Drug Info'><i class='icon-pencil'></i>  <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
 			</td>
 			<?php
 			$user = get_user_by_id($_SESSION['user_id']);
@@ -1411,7 +1413,12 @@ class PageElems
 			{
 			?>
 			<td>
-				<a href='drug_type_delete.php?did=<?php echo $key; ?>' class="btn mini red-stripe"><i class='icon-remove'></i>  <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a>
+			<?php if($drug_type->disabled==0){ ?> 
+				<a id='state_<?php echo $key; ?>' href='javascript:disable_drug_type(<?php echo $key; ?>)' class="btn red mini"><i id='icon_<?php echo $key; ?>' class='icon-remove'></i> <?php echo "Disable"; ?></a>
+			<?php }else{ ?>
+				<!-- <a href='drug_type_delete.php?did=<?php echo $key; ?>' class="btn mini red"><i class='icon-remove'></i>  <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a> -->
+				<a id='state_<?php echo $key; ?>' href='javascript:enable_drug_type(<?php echo $key; ?>)' class="btn mini green"><i id='icon_<?php echo $key; ?>' class="icon-ok"></i> <?php echo "Enable"; ?></a>
+			<?php } ?>
 			</td>
 			<?php
 			}
@@ -1444,8 +1451,8 @@ class PageElems
 			<thead>
 					<th>#</th>
 					<th><?php echo LangUtil::$generalTerms['ORGANISM']; ?></th>
-					<th><?php echo "Action(s)"; ?></th>
-					<th></th>
+					<th><?php echo "Status"; ?></th>
+					<th colspan="2"><?php echo "Action(s)"; ?></th>
 			</thead>
 		<tbody>
 		<?php
@@ -1463,8 +1470,10 @@ class PageElems
 				<?php echo $value; ?>
 			</td>
 			<td>
-				<a href='organism_edit.php?oid=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Organism Info'><i class='icon-pencil'></i>  <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
-
+				<?php if($organism->disabled==0){ ?> <span id='status_<?php echo $key; ?>' class="label label-sm label-success"><?php echo "Enabled"; ?></span> <?php }else{ ?><span id='stat_<?php echo $key; ?>' class="label label-sm label"><?php echo "Disabled"; ?></span><?php } ?>
+			</td>
+			<td>
+				<a id='action_<?php echo $key; ?>' <?php if($organism->disabled==1){ ?> href ="#" disabled <?php }else ?>href='organism_edit.php?oid=<?php echo $key; ?>' class="btn mini green-stripe" title='Click to Edit Organism Info'><i class='icon-pencil'></i>  <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?></a>
 			</td>
 			<?php
 			$user = get_user_by_id($_SESSION['user_id']);
@@ -1472,7 +1481,12 @@ class PageElems
 			{
 			?>
 			<td>
-				<a href='organism_delete.php?oid=<?php echo $key; ?>' class="btn mini red-stripe"><i class='icon-remove'></i>  <?php echo LangUtil::$generalTerms['CMD_DELETE']; ?></a>
+			<?php if($organism->disabled==0){ ?> 
+				<a id='state_<?php echo $key; ?>' href='javascript:disable_organism(<?php echo $key; ?>)' class="btn red mini"><i id='icon_<?php echo $key; ?>' class='icon-remove'></i> <?php echo "Disable"; ?></a>
+			<?php }else{ ?>
+				<a id='state_<?php echo $key; ?>' href='javascript:enable_organism(<?php echo $key; ?>)' class="btn mini green"><i id='icon_<?php echo $key; ?>' class="icon-ok"></i> <?php echo "Enable"; ?></a>
+			<?php } ?>
+				<!-- <a href='organism_delete.php?oid=<?php echo $key; ?>' class="btn mini red"><i class='icon-remove'></i>  <?php //echo "Disable"; ?></a> -->
 			</td>
 			<?php
 			}

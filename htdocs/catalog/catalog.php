@@ -622,5 +622,122 @@ function enable_rejection_reason(reason_id)
 	);
 }
 
+//Functions to disable/enable drug types
+function disable_drug_type(drug_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'drug_type_delete.php';
+  		$.post(url, 
+		{did: drug_id}, 
+		function(result) 
+		{
+			$('#state_'+drug_id).removeClass('btn red mini');
+			$('#action_'+drug_id).removeClass('btn mini green-stripe');
+			$('#status_'+drug_id).removeClass('label label-sm label-success');
+			$('#status_'+drug_id).addClass('label label-sm label');
+			$('#status_'+drug_id).html('Disabled');
+			$('#state_'+drug_id).html(''+
+					'<a href="javascript:enable_drug_type('+drug_id+');"'+ 
+					'title="Click to enable this Drug" class="btn green mini">'+
+					'<i class="icon-ok"></i> Enable</a>');
+			$('#action_'+drug_id).html(''+
+					'<a href="#"'+ 
+					'title="Click to Edit Drug Info" class="btn mini green-stripe" disabled>'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function enable_drug_type(drug_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'ajax/drug_type_enable.php';
+  		$.post(url, 
+		{did: drug_id}, 
+		function(result) 
+		{
+			$('#state_'+drug_id).removeClass('btn green mini');
+			$('#action_'+drug_id).removeClass('btn mini green-stripe');
+			$('#status_'+drug_id).removeClass('label label-sm label');
+			$('#status_'+drug_id).addClass('label label-sm label-success');
+			$('#status_'+drug_id).html('Enabled');
+			$('#state_'+drug_id).html(''+
+					'<a href="javascript:disable_drug_type('+drug_id+');"'+ 
+					'title="Click to disable this Drug" class="btn red mini">'+
+					'<i class="icon-remove"></i> Disable</a>');
+			$('#action_'+drug_id).html(''+
+					'<a href="drug_type_edit.php?did='+drug_id+'"'+ 
+					'title="Click to Edit Drug Info" class="btn mini green-stripe">'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+//Functions to disable/enable organisms
+function disable_organism(organism_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'organism_delete.php';
+  		$.post(url, 
+		{oid: organism_id}, 
+		function(result) 
+		{
+			$('#state_'+organism_id).removeClass('btn red mini');
+			$('#action_'+organism_id).removeClass('btn mini green-stripe');
+			$('#status_'+organism_id).removeClass('label label-sm label-success');
+			$('#status_'+organism_id).addClass('label label-sm label');
+			$('#status_'+organism_id).html('Disabled');
+			$('#state_'+organism_id).html(''+
+					'<a href="javascript:enable_organism('+organism_id+');"'+ 
+					'title="Click to enable this Organism" class="btn green mini">'+
+					'<i class="icon-ok"></i> Enable</a>');
+			$('#action_'+organism_id).html(''+
+					'<a href="#"'+ 
+					'title="Click to Edit Organism Info" class="btn mini green-stripe" disabled>'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
+function enable_organism(organism_id)
+{
+
+		var el = jQuery('.portlet .tools a.reload').parents(".portlet");
+		App.blockUI(el);
+		
+  		var url = 'ajax/organism_enable.php';
+  		$.post(url, 
+		{oid: organism_id}, 
+		function(result) 
+		{
+			$('#state_'+organism_id).removeClass('btn green mini');
+			$('#action_'+organism_id).removeClass('btn mini green-stripe');
+			$('#status_'+organism_id).removeClass('label label-sm label');
+			$('#status_'+organism_id).addClass('label label-sm label-success');
+			$('#status_'+organism_id).html('Enabled');
+			$('#state_'+organism_id).html(''+
+					'<a href="javascript:disable_organism('+organism_id+');"'+ 
+					'title="Click to disable this Organism" class="btn red mini">'+
+					'<i class="icon-remove"></i> Disable</a>');
+			$('#action_'+organism_id).html(''+
+					'<a href="organism_edit.php?oid='+organism_id+'"'+ 
+					'title="Click to Edit Organism Info" class="btn mini green-stripe">'+
+					'<i class="icon-pencil"></i> <?php echo LangUtil::$generalTerms['CMD_EDIT']; ?> </a>');
+			App.unblockUI(el);
+		}
+	);
+}
+
 </script>
 <?php include("includes/footer.php"); ?>

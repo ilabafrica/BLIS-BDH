@@ -1617,6 +1617,7 @@ class DrugType
 	public $drugTypeId;
 	public $name;
 	public $description;
+	public $disabled;
 	
 	public static function getObject($record)
 	{
@@ -1639,6 +1640,11 @@ class DrugType
 			$drug_type->description = $record['description'];
 		else
 			$drug_type->description = null;
+
+		if(isset($record['disabled']))
+			$drug_type->disabled = $record['disabled'];
+		else
+			$drug_type->disabled = null;
 			
 		return $drug_type;
 	}
@@ -1718,6 +1724,18 @@ class DrugType
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}
+
+	public static function restoreById($drug_id)
+	{
+		# Restores drug from database
+		global $con;
+		$drug_id = mysql_real_escape_string($drug_id, $con);
+		# Set disabled flag in drug entry
+		$query_string =
+			"UPDATE drugs SET disabled=0 WHERE drug_id=$drug_id;";
+		query_blind($query_string);
+		DbUtil::switchRestore($saved_db);
+	}
 	
 	public static function geAllDrugs($lab_config_id)
 	{
@@ -1744,6 +1762,7 @@ class Organism
 	public $organismId;
 	public $name;
 	public $description;
+	public $disabled;
 	
 	public static function getObject($record)
 	{
@@ -1766,6 +1785,11 @@ class Organism
 			$organism->description = $record['description'];
 		else
 			$organism->description = null;
+
+		if(isset($record['disabled']))
+			$organism->disabled = $record['disabled'];
+		else
+			$organism->disabled = null;
 			
 		return $organism;
 	}
@@ -1840,15 +1864,31 @@ class Organism
 		$saved_db = DbUtil::switchToLabConfigRevamp();
 		#1. Disable organism_drug
 		$query_string =
-			"UPDATE organism_drug SET disabled=1 WHERE organism_id=$organism_id";
+			"UPDATE organism_drug SET disabled=1 WHERE organism_id=$organism_id;";
+			echo $query_string;
 		query_blind($query_string);
 		#2. Disable organism_test
 		$query_string =
-			"UPDATE organism_test SET disabled=1 WHERE organism_id=$organism_id";
+			"UPDATE organisms SET disabled=1 WHERE organism_id=$organism_id;";
+			echo $query_string;
 		query_blind($query_string);
-		#1. Disable organism
+		DbUtil::switchRestore($saved_db);
+	}
+
+	public static function restoreById($organism_id)
+	{
+		# Restores organism from database
+		global $con;
+		$organism_id = mysql_real_escape_string($organism_id, $con);
+		#1. Enable organism_drug
 		$query_string =
-			"UPDATE organisms SET disabled=1 WHERE organism_id=$organism_id";
+			"UPDATE organism_drug SET disabled=0 WHERE organism_id=$organism_id;";
+			echo $query_string;
+		query_blind($query_string);
+		#2. Enable organism
+		$query_string =
+			"UPDATE organisms SET disabled=0 WHERE organism_id=$organism_id;";
+			echo $query_string;
 		query_blind($query_string);
 		DbUtil::switchRestore($saved_db);
 	}
@@ -9849,7 +9889,7 @@ function get_drug_types_catalog($lab_config_id=null, $reff=null)
 	//else
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query_ttypes =
-		"SELECT drug_id, name FROM drugs WHERE disabled=0 ORDER BY name";
+		"SELECT drug_id, name FROM drugs ORDER BY name";
 	$resultset = query_associative_all($query_ttypes, $row_count);
 	$retval = array();
 	if($resultset) {
@@ -9883,7 +9923,7 @@ function get_organisms_catalog($lab_config_id=null, $reff=null)
 	//else
 		$saved_db = DbUtil::switchToLabConfig($lab_config_id);
 	$query_string =
-		"SELECT organism_id, name FROM organisms WHERE disabled=0 ORDER BY name";
+		"SELECT organism_id, name FROM organisms ORDER BY name";
 	$resultset = query_associative_all($query_string, $row_count);
 	$retval = array();
 	if($resultset) {

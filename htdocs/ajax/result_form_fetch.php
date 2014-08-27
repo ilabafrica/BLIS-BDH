@@ -244,7 +244,7 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 					<tr>
 					<td><?php echo time_elapsed_pretty() ?></td>
 					<td><?php echo $_SESSION['username'] ?></td>
-					<td><textarea id="txtObsv_<?php echo $test_id ?>" style="width:390px"></textarea></td>
+					<td><textarea id="txtObsv_<?php echo $test_id ?>" class="abbreviation" style="width:390px"></textarea></td>
 					<td><a class="btn mini" href="javascript:void(0)" onclick="saveObservation(<?php echo $test_id ?>, <?php echo "'".$_SESSION['username']."'" ?>)">Save</a> </td>
 					</tr>
 				<?php
@@ -253,7 +253,7 @@ function get_result_form($test_type, $test_id, $num_tests, $patient, $parent_tes
 					<tr>
 					<td><?php echo time_elapsed_pretty() ?></td>
 					<td><?php echo $_SESSION['username'] ?></td>
-					<td><textarea id="txtObsv_<?php echo $test_id ?>" style="width:390px"></textarea></td>
+					<td><textarea id="txtObsv_<?php echo $test_id ?>" class="abbreviation" style="width:390px"></textarea></td>
 					<td><a class="btn mini" href="javascript:void(0)" onclick="saveObservation(<?php echo $test_id ?>, <?php echo "'".$_SESSION['username']."'" ?>)">Save</a> </td>
 					</tr>
 					<?php

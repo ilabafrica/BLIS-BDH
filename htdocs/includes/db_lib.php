@@ -17972,7 +17972,7 @@ class Culture
 
 }
 
-function update_after_verification($test_id){
+function update_after_verification($test_id, $result){
 
 	global $con;
 
@@ -17991,9 +17991,15 @@ function update_after_verification($test_id){
 	}
 
 	// Update parent
-	
 	$external_lab_no = $test->external_lab_no;
-	$qry = "UPDATE external_lab_request SET result_returned = 0, result = 'Done and verified' where labNo = $external_lab_no";
+	if($result != null){
+		$result = "Done and verified: ".$result;
+		$qry = "UPDATE external_lab_request SET result_returned = 0, result = '$result' where labNo = $external_lab_no";
+	}
+	else {
+		$qry = "UPDATE external_lab_request SET result_returned = 0, result = 'Done and verified' where labNo = $external_lab_no";
+	}
+	
 	query_update($qry);
 	DbUtil::switchRestore($saved_db);
 

@@ -14,7 +14,16 @@ if($test_id == null){
 	return 0;
 }
 
-update_after_verification($test_id);
+$test = Test::getById($test_id);
+
+$resclean = null;
+
+if(strpos($test->decodeResult(), ":" ) == false){
+    $result = $test->getResultClean();
+    $to_replace = array("</b>");
+    $resclean = str_replace($to_replace, "", $result);
+}
+update_after_verification($test_id, $resclean);
 //Update parent
 send_result_to_externalS();
 

@@ -15,15 +15,17 @@ function get_records_to_print($lab_config, $cat_code, $date_from, $date_to)
 	$retval = array();
 	if($cat_code!=0){
 			$query_string =
-		"SELECT s.* FROM specimen s, test_category tc, test_type tt, specimen_custom_data scd, test t WHERE ".
+		"SELECT s.*, t.* FROM specimen s, test_category tc, test_type tt, specimen_custom_data scd, test t WHERE ".
 		" (t.specimen_id=s.specimen_id AND t.test_type_id=tt.test_type_id AND tt.test_category_id=tc.test_category_id ".
 		"AND s.specimen_id = scd.specimen_id AND tc.test_category_id=$cat_code AND s.status_code_id=6 AND s.date_collected BETWEEN '$date_from' AND '$date_to');";
 		}
 	else{
 	$query_string =
-		"SELECT * FROM specimen s, specimen_custom_data scd ".
-			"WHERE s.specimen_id = scd.specimen_id AND scd.field_id = 1 AND s.date_collected BETWEEN '$date_from' AND '$date_to' ";
+		"SELECT s.*, t.* FROM specimen s, specimen_custom_data scd, test t ".
+			"WHERE s.specimen_id = scd.specimen_id AND scd.field_id = 1 AND s.specimen_id = t.specimen_id AND 
+			 s.date_collected BETWEEN '$date_from' AND '$date_to' ";
 		}
+		
 		
 	$resultset = query_associative_all($query_string, $row_count);
 	//echo $query_string.'<br>';
@@ -31,13 +33,16 @@ function get_records_to_print($lab_config, $cat_code, $date_from, $date_to)
 	foreach($resultset as $record)
 	{
 		$specimen = Specimen::getObject($record);
+		$test = Test::getObject($record);
 
-		$retval[] = array($specimen);
+		$retval[] = $specimen;
+		$retvalTest[] = $test;
 	}
-	
-	
+	$retvalComplete = array();
+	$retvalComplete['specimen'] = $retval;
+	$retvalComplete['test'] = $retvalTest;
 	DbUtil::switchRestore($saved_db);
-	return $retval;
+	return $retvalComplete;
 }
 
 $page_elems = new PageElems();
@@ -221,7 +226,9 @@ else if(file_exists($logo_path) === true)
 	echo LangUtil::$generalTerms['TO_DATE'].": ".DateLib::mysqlToString($date_to);
  }
 $record_list = array();
-$record_list[] = get_records_to_print($lab_config, $cat_code, $date_from, $date_to);
+$retval = get_records_to_print($lab_config, $cat_code, $date_from, $date_to);
+$record_list[] = $retval['specimen'];
+$record_list_test = $retval['test'];
 
 $total_tests = 0;
 foreach($record_list as $record)
@@ -254,7 +261,9 @@ if(count($test_types) == 0)
 	return;
 }
 $record_list = array();
-$record_list[] = get_records_to_print($lab_config, $cat_code, $date_from, $date_to);
+$retval = get_records_to_print($lab_config, $cat_code, $date_from, $date_to);
+$record_list[] = $retval['specimen'] ;
+$record_list_test = $retval['test'];
 
 $total_tests = 0;
 foreach($record_list as $record)
@@ -298,9 +307,7 @@ if($no_match === true)
 			echo "<th>"."Specimen ID"."</th>";
 			echo "<th>"."Specimen Name"."</th>";
 			echo "<th>"."Lab Section"."</th>";
-			echo "<th>"."Reason for Rejection"."</th>";
-			echo "<th>"."Talked To"."</th>";
-			echo "<th>"."Date and Time Rejected"."</th>";
+			echo "<th>"."Results"."</th>";
 			?>
 		</tr>
 	</thead>
@@ -310,14 +317,15 @@ if($no_match === true)
 	$count = 1;
 	# Loop here
 	//ho "rl".count($record_list);
-	foreach($record_list as $record_set_array)
+	foreach($record_list as $key1=>$record_set_array)
 	{ //ho "eeel".count($record_set_array);
-		foreach($record_set_array as $record_set)
+		foreach($record_set_array as $key2=>$record_set)
 		{
 		if(count($record_set) == 0)
 			continue;
 		$value = $record_set;
 		$specimen = $value[	0];
+		$test = $record_list_test[$key1][$key2];
 		?>
 		<tr valign='top'>
 			<?php
@@ -326,10 +334,7 @@ if($no_match === true)
 			echo "<td>".get_sequential_specimen_id($specimen->specimenId)."</td>";
 			echo "<td>".get_specimen_name_by_id($specimen->specimenTypeId)."</td>";
 			echo "<td>".$specimen->getFullLabSection()."</td>";
-			echo "<td>".$specimen->comments."</td>";
-			echo "<td>".$specimen->referredToName."</td>";
-			echo "<td>".$specimen->ts_collected."</td>";
-
+			echo "<td>".$test->decodeResult()."</td>";
 			?>
 		</tr>
 		<?php

@@ -9,24 +9,39 @@ include("includes/page_elems.php");
 LangUtil::setPageId("reports");
 
 # Utility function
-function get_records_to_print($lab_config, $cat_code, $date_from, $date_to)
+function get_records_to_print($lab_config, $cat_code, $date_from, $date_to, $ref_status)
 {
 	$saved_db = DbUtil::switchToLabConfig($lab_config->id);
 	$retval = array();
-	if($cat_code!=0){
-			$query_string =
+	if($cat_code != 0){
+		$query_string =
 		"SELECT s.*, t.* FROM specimen s, test_category tc, test_type tt, specimen_custom_data scd, test t WHERE ".
 		" (t.specimen_id=s.specimen_id AND t.test_type_id=tt.test_type_id AND tt.test_category_id=tc.test_category_id ".
-		"AND s.specimen_id = scd.specimen_id AND tc.test_category_id=$cat_code AND s.status_code_id=6 AND s.date_collected BETWEEN '$date_from' AND '$date_to');";
-		}
-	else{
-	$query_string =
-		"SELECT s.*, t.* FROM specimen s, specimen_custom_data scd, test t ".
+		"AND s.specimen_id = scd.specimen_id AND scd.field_id = 1 AND s.specimen_id = scd.specimen_id AND tc.test_category_id=$cat_code AND s.status_code_id=6 
+		AND s.date_collected BETWEEN '$date_from' AND '$date_to');";
+
+			if ($ref_status == 2 or $ref_status == 3){
+					$query_string =
+					"SELECT s.*, t.* FROM specimen s, test_category tc, test_type tt, specimen_custom_data scd, test t WHERE ".
+					" (t.specimen_id=s.specimen_id AND t.test_type_id=tt.test_type_id AND tt.test_category_id=tc.test_category_id ".
+					"AND s.specimen_id = scd.specimen_id AND scd.field_id = 1 AND s.referred_to = $ref_status AND s.specimen_id = scd.specimen_id AND tc.test_category_id=$cat_code AND s.status_code_id=6 AND s.date_collected BETWEEN '$date_from' AND '$date_to');";
+			}
+	}
+	
+	else if ($cat_code == 0){
+		$query_string =
+			"SELECT s.*, t.* FROM specimen s, specimen_custom_data scd, test t ".
 			"WHERE s.specimen_id = scd.specimen_id AND scd.field_id = 1 AND s.specimen_id = t.specimen_id AND 
 			 s.date_collected BETWEEN '$date_from' AND '$date_to' ";
+
+		if ($ref_status == 2 or $ref_status == 3){
+			$query_string =
+			"SELECT s.*, t.* FROM specimen s, specimen_custom_data scd, test t ".
+			"WHERE s.specimen_id = scd.specimen_id AND scd.field_id = 1 AND s.specimen_id = t.specimen_id AND s.referred_to = $ref_status AND 
+			 s.date_collected BETWEEN '$date_from' AND '$date_to' ";
 		}
-		
-		
+	}
+
 	$resultset = query_associative_all($query_string, $row_count);
 	//echo $query_string.'<br>';
 		
@@ -55,6 +70,7 @@ $date_from = get_request_variable('yf')."-".get_request_variable('mf')."-".get_r
 $date_to = get_request_variable('yt')."-".get_request_variable('mt')."-".get_request_variable('dt');
 $lab_config_id = get_request_variable('l');
 $cat_code = get_request_variable('c');
+$ref_status = get_request_variable('rs');
 
 $uiinfo = "from=".$date_from."&to=".$date_to."&ct=".$cat_code."&tt=".$ttype;
 putUILog('daily_log_specimens', $uiinfo, basename($_SERVER['REQUEST_URI'], ".php"), 'X', 'X', 'X');
@@ -226,7 +242,7 @@ else if(file_exists($logo_path) === true)
 	echo LangUtil::$generalTerms['TO_DATE'].": ".DateLib::mysqlToString($date_to);
  }
 $record_list = array();
-$retval = get_records_to_print($lab_config, $cat_code, $date_from, $date_to);
+$retval = get_records_to_print($lab_config, $cat_code, $date_from, $date_to, $ref_status);
 $record_list[] = $retval['specimen'];
 $record_list_test = $retval['test'];
 
@@ -260,16 +276,7 @@ if(count($test_types) == 0)
 	<?php
 	return;
 }
-$record_list = array();
-$retval = get_records_to_print($lab_config, $cat_code, $date_from, $date_to);
-$record_list[] = $retval['specimen'] ;
-$record_list_test = $retval['test'];
 
-$total_tests = 0;
-foreach($record_list as $record)
-{
-	$total_tests += count($record);
-}
 ?>
 
 <?php
@@ -306,8 +313,10 @@ if($no_match === true)
 			echo "<th>"."Time Received"."</th>";
 			echo "<th>"."Specimen ID"."</th>";
 			echo "<th>"."Specimen Name"."</th>";
-			echo "<th>"."Lab Section"."</th>";
+			echo "<th>"."Test"."</th>";
 			echo "<th>"."Results"."</th>";
+			echo "<th>"."Reffered"."</th>";
+			echo "<th>"."Facility"."</th>";
 			?>
 		</tr>
 	</thead>
@@ -323,9 +332,9 @@ if($no_match === true)
 		{
 		if(count($record_set) == 0)
 			continue;
-		$value = $record_set;
-		$specimen = $value[	0];
-		$test = $record_list_test[$key1][$key2];
+		$specimen = $record_set;
+		$test = $record_list_test[$key2];
+		$specimenCustomData = get_custom_data_specimen_bytype($specimen->specimenId, 1)
 		?>
 		<tr valign='top'>
 			<?php
@@ -333,8 +342,15 @@ if($no_match === true)
 			echo "<td>".$specimen->timeCollected."</td>";
 			echo "<td>".get_sequential_specimen_id($specimen->specimenId)."</td>";
 			echo "<td>".get_specimen_name_by_id($specimen->specimenTypeId)."</td>";
-			echo "<td>".$specimen->getFullLabSection()."</td>";
+			echo "<td>".$test->getTestName()."</td>";
 			echo "<td>".$test->decodeResult()."</td>";
+			echo "<td>"; 
+				if($specimen->referredTo == 2){
+					echo "In"; }
+				else if($specimen->referredTo == 3){
+					 echo "Out"; } 
+			echo "</td>";
+			echo "<td>".$specimenCustomData->fieldValue."</td>";
 			?>
 		</tr>
 		<?php

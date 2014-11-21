@@ -840,6 +840,16 @@ db_get_current();
                     <td>
                         <select name='ttype' id='facility13' class='uniform_width'>
                             <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
+                        <?php
+                            $customFacilities = get_custom_facilities();
+                            $options = explode("/", $customFacilities->fieldOptions);
+                            foreach($options as $option)
+                                {
+                                    if(trim($option) == "")
+                                        continue;
+                                    echo "<option value='$option'> $option</option>";
+                                }
+                        ?>
                         </select>
                     </td>
                 </tr>
@@ -2194,6 +2204,7 @@ $(document).ready(function(){
         }
 		
 	});
+
 	$('#cat_code13').change( function() { get_test_types_bycat() });
 	$("#reportTypeSelect").change( function() {
 		var selectedReport = $("#reportTypeSelect").val();
@@ -2206,6 +2217,7 @@ $(document).ready(function(){
 			$('#ttype_row16').show();
 		}
 	});
+    
 	get_test_types('location', 't_type');
 	get_test_types('location3', 't_type3');
 	get_test_types('location6', 't_type6');
@@ -3609,10 +3621,16 @@ function print_daily_referrals(){
         return;
     }
     var cat_code = $('#cat_code13').attr("value");
-    var ref_status = $("input[name='status_referral']:checked").attr("value");
+    if($("input[name='status_referral']").is(":checked")){
+        var ref_status = $("input[name='status_referral']:checked").attr("value");
+    }
+    else {
+        var ref_status = 0;
+    }
+    var facility = $('#facility13').attr("value");
     var ip= 0;
     var p=0;
-    var url = "daily_referrals.php?yt="+yt+"&mt="+mt+"&dt="+dt+"&yf="+yf+"&mf="+mf+"&df="+df+"&l="+l+"&c="+cat_code+"&rs="+ref_status+"&ip="+ip;
+    var url = "daily_referrals.php?yt="+yt+"&mt="+mt+"&dt="+dt+"&yf="+yf+"&mf="+mf+"&df="+df+"&l="+l+"&c="+cat_code+"&rs="+ref_status+"&ip="+ip+"&facility="+facility;
     window.open(url);
 }
 

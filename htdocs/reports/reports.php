@@ -785,6 +785,13 @@ db_get_current();
                             </span>
                         </label>
                         </div>
+                        <div class="controls">
+                        <label class="radio">
+                            <span>
+                                <input type="radio" name='rectype13' id="refRec" value='4'> <?php echo "Referred Specimen"; ?>
+                            </span>
+                        </label>
+                        </div>
                     </td>
                 </tr>
                 <tr id='cat_row13'>
@@ -810,7 +817,42 @@ db_get_current();
                         </select>
                     </td>
                 </tr>
-                
+                <tr id='status_row13'>
+                    <td>Referred in/out? </td>
+                    <td>
+                       <div class="controls">
+                            <label class="radio">
+                                <span><input type='radio' id='status_referral1' name='status_referral' value='2'>
+                                    In
+                                </span>
+                             </label>
+                             
+                             <label class="radio">
+                                <span><input type="radio"  id='status_referral2' name='status_referral' value='3'>
+                                    Out
+                                </span>
+                             </label>
+                         </div>
+                    </td>
+                </tr>
+                <tr id='hosp_row13'>
+                    <td>Facility referred</td>
+                    <td>
+                        <select name='ttype' id='facility13' class='uniform_width'>
+                            <option value='0'><?php echo LangUtil::$generalTerms['ALL']; ?></option>
+                        <?php
+                            $customFacilities = get_custom_facilities();
+                            $options = explode("/", $customFacilities->fieldOptions);
+                            foreach($options as $option)
+                                {
+                                    if(trim($option) == "")
+                                        continue;
+                                    echo "<option value='$option'> $option</option>";
+                                }
+                        ?>
+                        </select>
+                    </td>
+                </tr>
                 <tr>
                     <td></td>
                     <td>
@@ -2126,6 +2168,8 @@ $(document).ready(function(){
 	$("input[name='rage']").change(function() {
 		toggle_agegrouplist();
 	});
+    $('#status_row13').hide();
+    $('#hosp_row13').hide();
 	$('.reports_subdiv').hide();
 	$('.reports_subdiv_help').hide();
 	$("#location").change(function () { get_test_types('location', 't_type') });
@@ -2138,17 +2182,29 @@ $(document).ready(function(){
         if($('#testRec').is(':checked')) { 
             $('#cat_row13').show();
             $('#ttype_row13').show();
+            $('#status_row13').hide();
+            $('#hosp_row13').hide();
         }
         else if($('#patRec').is(':checked')) { 
              $('#cat_row13').hide();
+            $('#ttype_row13').hide();
+            $('#status_row13').hide();
+            $('#hosp_row13').hide();
+        }
+        else if($('#refRec').is(':checked')){
+            $('#status_row13').show();
+            $('#hosp_row13').show();
             $('#ttype_row13').hide();
         }
         else{
             $('#cat_row13').show();
             $('#ttype_row13').hide();
+            $('#status_row13').hide();
+            $('#hosp_row13').hide();
         }
 		
 	});
+
 	$('#cat_code13').change( function() { get_test_types_bycat() });
 	$("#reportTypeSelect").change( function() {
 		var selectedReport = $("#reportTypeSelect").val();
@@ -2161,6 +2217,7 @@ $(document).ready(function(){
 			$('#ttype_row16').show();
 		}
 	});
+    
 	get_test_types('location', 't_type');
 	get_test_types('location3', 't_type3');
 	get_test_types('location6', 't_type6');
@@ -3537,6 +3594,44 @@ function print_daily_log()
     {
         print_daily_rejections();
     }
+    else if(record_type == 4)
+    {
+        print_daily_referrals();
+    }
+}
+
+function print_daily_referrals(){
+    var l = $("#location13").attr("value");
+    var from_date = $("#from-date").attr("value");
+    var to_date = $("#to-date").attr("value");
+    
+    dateFromArray = from_date.split("-");
+    yf = dateFromArray[0];
+    mf = dateFromArray[1];
+    df = dateFromArray[2];
+    
+    dateToArray = to_date.split("-");
+    yt = dateToArray[0];
+    mt = dateToArray[1];
+    dt = dateToArray[2];
+    
+    if(checkDate(yf, mf, dt) == false || checkDate(yt, mt, dt) == false)
+    {
+        alert("<?php echo LangUtil::$generalTerms['TIPS_DATEINVALID']; ?>");
+        return;
+    }
+    var cat_code = $('#cat_code13').attr("value");
+    if($("input[name='status_referral']").is(":checked")){
+        var ref_status = $("input[name='status_referral']:checked").attr("value");
+    }
+    else {
+        var ref_status = 0;
+    }
+    var facility = $('#facility13').attr("value");
+    var ip= 0;
+    var p=0;
+    var url = "daily_referrals.php?yt="+yt+"&mt="+mt+"&dt="+dt+"&yf="+yf+"&mf="+mf+"&df="+df+"&l="+l+"&c="+cat_code+"&rs="+ref_status+"&ip="+ip+"&facility="+facility;
+    window.open(url);
 }
 
 function get_stock_report()

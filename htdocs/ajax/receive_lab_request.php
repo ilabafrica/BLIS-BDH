@@ -377,19 +377,17 @@ function add_specimens(labNo)
             return;
         }
         //Validate custom fields
-        var custfields = $('#'+form_id+' input[name^="custom"]');
+        var custfields = $('#'+form_id+' input[name^="custom"], select[name^="custom"]');
         var empty_fields = false;
         
-        if($('#'+form_id+' #ref_out_1').is(':checked')) {
-        
-        $.each(custfields, function(key, content){
-           if (content.value == null || content.value == ""){
-               empty_fields = true;
-               alert("<?php echo "Error: Some inputs are empty" ?>");
-               return false;
-           }
-        });
-        
+        if($('#'+form_id+' input[name^="ref_out_1"]').is(':checked')) {
+            $.each(custfields, function(key, content){
+               if (content.value == null || content.value == ""){
+                   empty_fields = true;
+                   alert("<?php echo "Error: Some inputs are empty" ?>");
+                   return false;
+               }
+            });
         }
         
         if(empty_fields) return;

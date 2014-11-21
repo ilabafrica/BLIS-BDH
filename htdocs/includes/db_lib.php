@@ -11607,6 +11607,22 @@ function get_custom_fields_specimen()
 	return $retval;
 }
 
+function get_custom_facilities()
+{
+	# Returns a list of all specimen custom fields
+	global $con;
+	$query_string =
+		"SELECT * FROM specimen_custom_field where id = 1";
+	$resultset = query_associative_all($query_string, $row_count);
+	$retval = array();
+	foreach($resultset as $record)
+	{
+		$custom_field = CustomField::getObject($record);
+		$retval = $custom_field;
+	}
+	return $retval;
+}
+
 function get_custom_fields_patient()
 {
 	# Returns a list of all patient custom fields
